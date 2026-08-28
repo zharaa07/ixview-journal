@@ -1343,3 +1343,7 @@ input#date{
     flex-shrink: 0;
     margin-top: 2px;
 }
+
+#googleLoginBtn {
+    display: none !important;
+}
