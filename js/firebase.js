@@ -10,7 +10,6 @@ import {
     getAuth,
     GoogleAuthProvider,
     signInWithPopup,
-    signInWithRedirect,
     getRedirectResult,
     signOut,
     onAuthStateChanged,
@@ -344,108 +343,69 @@ async function syncUserData(user) {
     if (statusEl) statusEl.textContent = "";
 }
 
-// popup على Android/mobile browsers ماشي موثوق: Firebase Auth كيستعمل
-// IndexedDB باش يبعث النتيجة من نافذة popup للصفحة الأصلية، وكي
-// المتصفح (خصوصاً Chrome على Android) يعلق أو يخبي التبويب الأصلي
-// (تبديل تطبيق، تدوير الشاشة، توفير طاقة...)، الاتصال بـ IndexedDB
-// كيتقطع ويطلع خطأ عام بلا "code" واضح (مثال حقيقي: "Database is
-// closing/hidden"، name="Error"، code=undefined).
+// ===================================================================
+// السبب الجذري الحقيقي (موثق رسميًا من Firebase، ماشي تخمين):
+// https://firebase.google.com/docs/auth/web/redirect-best-practices
 //
-// 1) على mobile/in-app browsers، نستعملو signInWithRedirect() مباشرة،
-//    بلا ما نحاولو popup أصلاً.
-function isMobileOrInAppBrowser() {
-    const ua = navigator.userAgent || "";
-    const isMobileUA = /Android|iPhone|iPad|iPod/i.test(ua);
-    const isInApp = /FBAN|FBAV|Instagram|Line\/|MicroMessenger|wv\)/i.test(ua);
-    return isMobileUA || isInApp;
-}
-
-// السبب الحقيقي ديال "popup → Google مرة ثانية": الكود القديم كان كي
-// عاود يدير signInWithRedirect() مباشرة، فنفس اللحظة (نفس tick)، بمجرد
-// ما signInWithPopup() ترفض — حتى فالحالات لي فيها popup تحت فعلاً
-// وتفاعل معاها المستخدم (اختار حساب، إلخ). هادشي كيدخل فـ سباق (race)
-// مع تنضيف IndexedDB ديال المحاولة الفاشلة الأولى (لي مازال كيخدم فـ
-// الخلفية)، بينما redirect() بدا كيبدل نفس القاعدة ديال البيانات —
-// وهادو هو بالضبط سبب "Database is closing/hidden"، وبعدها redirect
-// نفسها كتفشل تسجل حالتها (pending redirect) قبل ما تنتقل الصفحة،
-// فكي يرجع المستخدم، getRedirectResult() كيلقى "لا شيء فـ الانتظار"
-// (النتيجة لي شفتيها فـ اللوق: "result: none pending" + "hasUser: no").
+// authDomain ديال المشروع هو "ixview.firebaseapp.com"، بينما الموقع
+// مستضاف على "zharaa07.github.io" — origin مختلف تماماً. Firebase
+// Auth (popup ولا redirect) كيعتمد على iframe/storage عابر للـ origins
+// بين الموقع ديالك وبين authDomain باش يبعث نتيجة تسجيل الدخول.
 //
-// الحل: نفرقو بين نوعين ديال فشل popup:
-//  - أخطاء "popup ما تحاولش تفتح أصلاً" (auth/popup-blocked،
-//    auth/operation-not-supported-in-this-environment): آمنين للـ
-//    fallback الفوري، ماكاينش popup مفتوح باش يتنضف، فماكاينش سباق.
-//  - أي خطأ آخر (بما فيهم هاد الخطأ الغامض بلا code): ماندوزوش
-//    أوتوماتيك لـ redirect. كنوقفو، كنبينو رسالة، وكنخليو المستخدم
-//    يدوس مرة ثانية بوعي — الضغطة الجاية (user gesture جديد، بعد ما
-//    المتصفح كيسكر نافذة popup القديمة ويكمل تنضيف IndexedDB) غادي
-//    تستعمل redirect مباشرة، بلا محاولة popup زايدة.
-const IMMEDIATE_REDIRECT_FALLBACK_ERRORS = [
-    "auth/popup-blocked",
-    "auth/operation-not-supported-in-this-environment"
-];
-let popupFailedOnce = false;
-
+// من الوثيقة الرسمية حرفياً: "Starting June 24 2024, implementing one
+// of the options will be required for redirect sign-in to work on
+// Google Chrome M115+." — يعني Chrome (من يونيو 2024) كيبلوكي هاد
+// القناة العابرة للـ origins بشكل افتراضي، إلا إذا التطبيق مستضاف على
+// Firebase Hosting بنفس authDomain، أو طبقنا واحد من الحلول الموثقة.
+// GitHub Pages ماشي Firebase Hosting، فالموقع بالضبط فـ الحالة
+// "المتأثرة" لي وثقتها Firebase نفسها. "Database is closing/hidden"
+// هو العرض على مستوى IndexedDB لهاد القناة المبلوكة.
+//
+// الحل الرسمي لتطبيق ماشي مستضاف على Firebase Hosting (Option 2 فـ
+// الوثيقة): signInWithPopup() هو الطريقة المعتمدة، ماشي redirect —
+// لأن redirect كيحتاج نفس القناة المبلوكة باش يسجل حالته عبر التنقل
+// الكامل للصفحة، ومحتاج نفس تخفيف Chrome M115+ باش يخدم أصلاً.
+//
+// هادشي كيفسر بالضبط ليش كل محاولات fallback لـ redirect لي درنا
+// قبل (mobile-first، أو retry بعد فشل popup) ما حلاتش المشكل: كانت
+// كتحول كل فشل لنفس الطريقة (redirect) لي هي الأقل موثوقية بالضبط فـ
+// هاد الإعداد (GitHub Pages + authDomain مختلف) — وهادو سبب "Google
+// مرتين" ورجوع بلا تسجيل دخول.
+//
+// الحل المطبق هنا: signInWithPopup() فقط، بلا أي fallback لـ redirect.
+// إذا فشلت popup، كنبينو رسالة واضحة ونسجلو الخطأ الحقيقي — بلا ما
+// نديرو أي محاولة تانية بطريقة موثقة أنها ماشي موثوقة لهاد الإعداد.
+//
+// ملاحظة مهمة: هاد الإصلاح كودي بحت، وكيفادي المشكل فالغالبية العظمى
+// د الحالات. الحل الكامل النهائي (يلغي القناة العابرة للـ origins
+// نهائياً، لـ popup ولـ redirect بجوج) هو "Option 4" فنفس الوثيقة:
+// استضافة ملفات auth handler ديال Firebase تحت نفس domain ديالك
+// (zharaa07.github.io) — هادشي كيحتاج تغيير authDomain فـ Firebase
+// Console وإضافة بعض الملفات الثابتة لـ GitHub Pages، خارج نطاق كود
+// JS بحتة. مشروح بالتفصيل فـ الرد.
 window.loginWithGoogle = async function () {
     if (window.authDebugLog) window.authDebugLog("Google Login START", "info", { userAgent: navigator.userAgent });
-
-    if (isMobileOrInAppBrowser() || popupFailedOnce) {
-        const reason = popupFailedOnce ? "retry after popup failure" : "mobile";
-        if (window.authDebugLog) window.authDebugLog("Google Login METHOD: redirect", "info", { reason: reason });
-        try {
-            if (window.authDebugLog) window.authDebugLog("Google Login REDIRECT STARTED", "info", {});
-            await signInWithRedirect(auth, provider);
-            // الصفحة غادي تنتقل لـ Google دابا، الكود لي تحت ما غاديش يخدم
-        } catch (err) {
-            if (window.authDebugLog) window.authDebugLog("Google Login ERROR", "error", { code: err && err.code, message: err && err.message, name: err && err.name, step: "redirect-initial" });
-            console.error("خطأ تسجيل الدخول (redirect):", err);
-            if (window.customAlert) window.customAlert("تعذر تسجيل الدخول، حاول مرة أخرى.");
-            else alert("تعذر تسجيل الدخول، حاول مرة أخرى.");
-        }
-        return;
-    }
-
     if (window.authDebugLog) window.authDebugLog("Google Login METHOD: popup", "info", {});
+
     try {
         await signInWithPopup(auth, provider);
         if (window.authDebugLog) window.authDebugLog("Google Login SUCCESS", "success", { step: "popup" });
-        popupFailedOnce = false;
     } catch (err) {
-        if (window.authDebugLog) window.authDebugLog("Google Login POPUP ERROR", "error", { code: err && err.code, message: err && err.message, name: err && err.name });
-        console.warn("تعذر تسجيل الدخول بـ popup:", err);
-
-        if (err && IMMEDIATE_REDIRECT_FALLBACK_ERRORS.includes(err.code)) {
-            // popup ماشي تحاولت تفتح أصلاً (بلوكاها المتصفح، أو ماشي مدعومة) —
-            // آمن نبدلو أوتوماتيك هنا، ماكاينش نافذة popup لازمها تتنضف
-            if (window.authDebugLog) window.authDebugLog("Google Login FALLBACK: redirect", "info", {});
-            try {
-                if (window.authDebugLog) window.authDebugLog("Google Login REDIRECT STARTED", "info", {});
-                await signInWithRedirect(auth, provider);
-                // الصفحة غادي تنتقل لـ Google دابا
-            } catch (redirectErr) {
-                if (window.authDebugLog) window.authDebugLog("Google Login ERROR", "error", { code: redirectErr && redirectErr.code, message: redirectErr && redirectErr.message, name: redirectErr && redirectErr.name, step: "redirect-fallback" });
-                console.error("خطأ تسجيل الدخول (redirect):", redirectErr);
-                if (window.customAlert) window.customAlert("تعذر تسجيل الدخول، حاول مرة أخرى.");
-                else alert("تعذر تسجيل الدخول، حاول مرة أخرى.");
-            }
-        } else {
-            // خطأ غامض (مثل "Database is closing/hidden") وصل من بعد ما
-            // popup فتحات فعلاً وتفاعل معاها المستخدم — ماندوزوش لـ redirect
-            // أوتوماتيك فوري (هادشي هو لي كان كيسبب "Google مرتين"). كنعلمو
-            // المستخدم، والضغطة الجاية غادي تستعمل redirect مباشرة
-            popupFailedOnce = true;
-            if (window.authDebugLog) window.authDebugLog("Google Login FALLBACK: manual retry required", "info", { reason: "ambiguous popup error, avoiding immediate auto-redirect race" });
-            const msg = "تعذر تسجيل الدخول عبر النافذة المنبثقة. اضغط الزر مرة أخرى للمتابعة.";
-            if (window.customAlert) window.customAlert(msg);
-            else alert(msg);
-        }
+        if (window.authDebugLog) window.authDebugLog("Google Login ERROR", "error", { code: err && err.code, message: err && err.message, name: err && err.name, step: "popup" });
+        console.error("خطأ تسجيل الدخول بـ Google:", err);
+        const msg = (err && err.code === "auth/popup-blocked")
+            ? "المتصفح بلوكا النافذة المنبثقة. فعّل popups لهاد الموقع وحاول مرة أخرى."
+            : "تعذر تسجيل الدخول، حاول مرة أخرى.";
+        if (window.customAlert) window.customAlert(msg);
+        else alert(msg);
     }
 };
 
 // كيتفحص هذا **فأول ما تتحمل الصفحة** (استدعاء على مستوى module،
-// ماشي جوا دالة كتتفعل بالضغطة)، باش نلقطو نتيجة الرجوع من Google
-// حتى لو المستخدم رجع للصفحة بعد redirect كامل (تحميل جديد للصفحة).
-// ما كايناش أي retry أوتوماتيكي ديال signInWithPopup/signInWithRedirect
+// ماشي جوا دالة كتتفعل بالضغطة). بقات هنا لأنها غير خطر إذا ماكاينش
+// redirect معلق (كترجع null)، وخط دفاع احتياطي إذا فـ المستقبل
+// طُبق حل كامل (Option 4 فـ الوثيقة) واستُعمل redirect لبعض الحالات.
+if (window.authDebugLog) window.authDebugLog("Google Login REDIRECT RESULT", "info", { step: "checking on page load" });
 // هنا — غير قراءة النتيجة وتسجيلها، باش ما ندخلوش فـ loop.
 if (window.authDebugLog) window.authDebugLog("Google Login REDIRECT RESULT", "info", { step: "checking on page load" });
 getRedirectResult(auth).then((result) => {
