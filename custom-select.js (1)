@@ -1,0 +1,126 @@
+// ===================================================================
+// js/custom-select.js
+// كيبدل أي <select class="enhance-select"> بقائمة احترافية (Custom
+// Select) بحث + Dark Mode + Animated، بلا ما يمس الـ <select> الأصلي.
+// الـ <select> الأصلي كيبقى موجود فالـ DOM (مخفي)، وهو اللي كيبقى
+// "مصدر الحقيقة" (source of truth) لكل الكود القديم اللي كيقرا/كيكتب
+// .value ديالو — بهاد الطريقة ما تنكسر حتى وظيفة قديمة.
+// ===================================================================
+
+function enhanceSelect(selectEl) {
+  if (!selectEl || selectEl.dataset.enhanced === "true") return;
+  selectEl.dataset.enhanced = "true";
+  selectEl.classList.add("visually-hidden-select");
+  
+  const wrapper = document.createElement("div");
+  wrapper.className = "custom-select";
+  
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "custom-select-toggle";
+  toggle.innerHTML = '<span class="custom-select-label"></span><i data-lucide="chevron-down"></i>';
+  
+  const panel = document.createElement("div");
+  panel.className = "custom-select-panel";
+  
+  const needsSearch = selectEl.options.length > 8;
+  let searchInput = null;
+  if (needsSearch) {
+    searchInput = document.createElement("input");
+    searchInput.type = "text";
+    searchInput.className = "custom-select-search";
+    searchInput.placeholder = "بحث...";
+    panel.appendChild(searchInput);
+  }
+  
+  const list = document.createElement("div");
+  list.className = "custom-select-list";
+  panel.appendChild(list);
+  
+  function buildOptions(filterText) {
+    list.innerHTML = "";
+    Array.from(selectEl.options).forEach(function(opt) {
+      if (filterText && opt.textContent.toLowerCase().indexOf(filterText.toLowerCase()) === -1) {
+        return;
+      }
+      const item = document.createElement("div");
+      item.className = "custom-select-option" + (opt.value === selectEl.value ? " selected" : "");
+      item.textContent = opt.textContent;
+      item.onclick = function() {
+        selectEl.value = opt.value;
+        selectEl.dispatchEvent(new Event("change", { bubbles: true }));
+        syncLabel();
+        closePanel();
+      };
+      list.appendChild(item);
+    });
+  }
+  
+  function syncLabel() {
+    const selectedOpt = selectEl.options[selectEl.selectedIndex];
+    toggle.querySelector(".custom-select-label").textContent = selectedOpt ? selectedOpt.textContent : "";
+  }
+  
+  function openPanel() {
+    document.querySelectorAll(".custom-select-panel.open").forEach(function(p) {
+      if (p !== panel) {
+        p.classList.remove("open");
+        if (p.previousElementSibling) p.previousElementSibling.classList.remove("open");
+      }
+    });
+    buildOptions("");
+    if (searchInput) searchInput.value = "";
+    panel.classList.add("open");
+    toggle.classList.add("open");
+    if (searchInput) searchInput.focus();
+  }
+  
+  function closePanel() {
+    panel.classList.remove("open");
+    toggle.classList.remove("open");
+  }
+  
+  toggle.onclick = function(e) {
+    e.stopPropagation();
+    if (panel.classList.contains("open")) closePanel();
+    else openPanel();
+  };
+  
+  if (searchInput) {
+    searchInput.addEventListener("click", function(e) { e.stopPropagation(); });
+    searchInput.addEventListener("input", function() { buildOptions(searchInput.value); });
+  }
+  
+  wrapper.appendChild(toggle);
+  wrapper.appendChild(panel);
+  selectEl.insertAdjacentElement("afterend", wrapper);
+  
+  syncLabel();
+  
+  // كنخلّيو دالة تحديث متاحة على الـ select نفسو، باش الكود القديم
+  // (editTrade، renderModels...) يقدر يعيّط ليها بعد ما يبدل .value
+  // أو يبدل الخيارات (options) بلا ما نبدلو أي منطق قديم
+  selectEl._refreshCustomSelect = syncLabel;
+  
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function refreshCustomSelect(selectEl) {
+  if (selectEl && selectEl._refreshCustomSelect) selectEl._refreshCustomSelect();
+}
+
+function initAllCustomSelects() {
+  document.querySelectorAll("select.enhance-select").forEach(enhanceSelect);
+}
+
+// نسدو أي panel مفتوحة كي المستخدم يضغط برا منها
+document.addEventListener("click", function(e) {
+  if (!e.target.closest(".custom-select")) {
+    document.querySelectorAll(".custom-select-panel.open").forEach(function(p) {
+      p.classList.remove("open");
+      if (p.previousElementSibling) p.previousElementSibling.classList.remove("open");
+    });
+  }
+});
+
+document.addEventListener("DOMContentLoaded", initAllCustomSelects);

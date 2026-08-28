@@ -1,0 +1,1345 @@
+/* ===================================================================
+   css/components.css
+   كل المكونات المرئية: أزرار، بطاقات، جداول، modals، تقويم، فورمات
+   =================================================================== */
+
+/* ===================== Buttons ===================== */
+button{
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: var(--radius-md);
+    transition: background var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
+}
+button:disabled{
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+button:active:not(:disabled){
+    transform: scale(0.98);
+}
+
+.btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: 10px 18px;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    height: 40px;
+}
+
+.btn-primary,
+.save-btn{
+    background: var(--primary);
+    color: var(--text-on-primary);
+    width: 100%;
+    margin-top: var(--space-4);
+    padding: 12px;
+    border-radius: var(--radius-md);
+}
+.btn-primary:hover,
+.save-btn:hover{
+    background: var(--primary-hover);
+}
+.btn-primary:active,
+.save-btn:active{
+    background: var(--primary-active);
+}
+
+.btn-secondary{
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+.btn-secondary:hover{
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.action-btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+}
+.action-btn i,
+.action-btn svg{
+    width: 13px;
+    height: 13px;
+}
+.edit-btn{
+    background: var(--primary);
+    color: #fff;
+}
+.edit-btn:hover{ background: var(--primary-hover); }
+
+.delete-btn{
+    background: var(--danger);
+    color: #fff;
+}
+.delete-btn:hover{ background: #dc2626; }
+
+.view-btn{
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+.view-btn:hover{ border-color: var(--primary); color: var(--primary); }
+
+.action-buttons{
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.export-btn{
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+}
+.export-btn:hover{ border-color: var(--primary); }
+
+/* ===================== Cards ===================== */
+.card{
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-sm);
+}
+
+.add-trade-card{
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-xl);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-base);
+}
+.add-trade-card:hover{
+    box-shadow: var(--shadow-md);
+}
+.add-trade-card h1{
+    font-size: 17px;
+}
+
+.stat-card{
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    text-align: center;
+}
+.stat-card h3{
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    margin-bottom: var(--space-2);
+}
+.stat-card .stat-value,
+.stat-card p{
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.model-card{
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+.model-card:hover{
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
+}
+.model-stat{
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: var(--space-1) 0;
+}
+.model-buttons{
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+}
+
+/* ===================== Forms / Inputs ===================== */
+label{
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-1);
+}
+
+input,
+select,
+textarea{
+    width: 100%;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    height: 40px;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+textarea{
+    height: auto;
+    min-height: 80px;
+    resize: vertical;
+}
+input::placeholder,
+textarea::placeholder{
+    color: var(--text-tertiary);
+}
+input:hover, select:hover, textarea:hover{
+    border-color: var(--off-white-3);
+}
+input:focus,
+select:focus,
+textarea:focus{
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(109,93,252,0.15);
+}
+input:disabled, select:disabled, textarea:disabled{
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.form-row{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+/* ملاحظة: كانت هنا قواعد قديمة خاصة بـ #mistakes بوحدها (pills أفقية)
+   من قبل ما يتوحد التصميم مع Tags/Emotion — تحذفات لأنها كانت
+   كتبدل شكل Mistakes وتخليه مختلف عن الاثنين الآخرين */
+
+/* ===================== Table ===================== */
+.table-wrap{
+    overflow-x: auto;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-soft);
+}
+table{
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-surface);
+    font-size: 13px;
+    min-width: 640px;
+}
+thead th{
+    text-align: right;
+    padding: var(--space-3);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-tertiary);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-surface-2);
+    white-space: nowrap;
+}
+tbody td{
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--border-soft);
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+tbody tr:last-child td{
+    border-bottom: none;
+}
+tbody tr:hover{
+    background: var(--bg-surface-2);
+}
+
+.pill{
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.pill-win{ background: var(--success-bg); color: var(--success); }
+.pill-loss{ background: var(--danger-bg); color: var(--danger); }
+.pill-be{ background: var(--bg-surface-2); color: var(--text-tertiary); }
+
+/* ===================== Modal ===================== */
+.modal-overlay{
+    position: fixed;
+    inset: 0;
+    background: var(--overlay-bg);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: var(--space-4);
+}
+.modal-box{
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    width: 100%;
+    max-width: 640px;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+}
+
+/* ===================== Calendar ===================== */
+.calendar-grid{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--space-2);
+}
+.calendar-day-name{
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    padding-bottom: var(--space-1);
+}
+.calendar-cell{
+    border-radius: var(--radius-sm);
+    padding: var(--space-2);
+    min-height: 64px;
+    cursor: pointer;
+    border: 1px solid var(--border-soft);
+    transition: transform var(--transition-fast);
+}
+.calendar-cell:hover{
+    transform: scale(1.03);
+}
+.calendar-date{
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+.calendar-profit{
+    font-weight: 700;
+    color: var(--success);
+    font-size: 13px;
+}
+.calendar-loss{
+    font-weight: 700;
+    color: var(--danger);
+    font-size: 13px;
+}
+.calendar-trades{
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+.empty-cell{
+    visibility: hidden;
+}
+
+#tooltip{
+    position: fixed;
+    background: var(--dark-1);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    pointer-events: none;
+    display: none;
+    z-index: 3000;
+}
+
+/* ===================== Empty States ===================== */
+.empty-state{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-7) var(--space-4);
+    color: var(--text-tertiary);
+}
+.empty-state .empty-icon{
+    font-size: 32px;
+    margin-bottom: var(--space-3);
+    opacity: 0.6;
+}
+.empty-state h3{
+    color: var(--text-secondary);
+    margin-bottom: var(--space-1);
+}
+.empty-state p{
+    font-size: 13px;
+    margin-bottom: var(--space-4);
+}
+
+/* ===================== Theme Toggle ===================== */
+.theme-toggle{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-surface-2);
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+.theme-toggle:hover{
+    border-color: var(--primary);
+}
+
+/* ===================== Nav ===================== */
+.top-nav{
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-5);
+    border-bottom: 1px solid var(--border-soft);
+    background: var(--bg-surface);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.top-nav .brand{
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--primary);
+    margin-inline-end: auto;
+}
+.top-nav .nav-links{
+    display: flex;
+    gap: var(--space-2);
+}
+.nav-item{
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+.nav-item:hover{
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+}
+.nav-item.active{
+    background: var(--primary);
+    color: #fff;
+}
+
+/* ===================== Auth Widget ===================== */
+.auth-widget{
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.auth-btn-google{
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 9px 16px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 13px;
+}
+.auth-btn-google:hover{
+    background: var(--primary-hover);
+}
+.auth-btn-google svg{
+    width: 18px;
+    height: 18px;
+}
+
+.auth-user{
+    display: none;
+    align-items: center;
+    gap: var(--space-2);
+}
+.auth-user img{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+}
+.auth-user span{
+    font-size: 13px;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-primary);
+}
+
+.auth-logout-btn{
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+}
+.auth-logout-btn:hover{
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.auth-sync-status{
+    font-size: 11px;
+    color: var(--primary);
+    white-space: nowrap;
+}
+
+@media (max-width: 640px){
+    .auth-user span{ display: none; }
+    .top-nav .nav-links{ display: none; }
+    .top-nav .export-btn{ padding: 8px; }
+    .top-nav .export-btn .btn-label{ display: none; }
+}
+
+.auth-btn-email{
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+}
+.auth-btn-email:hover{
+    border-color: var(--primary);
+    color: var(--primary);
+}
+.auth-btn-email i{
+    width: 16px;
+    height: 16px;
+}
+
+.auth-verify-banner{
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--danger-bg);
+    color: var(--danger);
+    font-size: 12.5px;
+    padding: 8px 16px;
+}
+.auth-verify-banner i{
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+.auth-verify-banner button{
+    background: transparent;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 11.5px;
+    margin-inline-start: auto;
+}
+.auth-verify-banner button:hover{
+    background: var(--danger);
+    color: #fff;
+}
+
+.auth-tabs{
+    display: flex;
+    gap: var(--space-2);
+    margin: 4px 0 18px;
+    border-bottom: 1px solid var(--border-color);
+}
+.auth-tab{
+    background: transparent;
+    border: none;
+    padding: 8px 4px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+.auth-tab.active{
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.auth-forgot-link{
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--primary);
+    text-decoration: none;
+}
+.auth-forgot-link:hover{
+    text-decoration: underline;
+}
+
+.auth-form-error{
+    color: var(--danger);
+    font-size: 12.5px;
+    min-height: 16px;
+    margin-top: 8px;
+}
+
+
+/* أزرار model-card (Open / Add Trade / Delete) — نقطة 8، معدلة لتبان احترافية */
+.model-buttons button{
+    flex: 1;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+.model-buttons button:hover{
+    border-color: var(--primary);
+    color: var(--primary);
+}
+.model-buttons button:first-child{
+    background: var(--primary);
+    color: #fff;
+    border: none;
+}
+.model-buttons button:first-child:hover{
+    background: var(--primary-hover);
+}
+.model-buttons .model-btn-delete{
+    flex: 0 0 36px;
+    width: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-surface-2);
+    color: var(--danger);
+    border: 1px solid var(--border-color);
+}
+.model-buttons .model-btn-delete:hover{
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+}
+.model-buttons .model-btn-delete i{
+    width: 15px;
+    height: 15px;
+}
+
+/* بطاقات الجلسات (Session Analysis) — أصغر من stat-card العادية، جنب بعض */
+.session-mini-card{
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+}
+.session-mini-card h3{
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: none;
+    letter-spacing: 0;
+    margin-bottom: 4px;
+}
+.session-mini-card p{
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin: 2px 0;
+}
+.session-mini-card p b{
+    color: var(--text-tertiary);
+    font-weight: 600;
+}
+
+/* ===================== Professional Select Arrow ===================== */
+/* سهم مخصص للقوائم الاختيارية العادية، بلون يتبع الثيم تلقائيًا (نقطة 4) */
+select{
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-left: 34px;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: left 12px center;
+    background-size: 14px;
+}
+[data-theme="light"] select{
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%233A3A3A' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+[data-theme="dark"] select{
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23E8E0D4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+/* ===================== Multi-select Filter Dropdown (Asset/Session) ===================== */
+.filter-dropdown{
+    position: relative;
+}
+.filter-toggle{
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: 0 12px;
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+}
+.filter-toggle:hover{
+    border-color: var(--off-white-3);
+}
+.filter-toggle span{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.filter-toggle i{
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: var(--text-tertiary);
+}
+.filter-menu{
+    display: none;
+    position: absolute;
+    top: 44px;
+    right: 0;
+    left: 0;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    z-index: 60;
+    max-height: 260px;
+    overflow-y: auto;
+    padding: var(--space-2);
+}
+.filter-checkbox-list{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.filter-checkbox-list label{
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--text-primary);
+    padding: 7px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-bottom: 0;
+}
+.filter-checkbox-list label:hover{
+    background: var(--bg-surface-2);
+}
+.filter-checkbox-list input{
+    width: auto;
+    height: auto;
+    cursor: pointer;
+}
+
+/* ===================== إزالة مظهر المتصفح الافتراضي (نقطة 10) ===================== */
+/* زر "اختر ملف" الافتراضي للمتصفح */
+input[type="file"]{
+    padding: 8px;
+    cursor: pointer;
+}
+input[type="file"]::file-selector-button{
+    padding: 7px 14px;
+    margin-inline-end: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+}
+input[type="file"]::file-selector-button:hover{
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* أسهم الزيادة/النقصان الافتراضية لحقول الأرقام */
+input[type="number"]{
+    -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button{
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* ===================== Custom Select (نقطة 1) ===================== */
+.visually-hidden-select{
+    position: absolute !important;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+.custom-select{
+    position: relative;
+}
+.custom-select-toggle{
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: 0 12px;
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+}
+.custom-select-toggle:hover{
+    border-color: var(--off-white-3);
+}
+.custom-select-toggle .custom-select-label{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.custom-select-toggle i{
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: var(--text-tertiary);
+    transition: transform var(--transition-fast);
+}
+.custom-select-toggle.open i{
+    transform: rotate(180deg);
+}
+.custom-select-panel{
+    position: absolute;
+    top: 44px;
+    left: 0;
+    right: 0;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    z-index: 70;
+    padding: var(--space-2);
+    opacity: 0;
+    transform: translateY(-6px);
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+.custom-select-panel.open{
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+    pointer-events: auto;
+}
+.custom-select-search{
+    margin-bottom: var(--space-2);
+    height: 34px;
+}
+.custom-select-list{
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.custom-select-option{
+    padding: 8px 10px;
+    font-size: 13px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text-primary);
+}
+.custom-select-option:hover{
+    background: var(--bg-surface-2);
+}
+.custom-select-option.selected{
+    background: var(--primary);
+    color: #fff;
+}
+
+/* ===================== Flatpickr Theme (نقطة 2) ===================== */
+.flatpickr-calendar{
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--shadow-lg) !important;
+    border-radius: var(--radius-md) !important;
+    font-family: var(--font-sans) !important;
+    width: 252px !important;
+    font-size: 12px !important;
+}
+.flatpickr-calendar.arrowTop::before,
+.flatpickr-calendar.arrowTop::after{
+    border-bottom-color: var(--bg-elevated) !important;
+}
+.flatpickr-months,
+.flatpickr-weekdays{
+    background: var(--bg-elevated) !important;
+}
+.flatpickr-months .flatpickr-month{
+    height: 32px !important;
+}
+.flatpickr-current-month{
+    font-size: 12.5px !important;
+    padding-top: 2px !important;
+}
+.flatpickr-month{
+    color: var(--text-primary) !important;
+}
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year{
+    color: var(--text-primary) !important;
+    font-size: 12.5px !important;
+}
+.flatpickr-current-month .flatpickr-monthDropdown-months{
+    background: transparent !important;
+}
+.flatpickr-prev-month,
+.flatpickr-next-month{
+    top: 6px !important;
+}
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg{
+    width: 12px !important;
+    height: 12px !important;
+    fill: var(--text-tertiary) !important;
+}
+.flatpickr-weekdays{
+    height: 24px !important;
+}
+.flatpickr-weekday{
+    color: var(--text-tertiary) !important;
+    background: transparent !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+}
+.flatpickr-days{
+    width: 252px !important;
+}
+.dayContainer{
+    width: 252px !important;
+    min-width: 252px !important;
+    max-width: 252px !important;
+}
+.flatpickr-day{
+    color: var(--text-primary) !important;
+    height: 30px !important;
+    line-height: 30px !important;
+    max-width: 30px !important;
+    font-size: 12px !important;
+    border-radius: var(--radius-sm) !important;
+    margin: 1px 0;
+}
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay{
+    color: var(--text-tertiary) !important;
+    opacity: 0.4;
+}
+.flatpickr-day:hover{
+    background: var(--bg-surface-2) !important;
+}
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover{
+    background: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: #fff !important;
+}
+.flatpickr-day.today{
+    border-color: var(--primary) !important;
+}
+.flatpickr-time{
+    background: var(--bg-elevated) !important;
+    border-top: 1px solid var(--border-color) !important;
+    height: 34px !important;
+}
+.flatpickr-time input{
+    color: var(--text-primary) !important;
+    background: transparent !important;
+    font-size: 12.5px !important;
+}
+.flatpickr-time .flatpickr-am-pm{
+    color: var(--text-primary) !important;
+    font-size: 12.5px !important;
+}
+.numInputWrapper span.arrowUp:after{
+    border-bottom-color: var(--text-tertiary) !important;
+}
+.numInputWrapper span.arrowDown:after{
+    border-top-color: var(--text-tertiary) !important;
+}
+input#date{
+    background: var(--bg-surface-2);
+    cursor: pointer;
+}
+
+/* ===================== Chips (Emotions/Tags/Mistakes المختارة) ===================== */
+.chips-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+.chips-row:empty{
+    margin-top: 0;
+}
+.chip{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 999px;
+}
+.chip i{
+    width: 12px;
+    height: 12px;
+    cursor: pointer;
+}
+.chip i:hover{
+    opacity: 0.7;
+}
+
+/* صف "إضافة عنصر جديد" جوا القائمة المنسدلة (Tags/Mistakes/Emotions) */
+.dropdown-add-row{
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color);
+}
+.dropdown-add-row input{
+    flex: 1;
+    height: 32px;
+    font-size: 12px;
+}
+.dropdown-add-row button{
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: #fff;
+    border-radius: var(--radius-sm);
+}
+.dropdown-add-row button:hover{
+    background: var(--primary-hover);
+}
+.dropdown-add-row button i{
+    width: 14px;
+    height: 14px;
+}
+
+/* ===================== Custom Dialog (بديل alert/confirm/prompt) ===================== */
+.custom-dialog-overlay{
+    z-index: 5000;
+}
+.custom-dialog-box{
+    max-width: 420px;
+    text-align: right;
+}
+.custom-dialog-message{
+    font-size: 15px;
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+    line-height: 1.6;
+}
+.custom-dialog-input{
+    margin-bottom: var(--space-4);
+}
+.custom-dialog-actions{
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+}
+.custom-dialog-actions .btn{
+    width: auto;
+    margin-top: 0;
+    padding: 9px 20px;
+    height: 38px;
+}
+
+.custom-dialog-list{
+    margin: 10px 0 0;
+    padding-inline-start: 20px;
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.9;
+}
+
+/* ===================== Export Cards ===================== */
+.export-cards-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+}
+.export-card{
+    background: var(--bg-surface-2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: border-color var(--transition-fast);
+}
+.export-card:hover{
+    border-color: var(--primary);
+}
+.export-card i{
+    width: 26px;
+    height: 26px;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+.export-card h4{
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+.export-card p{
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    margin: 0;
+    line-height: 1.5;
+    min-height: 48px;
+}
+.export-card button{
+    width: 100%;
+    margin-top: 4px;
+    height: 34px;
+    font-size: 12.5px;
+}
+
+/* ===================== Import Dropzone ===================== */
+.import-dropzone{
+    margin-top: var(--space-3);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-6) var(--space-4);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.import-dropzone.dragover{
+    border-color: var(--primary);
+    background: rgba(109,93,252,0.06);
+}
+.import-dropzone i{
+    width: 30px;
+    height: 30px;
+    color: var(--text-tertiary);
+}
+.import-dropzone p{
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+/* ===================== Import Progress Bar ===================== */
+.import-progress-bar{
+    width: 100%;
+    height: 8px;
+    background: var(--bg-surface-2);
+    border-radius: 999px;
+    overflow: hidden;
+}
+.import-progress-fill{
+    height: 100%;
+    width: 0%;
+    background: var(--primary);
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+.import-progress-text{
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+}
+
+/* ===================== Delete Mode (Tags/Mistakes/Emotions) ===================== */
+.delete-mode-toggle{
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-elevated);
+    color: var(--text-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+.delete-mode-toggle:hover{
+    border-color: var(--danger);
+    color: var(--danger);
+}
+.delete-mode-toggle.active{
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+}
+.delete-mode-toggle i{
+    width: 14px;
+    height: 14px;
+}
+.delete-mode-item{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--danger);
+    font-size: 13px;
+}
+.delete-mode-item:hover{
+    background: rgba(239,68,68,0.12);
+}
+.delete-mode-item i{
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+}
+
+/* ===================== Mistake & Emotion Analytics ===================== */
+.cost-rank-row{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 13px;
+}
+.cost-rank-row:last-child{ border-bottom: none; }
+.cost-rank-num{
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-surface-2);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+.cost-rank-name{
+    flex: 1;
+    color: var(--text-primary);
+}
+.cost-rank-value{
+    font-weight: 700;
+}
+
+.emotion-rank-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 12.5px;
+}
+.emotion-rank-row:last-child{ border-bottom: none; }
+.emotion-rank-row span:first-child{
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+.emotion-rank-row b{
+    flex: 1;
+    text-align: center;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.correlation-card{
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+}
+.correlation-card h4{
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: var(--primary);
+}
+.correlation-row{
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 4px 0;
+    color: var(--text-secondary);
+}
+
+.insight-card{
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+.insight-card i{
+    width: 16px;
+    height: 16px;
+    color: #F59E0B;
+    flex-shrink: 0;
+    margin-top: 2px;
+}

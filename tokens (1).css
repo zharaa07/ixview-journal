@@ -1,0 +1,102 @@
+/* ===================================================================
+   css/tokens.css
+   نظام الألوان الموحد (Design Tokens) — IxView
+   Primary: #6D5DFC / #8578FF / #5647E8
+   Secondary (Off-White): #E8E0D4 / #F2ECE4 / #D9D0C2
+   Dark: #1A1A1A / #2A2A2A / #3A3A3A
+   كل الألوان فالمشروع خاصها تجي من هنا، ما كايناش ألوان عشوائية
+   مكتوبة مباشرة فـ باقي ملفات CSS.
+   =================================================================== */
+
+:root{
+    /* ---------- الهوية الأساسية (ثابتة فـ الوضعين) ---------- */
+    --primary:        #6D5DFC;
+    --primary-hover:  #8578FF;
+    --primary-active: #5647E8;
+
+    --off-white-1:    #E8E0D4;
+    --off-white-2:    #F2ECE4;
+    --off-white-3:    #D9D0C2;
+
+    --dark-1:         #1A1A1A;
+    --dark-2:         #2A2A2A;
+    --dark-3:         #3A3A3A;
+
+    /* ---------- ألوان دلالية (نفس المنطق فالوضعين) ---------- */
+    --success:        #22C55E;
+    --success-bg:     rgba(34,197,94,0.12);
+    --danger:         #EF4444;
+    --danger-bg:      rgba(239,68,68,0.12);
+    --neutral:        #94A3B8;
+
+    /* ---------- قياسات موحدة ---------- */
+    --radius-sm:  8px;
+    --radius-md:  12px;
+    --radius-lg:  16px;
+    --radius-xl:  20px;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-7: 48px;
+
+    --shadow-sm: 0 1px 2px rgba(26,26,26,0.06);
+    --shadow-md: 0 4px 12px rgba(26,26,26,0.08);
+    --shadow-lg: 0 12px 32px rgba(26,26,26,0.14);
+
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    --transition-fast: 120ms ease;
+    --transition-base: 200ms ease;
+}
+
+/* ===================================================================
+   Light Mode (الافتراضي)
+   =================================================================== */
+:root,
+[data-theme="light"]{
+    color-scheme: light;
+
+    --bg-app:        var(--off-white-1);
+    --bg-surface:    var(--off-white-2);
+    --bg-surface-2:  #FFFFFF;
+    --bg-elevated:   #FFFFFF;
+
+    --border-color:  var(--off-white-3);
+    --border-soft:   rgba(217,208,194,0.6);
+
+    --text-primary:   var(--dark-1);
+    --text-secondary: var(--dark-2);
+    --text-tertiary:  var(--dark-3);
+    --text-on-primary: #FFFFFF;
+
+    --overlay-bg: rgba(26,26,26,0.45);
+}
+
+/* ===================================================================
+   Dark Mode
+   =================================================================== */
+[data-theme="dark"]{
+    color-scheme: dark;
+
+    --bg-app:        var(--dark-1);
+    --bg-surface:    var(--dark-2);
+    --bg-surface-2:  var(--dark-3);
+    --bg-elevated:   #242424;
+
+    --border-color:  var(--dark-3);
+    --border-soft:   rgba(58,58,58,0.7);
+
+    --text-primary:   var(--off-white-1);
+    --text-secondary: #C9C2B4;
+    --text-tertiary:  #9A9384;
+    --text-on-primary: #FFFFFF;
+
+    --overlay-bg: rgba(0,0,0,0.6);
+
+    --success-bg: rgba(34,197,94,0.18);
+    --danger-bg:  rgba(239,68,68,0.18);
+}

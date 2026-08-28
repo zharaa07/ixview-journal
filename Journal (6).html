@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IxView — Trading Journal</title>
+
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+
+<!-- theme.js خاصها تخدم قبل ما يترسم الـ body باش ما يبانش "فلاش" أبيض -->
+<script src="js/theme.js"></script>
+<script src="js/custom-dialog.js"></script>
+
+<!-- Chart.js مطلوبة فورًا (Equity Curve + Session Chart كيبانو مباشرة فالـ Dashboard) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- مكتبة أيقونات حديثة (Lucide) -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<!-- Date Picker احترافي (Flatpickr) بدل التقويم الافتراضي للمتصفح -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</head>
+<body>
+
+<nav class="top-nav">
+    <span class="brand">IxView</span>
+    <div class="nav-links">
+        <span class="nav-item active">Journal</span>
+    </div>
+
+    <button class="export-btn" onclick="openExportImportModal()"><i data-lucide="download"></i> <span class="btn-label">Export / Import</span></button>
+
+    <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="تبديل الثيم" aria-pressed="false"><i data-lucide="moon" id="themeIcon"></i></button>
+
+    <!-- ===== Auth Widget UI ===== -->
+    <div id="authWidget" class="auth-widget">
+        <button id="googleLoginBtn" class="auth-btn-google" onclick="loginWithGoogle()">
+            <svg viewBox="0 0 48 48">
+                <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
+                <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+                <path fill="#4CAF50" d="M24 44c5.5 0 10.4-2.1 14.1-5.6l-6.5-5.5C29.6 34.7 26.9 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.6 5.1C9.6 39.6 16.3 44 24 44z"/>
+                <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.1 5.6l6.5 5.5C41.9 35.5 44 30.1 44 24c0-1.3-.1-2.7-.4-3.5z"/>
+            </svg>
+            تسجيل الدخول بـ Google
+        </button>
+        <button id="emailLoginBtn" class="auth-btn-email" onclick="openEmailAuthModal()">
+            <i data-lucide="mail"></i> البريد الإلكتروني
+        </button>
+        <div id="userInfo" class="auth-user">
+            <img id="userPhoto" src="" alt="صورة المستخدم">
+            <span id="userName"></span>
+            <span id="syncStatus" class="auth-sync-status"></span>
+            <button class="auth-logout-btn" onclick="logout()">خروج</button>
+        </div>
+    </div>
+    <div id="emailVerifyBanner" class="auth-verify-banner" style="display:none;">
+        <i data-lucide="mail-warning"></i>
+        <span>يرجى تفعيل بريدك الإلكتروني.</span>
+        <button onclick="resendVerificationEmail()">إعادة إرسال</button>
+    </div>
+</nav>
+
+<!-- ===================== Email/Password Auth Modal ===================== -->
+<div id="emailAuthModal" class="modal-overlay">
+    <div class="modal-box" style="max-width:380px;">
+        <button class="btn-secondary btn" onclick="closeEmailAuthModal()" style="float:left;"><i data-lucide="x"></i></button>
+        <div class="auth-tabs">
+            <button id="emailAuthTabLogin" type="button" class="auth-tab active" onclick="switchEmailAuthTab('login')">تسجيل الدخول</button>
+            <button id="emailAuthTabSignup" type="button" class="auth-tab" onclick="switchEmailAuthTab('signup')">إنشاء حساب</button>
+        </div>
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="emailAuthEmail" placeholder="you@example.com" autocomplete="email">
+        <label style="margin-top:10px;">كلمة المرور</label>
+        <input type="password" id="emailAuthPassword" placeholder="••••••••" autocomplete="current-password">
+        <a id="emailAuthForgotLink" href="javascript:void(0)" class="auth-forgot-link" onclick="forgotPasswordFlow()">نسيت كلمة المرور؟</a>
+        <div id="emailAuthError" class="auth-form-error"></div>
+        <button id="emailAuthSubmitBtn" type="button" class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="submitEmailAuthForm()">تسجيل الدخول</button>
+    </div>
+</div>
+
+<main class="app-main">
+
+    <div class="page-header" style="justify-content:flex-end;">
+        <button class="btn btn-primary" onclick="toggleForm()">+ Add Trade</button>
+    </div>
+
+    <!-- ===================== Models ===================== -->
+    <section class="section">
+        <div class="section-header">
+            <h2>Models</h2>
+            <button onclick="addModelPrompt()" class="btn btn-secondary">+ Add Model</button>
+        </div>
+        <div id="modelsContainer" class="models-grid grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));"></div>
+    </section>
+
+    <!-- ===================== Filters ===================== -->
+    <section class="section">
+        <div class="form-row" style="max-width:720px;">
+            <div>
+                <label>Asset</label>
+                <div class="filter-dropdown">
+                    <button type="button" class="filter-toggle" onclick="toggleFilterMenu('assetFilterMenu')">
+                        <span id="assetFilterLabel">All Assets</span>
+                        <i data-lucide="chevron-down"></i>
+                    </button>
+                    <div id="assetFilterMenu" class="filter-menu">
+                        <div id="assetFilterOptions" class="filter-checkbox-list">
+                            <label><input type="checkbox" value="EURUSD" onchange="onFilterChange()"> EURUSD</label>
+                            <label><input type="checkbox" value="GBPUSD" onchange="onFilterChange()"> GBPUSD</label>
+                            <label><input type="checkbox" value="USDJPY" onchange="onFilterChange()"> USDJPY</label>
+                            <label><input type="checkbox" value="USDCHF" onchange="onFilterChange()"> USDCHF</label>
+                            <label><input type="checkbox" value="USDCAD" onchange="onFilterChange()"> USDCAD</label>
+                            <label><input type="checkbox" value="AUDUSD" onchange="onFilterChange()"> AUDUSD</label>
+                            <label><input type="checkbox" value="NZDUSD" onchange="onFilterChange()"> NZDUSD</label>
+                            <label><input type="checkbox" value="EURJPY" onchange="onFilterChange()"> EURJPY</label>
+                            <label><input type="checkbox" value="GBPJPY" onchange="onFilterChange()"> GBPJPY</label>
+                            <label><input type="checkbox" value="EURGBP" onchange="onFilterChange()"> EURGBP</label>
+                            <label><input type="checkbox" value="BTCUSD" onchange="onFilterChange()"> BTCUSD</label>
+                            <label><input type="checkbox" value="ETHUSD" onchange="onFilterChange()"> ETHUSD</label>
+                            <label><input type="checkbox" value="XAUUSD" onchange="onFilterChange()"> XAUUSD</label>
+                            <label><input type="checkbox" value="XAGUSD" onchange="onFilterChange()"> XAGUSD</label>
+                            <label><input type="checkbox" value="NAS100" onchange="onFilterChange()"> NAS100</label>
+                            <label><input type="checkbox" value="US30" onchange="onFilterChange()"> US30</label>
+                            <label><input type="checkbox" value="SPX500" onchange="onFilterChange()"> SPX500</label>
+                            <label><input type="checkbox" value="GER40" onchange="onFilterChange()"> GER40</label>
+                            <label><input type="checkbox" value="OIL" onchange="onFilterChange()"> OIL</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label>Model</label>
+                <select id="modelFilter" class="enhance-select" onchange="renderTrades();updateStats();drawChart();drawSessionChart();renderCalendar();">
+                    <option value="All">All Models</option>
+                </select>
+            </div>
+            <div>
+                <label>Session</label>
+                <div class="filter-dropdown">
+                    <button type="button" class="filter-toggle" onclick="toggleFilterMenu('sessionFilterMenu')">
+                        <span id="sessionFilterLabel">All Sessions</span>
+                        <i data-lucide="chevron-down"></i>
+                    </button>
+                    <div id="sessionFilterMenu" class="filter-menu">
+                        <div id="sessionFilterOptions" class="filter-checkbox-list">
+                            <label><input type="checkbox" value="Asia" onchange="onFilterChange()"> Asia</label>
+                            <label><input type="checkbox" value="London" onchange="onFilterChange()"> London</label>
+                            <label><input type="checkbox" value="New York AM" onchange="onFilterChange()"> New York AM</label>
+                            <label><input type="checkbox" value="New York PM" onchange="onFilterChange()"> New York PM</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label>Tags</label>
+                <div class="filter-dropdown">
+                    <button type="button" class="filter-toggle" onclick="toggleTagsFilterMenu()">
+                        <span id="tagsFilterLabel">All Tags</span>
+                        <i data-lucide="chevron-down"></i>
+                    </button>
+                    <div id="tagsFilterMenu" class="filter-menu">
+                        <input type="text" id="tagsFilterSearch" placeholder="بحث فـ Tags..." oninput="renderTagsFilterOptions(this.value)" style="margin-bottom:8px;height:34px;">
+                        <div id="tagsFilterOptions" class="filter-checkbox-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== Stats ===================== -->
+    <section class="section">
+        <h2>Overview</h2>
+        <div class="grid grid-stats">
+            <div class="stat-card"><h3>Total Trades</h3><p id="totalTrades">0</p></div>
+            <div class="stat-card"><h3>Win Rate</h3><p id="winRate">0%</p></div>
+            <div class="stat-card"><h3>Total R</h3><p id="totalR">0</p></div>
+            <div class="stat-card"><h3>Average R</h3><p id="averageR">0</p></div>
+            <div class="stat-card"><h3>Best Trade</h3><p id="bestTrade">0</p></div>
+            <div class="stat-card"><h3>Best Model</h3><p id="bestModel">-</p></div>
+            <div class="stat-card"><h3>Top Mistake</h3><p id="topMistake">-</p></div>
+            <div class="stat-card"><h3>Worst Trade</h3><p id="worstTrade">0</p></div>
+            <div class="stat-card"><h3>Profit Factor</h3><p id="profitFactor">0</p></div>
+            <div class="stat-card"><h3>Expectancy</h3><p id="expectancy">0</p></div>
+            <div class="stat-card"><h3>Best Asset</h3><p id="bestAsset">-</p></div>
+            <div class="stat-card"><h3>Total Wins</h3><p id="totalWins">0</p></div>
+            <div class="stat-card"><h3>Total Losses</h3><p id="totalLosses">0</p></div>
+            <div class="stat-card"><h3>Breakeven</h3><p id="totalBE">0</p></div>
+            <div class="stat-card"><h3>Win/Loss Ratio</h3><p id="winLossRatio">0</p></div>
+            <div class="stat-card"><h3>Win Streak</h3><p id="winStreak">0</p></div>
+            <div class="stat-card"><h3>Loss Streak</h3><p id="lossStreak">0</p></div>
+            <div class="stat-card"><h3>Max Drawdown</h3><p id="maxDrawdown">0</p></div>
+            <div class="stat-card"><h3>Best Session</h3><p id="bestSession">-</p></div>
+            <div class="stat-card"><h3>Worst Session</h3><p id="worstSession">-</p></div>
+            <div class="stat-card"><h3>Week Total</h3><p id="weekTotal">0</p></div>
+        </div>
+    </section>
+
+    <!-- ===================== Equity Curve ===================== -->
+    <section class="section">
+        <h2>Equity Curve</h2>
+        <div class="card" style="height:320px;">
+            <canvas id="equityChart"></canvas>
+        </div>
+    </section>
+
+    <!-- ===================== Monthly Performance ===================== -->
+    <section class="section">
+        <div class="section-header">
+            <h2>Monthly Performance</h2>
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="btn-secondary btn" onclick="prevMonth()" style="padding:6px 12px;"><i data-lucide="chevron-right"></i></button>
+                <h3 id="monthTitle" style="margin:0;"></h3>
+                <button class="btn-secondary btn" onclick="nextMonth()" style="padding:6px 12px;"><i data-lucide="chevron-left"></i></button>
+            </div>
+        </div>
+        <div id="calendar" class="calendar-grid"></div>
+        <div id="monthStats"></div>
+    </section>
+
+    <!-- ===================== Session Analysis ===================== -->
+    <section class="section">
+        <h2>Session Analysis</h2>
+        <div class="grid grid-2col">
+            <div class="card" style="height:300px;">
+                <canvas id="sessionChart"></canvas>
+            </div>
+            <div id="sessionStats" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;align-content:start;"></div>
+        </div>
+    </section>
+
+    <!-- ===================== Top Tags ===================== -->
+    <section class="section">
+        <h2>Top Tags</h2>
+        <div id="tagsStats" class="grid grid-stats"></div>
+    </section>
+
+    <!-- ===================== Mistake & Emotion Analytics ===================== -->
+    <section class="section" id="mistakeEmotionAnalytics">
+        <h2>Mistake &amp; Emotion Analytics</h2>
+        <p style="font-size:12px;color:var(--text-tertiary);margin-top:-10px;">
+            كل الأرقام هنا بوحدة R (ماكاين رصيد حساب بالدولار فالنظام حاليًا).
+        </p>
+
+        <!-- Discipline Score -->
+        <div class="card" style="margin-top:12px;">
+            <h3 style="margin-bottom:12px;">Discipline Score</h3>
+            <div id="disciplineScoreCard"></div>
+        </div>
+
+        <!-- Mistakes Table -->
+        <h3 style="margin-top:24px;">Mistake Performance</h3>
+        <div id="mistakesAnalyticsTable"></div>
+
+        <!-- Cost Ranking + Frequency Chart -->
+        <div class="grid grid-2col" style="margin-top:16px;">
+            <div class="card">
+                <h3 style="margin-bottom:10px;">Most Costly Mistakes</h3>
+                <div id="mistakeCostRanking"></div>
+            </div>
+            <div class="card" style="height:260px;">
+                <h3 style="margin-bottom:10px;">Frequency</h3>
+                <canvas id="mistakeFrequencyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- With / Without Comparison -->
+        <h3 style="margin-top:24px;">Impact With / Without Mistake</h3>
+        <div id="mistakeWithWithoutTable"></div>
+
+        <!-- Emotion Table -->
+        <h3 style="margin-top:28px;">Emotion Performance</h3>
+        <div id="emotionsAnalyticsTable"></div>
+
+        <!-- Best / Worst Emotion -->
+        <div class="grid grid-2col" style="margin-top:16px;" id="emotionBestWorstCards"></div>
+
+        <!-- Mistake x Emotion Correlation -->
+        <h3 style="margin-top:28px;">Mistake ↔ Emotion Correlation</h3>
+        <div class="grid grid-stats" id="mistakeEmotionCorrelation"></div>
+
+        <!-- Smart Insights -->
+        <h3 style="margin-top:28px;">Smart Insights</h3>
+        <div id="smartInsightsList"></div>
+    </section>
+
+    <!-- ===================== Recent Trades ===================== -->
+    <section class="section">
+        <div class="section-header">
+            <h2>Recent Trades</h2>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap;">
+            <input id="searchTrade" type="text" placeholder="Search Asset, Model, Tag..." oninput="renderTrades()" style="flex:1;min-width:200px;">
+        </div>
+
+        <p id="tradeCount">0 Trades</p>
+
+        <div class="table-wrap">
+            <table id="tradesTable">
+                <thead>
+                    <tr>
+                        <th>Asset</th>
+                        <th>Model</th>
+                        <th>Session</th>
+                        <th>Result</th>
+                        <th>R</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <button id="showMoreBtn" class="btn btn-secondary" onclick="toggleTrades()" style="margin-top:15px;">Show More</button>
+    </section>
+
+    <!-- ===================== Day Trades Modal ===================== -->
+    <div id="dayModal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="btn-secondary btn" onclick="document.getElementById('dayModal').style.display='none'" style="float:left;"><i data-lucide="x"></i></button>
+            <h2 id="dayTitle"></h2>
+            <div id="dayTrades"></div>
+        </div>
+    </div>
+
+</main>
+
+<!-- ===================== Add/Edit Trade Modal ===================== -->
+<div id="tradeModal" class="modal-overlay">
+    <div class="modal-box">
+        <button class="btn-secondary btn" onclick="toggleForm()" style="float:left;"><i data-lucide="x"></i></button>
+        <h2 id="formTitle">Add Trade</h2>
+
+        <form id="tradeForm">
+            <div class="form-row">
+                <div>
+                    <label>Asset</label>
+                    <select id="asset" class="enhance-select">
+                        <option>EURUSD</option>
+                        <option>GBPUSD</option>
+                        <option>BTCUSD</option>
+                        <option>NAS100</option>
+                        <option>XAUUSD</option>
+                        <option>OIL</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Model</label>
+                    <select id="model" class="enhance-select"></select>
+                </div>
+                <div>
+                    <label>Result</label>
+                    <select id="result" class="enhance-select">
+                        <option>Win</option>
+                        <option>Loss</option>
+                        <option>Breakeven</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Session</label>
+                    <select id="session" class="enhance-select">
+                        <option>Asia</option>
+                        <option>London</option>
+                        <option>New York AM</option>
+                        <option>New York PM</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Result (R)</label>
+                    <input type="number" id="resultR" step="0.1" required>
+                </div>
+                <div>
+                    <label>Date</label>
+                    <input type="text" id="date" required readonly placeholder="اختر التاريخ والوقت" autocomplete="off">
+                </div>
+                <div>
+                    <label>Entry Price</label>
+                    <input type="number" id="entryPrice" step="0.01">
+                </div>
+                <div>
+                    <label>Stop Loss</label>
+                    <input type="number" id="stopLoss" step="0.01">
+                </div>
+                <div>
+                    <label>Take Profit</label>
+                    <input type="number" id="takeProfit" step="0.01">
+                </div>
+                <div>
+                    <label>Risk %</label>
+                    <input type="number" id="risk" step="0.1" required>
+                </div>
+                <div>
+                    <label>Lot Size</label>
+                    <input type="number" id="lotSize" step="0.01">
+                </div>
+            </div>
+
+            <label>Notes</label>
+            <textarea id="notes" rows="5"></textarea>
+
+            <label>Tags</label>
+            <div class="filter-dropdown">
+                <button type="button" class="filter-toggle" onclick="toggleFilterMenu('tagsListMenu')">
+                    <span id="tagsLabel">Select Tags</span>
+                    <i data-lucide="chevron-down"></i>
+                </button>
+                <div id="tagsListMenu" class="filter-menu">
+                    <div id="tagsList" class="filter-checkbox-list"></div>
+                    <div class="dropdown-add-row">
+                        <input type="text" id="newTag" placeholder="Add new tag...">
+                        <button type="button" onclick="addTag()"><i data-lucide="plus"></i></button>
+                        <button type="button" id="tagsDeleteModeBtn" class="delete-mode-toggle" onclick="toggleDeleteMode('tags')" title="حذف من القائمة"><i data-lucide="trash-2"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div id="tagsChips" class="chips-row"></div>
+
+            <label>Mistakes</label>
+            <div class="filter-dropdown">
+                <button type="button" class="filter-toggle" onclick="toggleFilterMenu('mistakesMenu')">
+                    <span id="mistakesLabel">Select Mistakes</span>
+                    <i data-lucide="chevron-down"></i>
+                </button>
+                <div id="mistakesMenu" class="filter-menu">
+                    <div id="mistakes" class="filter-checkbox-list"></div>
+                    <div class="dropdown-add-row">
+                        <input type="text" id="newMistake" placeholder="Add new mistake...">
+                        <button type="button" onclick="addMistake()"><i data-lucide="plus"></i></button>
+                        <button type="button" id="mistakesDeleteModeBtn" class="delete-mode-toggle" onclick="toggleDeleteMode('mistakes')" title="حذف من القائمة"><i data-lucide="trash-2"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div id="mistakesChips" class="chips-row"></div>
+
+            <label>Emotion</label>
+            <div class="filter-dropdown">
+                <button type="button" class="filter-toggle" onclick="toggleFilterMenu('emotionsMenu')">
+                    <span id="emotionsLabel">Select Emotions</span>
+                    <i data-lucide="chevron-down"></i>
+                </button>
+                <div id="emotionsMenu" class="filter-menu">
+                    <div id="emotions" class="filter-checkbox-list"></div>
+                    <div class="dropdown-add-row">
+                        <input type="text" id="newEmotion" placeholder="Add new emotion...">
+                        <button type="button" onclick="addEmotion()"><i data-lucide="plus"></i></button>
+                        <button type="button" id="emotionsDeleteModeBtn" class="delete-mode-toggle" onclick="toggleDeleteMode('emotions')" title="حذف من القائمة"><i data-lucide="trash-2"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div id="emotionsChips" class="chips-row"></div>
+
+            <label>Screenshot</label>
+            <input type="file" id="screenshot" accept="image/*">
+
+            <button class="save-btn" type="submit">Save Trade</button>
+        </form>
+    </div>
+</div>
+
+<!-- ===================== View Trade Modal ===================== -->
+<div id="viewModal" class="modal-overlay">
+    <div class="modal-box">
+        <button class="btn-secondary btn" onclick="closeView()" style="float:left;"><i data-lucide="x"></i></button>
+        <h2>Trade Details</h2>
+        <div id="tradeDetails"></div>
+    </div>
+</div>
+
+<div id="tooltip"></div>
+
+<!-- ===================== Export / Import Modal ===================== -->
+<div id="exportImportModal" class="modal-overlay">
+    <div class="modal-box" style="max-width:600px;">
+        <button class="btn-secondary btn" onclick="closeExportImportModal()" style="float:left;"><i data-lucide="x"></i></button>
+        <h2>Export &amp; Import</h2>
+
+        <h3 style="margin-top:20px;">Export</h3>
+
+        <label>Models to Export</label>
+        <div class="filter-dropdown">
+            <button type="button" class="filter-toggle" onclick="toggleFilterMenu('exportModelsMenu')">
+                <span id="exportModelsLabel">All Models (Full Export)</span>
+                <i data-lucide="chevron-down"></i>
+            </button>
+            <div id="exportModelsMenu" class="filter-menu">
+                <div id="exportModelsOptions" class="filter-checkbox-list"></div>
+            </div>
+        </div>
+        <p style="font-size:11.5px;color:var(--text-tertiary);margin-top:4px;">
+            إذا ما اخترتي حتى موديل، غادي يتصدر كل شي. إذا اخترتي موديل ولا أكثر، غادي تتصدر معاهم الصفقات، التاكات، الحالات، والأخطاء المرتبطة بيهم فقط.
+        </p>
+
+        <div class="export-cards-grid">
+
+            <div class="export-card">
+                <i data-lucide="braces"></i>
+                <h4>JSON</h4>
+                <p>كل البيانات (صفقات، موديلات، تاكات، إعدادات) — قابلة لإعادة الاستيراد بلا فقدان</p>
+                <button class="btn btn-secondary" onclick="exportJSON()">Export JSON</button>
+            </div>
+
+            <div class="export-card">
+                <i data-lucide="table"></i>
+                <h4>CSV</h4>
+                <p>جدول الصفقات كامل، متوافق مع Excel و Google Sheets</p>
+                <button class="btn btn-secondary" onclick="exportCSV()">Export CSV</button>
+            </div>
+
+            <div class="export-card">
+                <i data-lucide="file-text"></i>
+                <h4>PDF</h4>
+                <p>تقرير احترافي بالرسوم البيانية والإحصائيات، جاهز للطباعة</p>
+                <button class="btn btn-secondary" onclick="exportPDF()">Export PDF</button>
+            </div>
+
+        </div>
+
+        <h3 style="margin-top:26px;">Import</h3>
+        <p style="font-size:12px;color:var(--text-tertiary);margin-top:-8px;">
+            الاستيراد كيدمج مع بياناتك الحالية بلا ما يمسحها، وكيتجاهل أي صفقة مكررة تلقائيًا.
+        </p>
+
+        <div id="importDropzone" class="import-dropzone">
+            <i data-lucide="upload-cloud"></i>
+            <p>اسحب ملف JSON هنا</p>
+            <span style="font-size:12px;color:var(--text-tertiary);">أو</span>
+            <button class="btn btn-secondary" type="button" onclick="document.getElementById('importFile').click()">اختر ملف</button>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importTrades(event)">
+        </div>
+
+        <div id="importProgressWrap" style="display:none;margin-top:14px;">
+            <div class="import-progress-bar"><div id="importProgressFill" class="import-progress-fill"></div></div>
+            <p id="importProgressText" class="import-progress-text">جاري القراءة...</p>
+        </div>
+
+    </div>
+</div>
+
+<script src="js/auth-debug.js"></script>
+<script type="module" src="js/firebase.js"></script>
+<script src="js/custom-select.js"></script>
+<script src="js/journal.js"></script>
+
+</body>
+</html>
