@@ -334,12 +334,50 @@
     }
 
     // ---------------------------------------------------------------
+    // فحص IndexedDB خام، بلا أي علاقة بـ Firebase خالص — الهدف: نعرفو
+    // واش المشكل هو IndexedDB فهاد المتصفح/البروفايل بشكل عام (كيأثر
+    // على كل شي: Firebase Auth persistence، Firestore offline cache،
+    // localStorage ديال التطبيق نفسه...)، ولا المشكل مرتبط تحديداً
+    // بقناة Google OAuth العابرة للـ origins (authDomain مختلف).
+    // إذا هاد الفحص البسيط فشل بنفس النوع ديال الخطأ، معناه المشكل
+    // عام فـ هاد المتصفح/الجهاز، ماشي خاص بـ Google Login فحال.
+    function probeIndexedDB() {
+        try {
+            const req = indexedDB.open("authDebugProbe", 1);
+            req.onupgradeneeded = function () {
+                try { req.result.createObjectStore("probe"); } catch (e) {}
+            };
+            req.onsuccess = function () {
+                if (window.authDebugLog) window.authDebugLog("IndexedDB Probe", "success", {});
+                try {
+                    req.result.close();
+                    indexedDB.deleteDatabase("authDebugProbe");
+                } catch (e) {}
+            };
+            req.onerror = function () {
+                const err = req.error;
+                if (window.authDebugLog) window.authDebugLog("IndexedDB Probe", "error", {
+                    code: err && err.name, message: err && err.message
+                });
+            };
+            req.onblocked = function () {
+                if (window.authDebugLog) window.authDebugLog("IndexedDB Probe", "error", { message: "blocked event" });
+            };
+        } catch (e) {
+            if (window.authDebugLog) window.authDebugLog("IndexedDB Probe", "error", { code: e.name, message: e.message });
+        }
+    }
+
+    // ---------------------------------------------------------------
     // نقطة الدخول
     // ---------------------------------------------------------------
     syncModeFromUrl();
     if (isDebugMode()) {
         if (document.body) ensurePanelBuilt();
         else document.addEventListener("DOMContentLoaded", ensurePanelBuilt);
+        // كنشغلو الفحص بعد ما اللوحة تتبنى (باش authDebugLog يكون جاهز
+        // يبين النتيجة)، بلا ما نستناو أي تفاعل من المستخدم
+        setTimeout(probeIndexedDB, 300);
     }
 
 })();
