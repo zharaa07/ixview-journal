@@ -1,5 +1,4 @@
 
-
 // كل مرة كنزيدو HTML فيه data-lucide (أزرار، أيقونات...) خاصنا نستدعيو
 // هاد الدالة باش Lucide يرسمها كـ SVG. ما تخدمش والو إذا المكتبة ما تحملاتش بعد.
 function refreshIcons() {
@@ -1363,6 +1362,7 @@ tradeEmotions.includes(box.value);
 
 });
 
+ensureOrphanOptions("emotions", tradeEmotions);
 updateMultiSelectUI("emotions", "emotionsLabel", "emotionsChips", "Select Emotions");
 
 
@@ -1410,6 +1410,7 @@ box.checked = true;
 
 });
 
+ensureOrphanOptions("mistakes", trade.mistakes);
 updateMultiSelectUI("mistakes", "mistakesLabel", "mistakesChips", "Select Mistakes");
 
     editIndex = index;
@@ -1644,53 +1645,113 @@ ticks:{ color: textColor }
 });
 }
 
-function renderMistakes(){
+function renderMistakes(searchText){
 
 const container =
 document.getElementById(
 "mistakes"
 );
 
+if (!container) return;
+
 const previouslyChecked =
 Array.from(
 container.querySelectorAll('input[type="checkbox"]:checked')
 ).map(box => box.value);
 
+const search = (searchText || "").trim().toLowerCase();
 container.innerHTML = "";
 
-mistakesList.forEach(
-mistake => {
-
+// ----- وضع الحذف: غير Custom قابل للحذف، System ما يبانش هنا خالص -----
 if (deleteModeState.mistakes) {
 
-container.innerHTML += `
-<div class="delete-mode-item" onclick="event.stopPropagation(); removeFromList('mistakes','${mistake}')">
-<i data-lucide="trash-2"></i> ${mistake}
+    const customItems = getMergedMistakesCustom(mistakesList)
+        .filter(m => !search || m.toLowerCase().includes(search));
+
+    if (customItems.length === 0) {
+        container.innerHTML = `<p style="font-size:12px;color:var(--text-tertiary);padding:6px 8px;">ماكاينش عناصر مخصصة قابلة للحذف (System Mistakes ما يمكنش تتحذف)</p>`;
+    } else {
+        customItems.forEach(mistake => {
+            container.innerHTML += `
+<div class="delete-mode-item" onclick="event.stopPropagation(); removeFromList('mistakes','${mistake.replace(/'/g,"\\'")}')">
+<i data-lucide="trash-2"></i> ${escapeAttr(mistake)}
 </div>
 `;
+        });
+    }
 
-} else {
+    updateDeleteModeButton("mistakes");
+    refreshIcons();
+    return;
 
-container.innerHTML += `
+}
+
+const renderedValues = new Set();
+
+// ----- System Mistakes، مصنفة حسب الأقسام -----
+SYSTEM_MISTAKES_CATEGORIES.forEach(cat => {
+    const items = cat.items.filter(m => !search || m.toLowerCase().includes(search));
+    if (items.length === 0) return;
+    container.innerHTML += `<div class="option-group-label">${cat.label}</div>`;
+    items.forEach(mistake => {
+        renderedValues.add(mistake);
+        container.innerHTML += `
 <label>
 <input
 type="checkbox"
-value="${mistake}"
+value="${escapeAttr(mistake)}"
 ${previouslyChecked.includes(mistake) ? "checked" : ""}
 onchange="updateMultiSelectUI('mistakes','mistakesLabel','mistakesChips','Select Mistakes')"
 >
 ${mistake}
 </label>
 `;
-
-}
-
+    });
 });
 
-if (!deleteModeState.mistakes) {
-    updateMultiSelectUI("mistakes", "mistakesLabel", "mistakesChips", "Select Mistakes");
+// ----- Custom Mistakes -----
+const customItems = getMergedMistakesCustom(mistakesList)
+    .filter(m => !search || m.toLowerCase().includes(search));
+
+if (customItems.length > 0) {
+    container.innerHTML += `<div class="option-group-label">Custom</div>`;
+    customItems.forEach(mistake => {
+        renderedValues.add(mistake);
+        container.innerHTML += `
+<label>
+<input
+type="checkbox"
+value="${escapeAttr(mistake)}"
+${previouslyChecked.includes(mistake) ? "checked" : ""}
+onchange="updateMultiSelectUI('mistakes','mistakesLabel','mistakesChips','Select Mistakes')"
+>
+${mistake}
+</label>
+`;
+    });
 }
 
+// ----- قيم يتيمة (Orphan): كانت مختارة (صفقة كنعدلو فيها) وتمسحات من
+// كل القوائم — كنبقيو نبيّنوها باش ما تضيعش عند الحفظ (نقطة 5) -----
+if (!search) {
+    previouslyChecked.forEach(value => {
+        if (!renderedValues.has(value)) {
+            container.innerHTML += `
+<label>
+<input
+type="checkbox"
+value="${escapeAttr(value)}"
+checked
+onchange="updateMultiSelectUI('mistakes','mistakesLabel','mistakesChips','Select Mistakes')"
+>
+${escapeAttr(value)} <span style="color:var(--text-tertiary);font-size:11px;">(محذوف من القائمة)</span>
+</label>
+`;
+        }
+    });
+}
+
+updateMultiSelectUI("mistakes", "mistakesLabel", "mistakesChips", "Select Mistakes");
 updateDeleteModeButton("mistakes");
 refreshIcons();
 
@@ -1711,6 +1772,17 @@ const value =
 input.value.trim();
 
 if(!value) return;
+
+if (isSystemMistake(value)) {
+    customAlert("هاد الخطأ موجود من قبل فالقائمة الأساسية (System).");
+    input.value = "";
+    return;
+}
+
+if(mistakesList.includes(value)){
+input.value = "";
+return;
+}
 
 mistakesList.push(value);
 
@@ -1849,6 +1921,14 @@ function exitAllDeleteModes() {
 
 function removeFromList(type, value) {
 
+    if (
+        (type === "mistakes" && isSystemMistake(value)) ||
+        (type === "emotions" && isSystemEmotion(value))
+    ) {
+        customAlert("ما يمكنش تحذف عنصر من القائمة الأساسية (System).");
+        return;
+    }
+
     let list, storageKey, renderFn;
 
     if (type === "tags") {
@@ -1915,7 +1995,7 @@ function updateMultiSelectUI(containerId, labelId, chipsId, placeholder) {
 
 // ===================== Emotions (قائمة ديناميكية قابلة للإضافة، بحال Mistakes/Tags) =====================
 
-function renderEmotionsList(){
+function renderEmotionsList(searchText){
 
 const container =
 document.getElementById(
@@ -1929,41 +2009,93 @@ Array.from(
 container.querySelectorAll('input[type="checkbox"]:checked')
 ).map(box => box.value);
 
+const search = (searchText || "").trim().toLowerCase();
 container.innerHTML = "";
-
-emotionsList.forEach(
-emotion => {
 
 if (deleteModeState.emotions) {
 
-container.innerHTML += `
-<div class="delete-mode-item" onclick="event.stopPropagation(); removeFromList('emotions','${emotion}')">
-<i data-lucide="trash-2"></i> ${emotion}
+    const customItems = getMergedEmotionsCustom(emotionsList)
+        .filter(e => !search || e.toLowerCase().includes(search));
+
+    if (customItems.length === 0) {
+        container.innerHTML = `<p style="font-size:12px;color:var(--text-tertiary);padding:6px 8px;">ماكاينش عناصر مخصصة قابلة للحذف (System Emotions ما يمكنش تتحذف)</p>`;
+    } else {
+        customItems.forEach(emotion => {
+            container.innerHTML += `
+<div class="delete-mode-item" onclick="event.stopPropagation(); removeFromList('emotions','${emotion.replace(/'/g,"\\'")}')">
+<i data-lucide="trash-2"></i> ${escapeAttr(emotion)}
 </div>
 `;
+        });
+    }
 
-} else {
+    updateDeleteModeButton("emotions");
+    refreshIcons();
+    return;
 
-container.innerHTML += `
+}
+
+const renderedValues = new Set();
+
+const systemItems = SYSTEM_EMOTIONS.filter(e => !search || e.toLowerCase().includes(search));
+if (systemItems.length > 0) {
+    container.innerHTML += `<div class="option-group-label">Emotions</div>`;
+    systemItems.forEach(emotion => {
+        renderedValues.add(emotion);
+        container.innerHTML += `
 <label>
 <input
 type="checkbox"
-value="${emotion}"
+value="${escapeAttr(emotion)}"
 ${previouslyChecked.includes(emotion) ? "checked" : ""}
 onchange="updateMultiSelectUI('emotions','emotionsLabel','emotionsChips','Select Emotions')"
 >
 ${emotion}
 </label>
 `;
-
+    });
 }
 
-});
+const customItems = getMergedEmotionsCustom(emotionsList)
+    .filter(e => !search || e.toLowerCase().includes(search));
 
-if (!deleteModeState.emotions) {
-    updateMultiSelectUI("emotions", "emotionsLabel", "emotionsChips", "Select Emotions");
+if (customItems.length > 0) {
+    container.innerHTML += `<div class="option-group-label">Custom</div>`;
+    customItems.forEach(emotion => {
+        renderedValues.add(emotion);
+        container.innerHTML += `
+<label>
+<input
+type="checkbox"
+value="${escapeAttr(emotion)}"
+${previouslyChecked.includes(emotion) ? "checked" : ""}
+onchange="updateMultiSelectUI('emotions','emotionsLabel','emotionsChips','Select Emotions')"
+>
+${emotion}
+</label>
+`;
+    });
 }
 
+if (!search) {
+    previouslyChecked.forEach(value => {
+        if (!renderedValues.has(value)) {
+            container.innerHTML += `
+<label>
+<input
+type="checkbox"
+value="${escapeAttr(value)}"
+checked
+onchange="updateMultiSelectUI('emotions','emotionsLabel','emotionsChips','Select Emotions')"
+>
+${escapeAttr(value)} <span style="color:var(--text-tertiary);font-size:11px;">(محذوف من القائمة)</span>
+</label>
+`;
+        }
+    });
+}
+
+updateMultiSelectUI("emotions", "emotionsLabel", "emotionsChips", "Select Emotions");
 updateDeleteModeButton("emotions");
 refreshIcons();
 
@@ -1980,6 +2112,12 @@ const value =
 input.value.trim();
 
 if(!value) return;
+
+if (isSystemEmotion(value)) {
+    customAlert("هاد الحالة موجودة من قبل فالقائمة الأساسية (System).");
+    input.value = "";
+    return;
+}
 
 if(emotionsList.includes(value)){
 input.value = "";
@@ -4315,4 +4453,3 @@ window.addEventListener("themeChanged", function () {
         importTrades({ target: { files: [file], value: "" } });
     });
 })();
-
