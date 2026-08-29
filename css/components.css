@@ -1347,3 +1347,49 @@ input#date{
 #googleLoginBtn {
     display: none !important;
 }
+
+/* ===================== System/Custom Options: Search + Groups (نقاط 4, 6, 7) ===================== */
+/* هاد الجزء زيد باش يدعم قوائم Mistakes/Emotions الجداد (System + Custom)
+   بحقل بحث، عدة اختيارات، تصنيف حسب الأقسام، وزر Clear — بلا ما نبدلو
+   أي قاعدة قديمة فوق (Chips/dropdown-add-row/delete-mode بقاو بحالهم) */
+.dropdown-search-row{
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+.dropdown-search-row input{
+    flex: 1;
+    height: 32px;
+    font-size: 12px;
+}
+.clear-selection-btn{
+    flex-shrink: 0;
+    height: 32px;
+    padding: 0 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+.clear-selection-btn:hover{
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.option-group-label{
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    padding: 8px 8px 4px;
+    margin-top: 4px;
+    border-top: 1px solid var(--border-soft);
+}
+.option-group-label:first-child{
+    margin-top: 0;
+    border-top: none;
+    padding-top: 4px;
+}
