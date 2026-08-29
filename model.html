@@ -300,6 +300,10 @@
                     <i data-lucide="chevron-down"></i>
                 </button>
                 <div id="mistakesMenu" class="filter-menu">
+                    <div class="dropdown-search-row">
+                        <input type="text" id="mistakesSearch" placeholder="بحث فـ Mistakes..." oninput="renderMistakes(this.value)">
+                        <button type="button" class="clear-selection-btn" onclick="clearMultiSelect('mistakes','mistakesLabel','mistakesChips','Select Mistakes')">Clear</button>
+                    </div>
                     <div id="mistakes" class="filter-checkbox-list"></div>
                     <div class="dropdown-add-row">
                         <input type="text" id="newMistake" placeholder="Add new mistake...">
@@ -317,6 +321,10 @@
                     <i data-lucide="chevron-down"></i>
                 </button>
                 <div id="emotionsMenu" class="filter-menu">
+                    <div class="dropdown-search-row">
+                        <input type="text" id="emotionsSearch" placeholder="بحث فـ Emotions..." oninput="renderEmotionsList(this.value)">
+                        <button type="button" class="clear-selection-btn" onclick="clearMultiSelect('emotions','emotionsLabel','emotionsChips','Select Emotions')">Clear</button>
+                    </div>
                     <div id="emotions" class="filter-checkbox-list"></div>
                     <div class="dropdown-add-row">
                         <input type="text" id="newEmotion" placeholder="Add new emotion...">
@@ -344,6 +352,7 @@
 <script src="js/auth-debug.js"></script>
 <script type="module" src="js/firebase.js"></script>
 <script src="js/custom-select.js"></script>
+<script src="js/emotions-mistakes-data.js"></script>
 <script src="js/model.js"></script>
 
 </body>
