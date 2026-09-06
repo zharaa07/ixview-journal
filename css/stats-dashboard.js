@@ -22,6 +22,12 @@
 
 (function () {
 
+    // علامة تشخيصية: إذا ما بانتش هاد الرسالة فـ Console، معناه
+    // ملف stats-dashboard.js ما تحملش أصلاً (404 أو مسار خاطئ) —
+    // السبب الأكثر احتمالاً فهاد الحالة هو نسيان رفع الملف لنفس
+    // مسار js/ فـ الاستضافة (GitHub Pages).
+    console.log("[Performance Dashboard] stats-dashboard.js تم تحميله بنجاح.");
+
     const PD_SETTINGS_KEY = "pdDashboardSettings";
 
     // ---------------------------------------------------------------
@@ -543,19 +549,47 @@
 
     // ---------------------------------------------------------------
     // الدالة الرئيسية: كتبني كل أقسام Performance Dashboard
+    // كل قسم معزول بـ try/catch خاص بيه: إذا وقع خطأ فـ قسم واحد
+    // (مثلاً Drawdown)، باقي الأقسام كيكملو يترسمو عادي، وكيبان
+    // فـ الكونصول بالضبط شكون السبب — بلا ما تبقى الصفحة فارغة بصمت.
     // ---------------------------------------------------------------
+    function pdSafeRun(label, fn) {
+        try {
+            fn();
+        } catch (e) {
+            console.error("[Performance Dashboard] خطأ فـ " + label + ":", e);
+        }
+    }
+
+    function pdShowFallback(containerId, msg) {
+        const el = document.getElementById(containerId);
+        if (el && !el.innerHTML.trim()) {
+            el.innerHTML = '<p style="font-size:11px;color:var(--danger);text-align:center;padding:10px 4px;">' + msg + '</p>';
+        }
+    }
+
     function renderStatsDashboard() {
         if (!document.getElementById("performanceDashboard")) return;
 
-        const filtered = pdGetFilteredTrades();
-        const sorted = pdSortedByDate(filtered);
+        let filtered = [];
+        let sorted = [];
+        pdSafeRun("قراءة بيانات الصفقات", function () {
+            filtered = pdGetFilteredTrades();
+            sorted = pdSortedByDate(filtered);
+        });
 
-        pdRenderTotalTrades(sorted);
-        pdRenderWinRate(sorted);
-        pdRenderAvgR(sorted);
-        pdRenderSmallCards(sorted);
-        pdRenderComparisons(sorted);
-        pdRenderDrawdownCards(sorted);
+        pdSafeRun("Total Trades", function () { pdRenderTotalTrades(sorted); });
+        pdSafeRun("Win Rate", function () { pdRenderWinRate(sorted); });
+        pdSafeRun("Average R", function () { pdRenderAvgR(sorted); });
+        pdSafeRun("Small Cards", function () { pdRenderSmallCards(sorted); });
+        pdSafeRun("Comparison Cards", function () { pdRenderComparisons(sorted); });
+        pdSafeRun("Drawdown Cards", function () { pdRenderDrawdownCards(sorted); });
+
+        // إذا بقى شي حاوية فارغة رغم كل هاد المحاولات (خطأ ماتوقعناهش)،
+        // نبينو رسالة بدل الفراغ الصامت
+        pdShowFallback("pdTotalTradesGauge", "تعذر عرض البيانات");
+        pdShowFallback("pdWinRateBody", "تعذر عرض البيانات");
+        pdShowFallback("pdAvgRBody", "تعذر عرض البيانات");
 
         pdRefreshIcons();
     }
@@ -567,9 +601,15 @@
 
         togglePopover: function (anchorId) {
             const anchor = document.getElementById(anchorId);
-            if (!anchor) return;
+            if (!anchor) {
+                console.error("[Performance Dashboard] ماكاينش anchor بالاسم:", anchorId);
+                return;
+            }
             const popover = anchor.querySelector(".pd-popover");
-            if (!popover) return;
+            if (!popover) {
+                console.error("[Performance Dashboard] ماكاينش popover جوا anchor:", anchorId);
+                return;
+            }
             const willOpen = !popover.classList.contains("open");
             document.querySelectorAll(".pd-popover.open").forEach(function (p) { p.classList.remove("open"); });
             if (willOpen) popover.classList.add("open");
