@@ -1393,3 +1393,544 @@ input#date{
     border-top: none;
     padding-top: 4px;
 }
+
+/* ===================================================================
+   Performance Dashboard v2 — إعادة تصميم قسم الإحصائيات الاحترافية
+   (KPI Cards, Gauges, Comparison Cards, Drawdown Cards)
+   Design Language: Premium Trading Platform — Rounded 18-24px،
+   Soft Shadows، Glass خفيف، Spacing متناسق.
+   =================================================================== */
+
+.pd-section-title{
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+.pd-section-title h2{
+    margin: 0;
+}
+.pd-badge-new{
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--primary);
+    background: rgba(109,93,252,0.14);
+    padding: 3px 9px;
+    border-radius: 999px;
+}
+
+/* ---------- Card Shell عام (كل بطاقات V2) ---------- */
+.pd-card{
+    position: relative;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)) , var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 22px;
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(6px);
+    transition: box-shadow var(--transition-base), border-color var(--transition-base);
+}
+.pd-card:hover{
+    box-shadow: var(--shadow-md);
+    border-color: rgba(109,93,252,0.35);
+}
+.pd-card-head{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+}
+.pd-card-title{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+}
+.pd-icon-btn{
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-tertiary);
+    border-radius: 8px;
+}
+.pd-icon-btn:hover{
+    border-color: var(--primary);
+    color: var(--primary);
+}
+.pd-icon-btn i{ width: 13px; height: 13px; }
+.pd-head-actions{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.pd-info-btn{ cursor: help; }
+
+/* ---------- Section 1: Primary KPI Cards (كبيرة) ---------- */
+.pd-kpi-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+}
+@media (max-width: 980px){
+    .pd-kpi-grid{ grid-template-columns: 1fr; }
+}
+.pd-kpi-card{
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+.pd-kpi-body{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+}
+
+/* ---------- Fuel-style Semicircle Gauge (Total Trades) ---------- */
+.pd-gauge-wrap{
+    width: 100%;
+    max-width: 230px;
+    margin: 0 auto;
+}
+.pd-gauge-svg{ width: 100%; height: auto; display: block; }
+.pd-gauge-value{
+    text-align: center;
+    margin-top: -6px;
+}
+.pd-gauge-value .pd-big{
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+.pd-gauge-value .pd-slash{
+    font-size: 18px;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    margin: 0 2px;
+}
+.pd-gauge-caption{
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-align: center;
+}
+
+/* ---------- Circular Progress (Win Rate alt mode) ---------- */
+.pd-circular-wrap{
+    width: 170px;
+    height: 170px;
+    margin: 0 auto;
+    position: relative;
+}
+.pd-circular-svg{ width: 100%; height: 100%; transform: rotate(-90deg); }
+.pd-circular-center{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.pd-circular-center .pd-big{
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+.pd-circular-center .pd-caption{
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+/* ---------- Progress Bar (Win Rate default mode) ---------- */
+.pd-progress-track{
+    width: 100%;
+    height: 14px;
+    border-radius: 999px;
+    background: var(--bg-surface-2);
+    overflow: hidden;
+    border: 1px solid var(--border-soft);
+}
+.pd-progress-fill{
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+    transition: width 0.4s ease;
+}
+.pd-progress-label{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: var(--space-2);
+}
+.pd-progress-label .pd-big{
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+.pd-progress-label .pd-caption{
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+.pd-value-hidden .pd-big{
+    filter: blur(7px);
+    user-select: none;
+}
+
+/* ---------- Toggles داخل البطاقة ---------- */
+.pd-inline-toggles{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: var(--space-3);
+    justify-content: center;
+}
+.pd-chip-toggle{
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: var(--bg-surface-2);
+    color: var(--text-tertiary);
+    border: 1px solid var(--border-color);
+}
+.pd-chip-toggle.active{
+    background: rgba(109,93,252,0.16);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.pd-switch{
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+.pd-switch-track{
+    width: 34px;
+    height: 19px;
+    border-radius: 999px;
+    background: var(--bg-surface-2);
+    border: 1px solid var(--border-color);
+    position: relative;
+    flex-shrink: 0;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+.pd-switch-track::after{
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--text-tertiary);
+    transition: transform var(--transition-fast), background var(--transition-fast);
+}
+.pd-switch.on .pd-switch-track{
+    background: rgba(109,93,252,0.25);
+    border-color: var(--primary);
+}
+.pd-switch.on .pd-switch-track::after{
+    transform: translateX(15px);
+    background: var(--primary);
+}
+
+/* ---------- Settings Popover (زر الترس أسفل البطاقة) ---------- */
+.pd-settings-footer{
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border-soft);
+}
+.pd-settings-btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.pd-settings-btn:hover{
+    border-color: var(--primary);
+    color: var(--primary);
+}
+.pd-settings-btn i{ width: 13px; height: 13px; }
+
+.pd-popover-anchor{ position: relative; }
+.pd-popover{
+    position: absolute;
+    z-index: 80;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 260px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-4);
+    display: none;
+    text-align: right;
+}
+.pd-popover.open{ display: block; }
+.pd-popover-row{
+    margin-bottom: var(--space-3);
+}
+.pd-popover-row:last-child{ margin-bottom: 0; }
+.pd-popover-row label{
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+.pd-popover-row input,
+.pd-popover-row select{
+    height: 34px;
+    font-size: 12.5px;
+}
+.pd-popover-switch-row{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+}
+
+/* ---------- Average R — Performance Scale ---------- */
+.pd-avgr-top{
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+.pd-avgr-top .pd-big{
+    font-size: 32px;
+    font-weight: 800;
+}
+.pd-avgr-top .pd-caption{
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+}
+.pd-scale-wrap{
+    width: 100%;
+    margin: var(--space-3) 0 var(--space-2);
+    position: relative;
+    padding-top: 18px;
+}
+.pd-scale-bar{
+    display: flex;
+    width: 100%;
+    height: 16px;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid var(--border-soft);
+}
+.pd-scale-seg-red{ background: var(--danger); }
+.pd-scale-seg-orange{ background: var(--warning); }
+.pd-scale-seg-green{ background: var(--success); }
+.pd-scale-marker{
+    position: absolute;
+    top: 0;
+    width: 3px;
+    height: 30px;
+    background: #fff;
+    border-radius: 2px;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.15), 0 2px 6px rgba(0,0,0,0.35);
+    transform: translateX(-50%);
+}
+.pd-scale-marker::after{
+    content: attr(data-val);
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--dark-1);
+    padding: 1px 6px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+.pd-scale-ticks{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+.pd-avgr-footer{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+    text-align: center;
+}
+.pd-avgr-footer .pd-mini-label{
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.pd-avgr-footer .pd-mini-value{
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 2px;
+}
+.pd-status-losing{ color: var(--danger) !important; }
+.pd-status-average{ color: var(--warning) !important; }
+.pd-status-profitable{ color: var(--success) !important; }
+
+/* ---------- Section 2: Small Performance Cards ---------- */
+.pd-small-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+}
+.pd-small-card{
+    padding: var(--space-4);
+    border-radius: 18px;
+}
+.pd-small-card .pd-card-head{ margin-bottom: var(--space-2); }
+.pd-small-value{
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+.pd-small-toggle-btn{
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-tertiary);
+    font-size: 9.5px;
+    font-weight: 800;
+}
+.pd-small-toggle-btn.active{
+    background: rgba(109,93,252,0.16);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* ---------- Section 3: Comparison Cards (Best vs Worst) ---------- */
+.pd-comparison-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+}
+@media (max-width: 980px){
+    .pd-comparison-grid{ grid-template-columns: 1fr; }
+}
+.pd-comparison-card{
+    padding: var(--space-4) var(--space-4) var(--space-5);
+}
+.pd-comparison-select{
+    height: 30px;
+    font-size: 11.5px;
+    padding: 0 8px 0 26px;
+    background-position: left 8px center;
+    background-size: 11px;
+    width: auto;
+}
+.pd-vs-body{
+    display: flex;
+    align-items: stretch;
+    margin-top: var(--space-3);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+.pd-vs-half{
+    flex: 1;
+    padding: var(--space-4) var(--space-3);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.pd-vs-best{
+    background: rgba(34,197,94,0.08);
+    border-inline-end: 1px dashed var(--border-soft);
+}
+.pd-vs-worst{
+    background: rgba(239,68,68,0.06);
+}
+.pd-vs-tag{
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+.pd-vs-tag-best{ color: var(--success); background: rgba(34,197,94,0.14); }
+.pd-vs-tag-worst{ color: var(--danger); background: rgba(239,68,68,0.14); }
+.pd-vs-name{
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 2px;
+}
+.pd-vs-value{
+    font-size: 20px;
+    font-weight: 800;
+}
+.pd-vs-best .pd-vs-value{ color: var(--success); }
+.pd-vs-worst .pd-vs-value{ color: var(--danger); }
+.pd-vs-sub{
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+}
+
+/* ---------- Section 4: Drawdown Cards ---------- */
+.pd-drawdown-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: var(--space-3);
+}
+.pd-drawdown-card{
+    padding: var(--space-4);
+    border-radius: 18px;
+}
+.pd-drawdown-value{
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-top: 2px;
+}
+.pd-mode-select{
+    height: 26px;
+    font-size: 10.5px;
+    padding: 0 8px 0 22px;
+    background-position: left 6px center;
+    background-size: 9px;
+    width: auto;
+    border-radius: 999px;
+}
