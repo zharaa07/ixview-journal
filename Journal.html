@@ -177,6 +177,24 @@
             <span class="pd-badge-new">Premium</span>
         </div>
 
+        <!-- ===================================================================
+             تشخيص مباشر (Inline، ماشي ملف خارجي قابل للـ 404): بعد 2 ثانية،
+             إذا window.PD ماكاينش (يعني js/stats-dashboard.js ما تحملش)،
+             كيبين بانر أحمر واضح هنا مباشرة فوق الصفحة — بلا حاجة لـ Console.
+             =================================================================== -->
+        <div id="pdLoadErrorBanner" style="display:none;background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger);border-radius:var(--radius-md);padding:12px 16px;margin-bottom:16px;font-size:13px;line-height:1.7;">
+            ⚠️ ملف <code>js/stats-dashboard.js</code> ما تحمّلش فهاد الصفحة (Performance Dashboard ما غاديش يخدم).
+            <br>تأكد أن الملف مرفوع بالضبط فـ المسار <code>js/stats-dashboard.js</code> فـ الـ repo ديالك، وامسح كاش المتصفح (Hard Refresh) وعاود جرب.
+        </div>
+        <script>
+            setTimeout(function () {
+                if (typeof window.PD === "undefined") {
+                    var banner = document.getElementById("pdLoadErrorBanner");
+                    if (banner) banner.style.display = "block";
+                }
+            }, 2000);
+        </script>
+
         <!-- ---------- Section 1: Primary KPI Cards ---------- -->
         <div class="pd-kpi-grid">
 
@@ -192,7 +210,7 @@
                 </div>
                 <div class="pd-kpi-body">
                     <div class="pd-gauge-wrap">
-                        <div id="pdTotalTradesGauge"></div>
+                        <div id="pdTotalTradesGauge" style="font-size:11px;color:var(--text-tertiary);text-align:center;padding:30px 0;">جاري التحميل...</div>
                     </div>
                 </div>
                 <div class="pd-settings-footer pd-popover-anchor" id="pdTotalTradesSettingsAnchor">
@@ -220,7 +238,7 @@
                         </span>
                     </span>
                 </div>
-                <div class="pd-kpi-body" id="pdWinRateBody"></div>
+                <div class="pd-kpi-body" id="pdWinRateBody" style="font-size:11px;color:var(--text-tertiary);">جاري التحميل...</div>
                 <div class="pd-settings-footer pd-popover-anchor" id="pdWinRateSettingsAnchor">
                     <button type="button" class="pd-settings-btn" onclick="PD.togglePopover('pdWinRateSettingsAnchor')">
                         <i data-lucide="settings"></i> Settings
@@ -276,7 +294,7 @@
                         <i data-lucide="info" style="width:14px;height:14px;color:var(--text-tertiary);"></i>
                     </span>
                 </div>
-                <div class="pd-kpi-body" style="width:100%;" id="pdAvgRBody"></div>
+                <div class="pd-kpi-body" style="width:100%;" id="pdAvgRBody"><p style="font-size:11px;color:var(--text-tertiary);text-align:center;width:100%;">جاري التحميل...</p></div>
                 <div class="pd-settings-footer pd-popover-anchor" id="pdAvgRSettingsAnchor">
                     <button type="button" class="pd-settings-btn" onclick="PD.togglePopover('pdAvgRSettingsAnchor')">
                         <i data-lucide="settings"></i> Settings
@@ -304,451 +322,4 @@
                         </div>
                         <div class="pd-popover-row" id="pdMiddleZoneLimitRow" style="display:none;">
                             <label>Average Zone Limit</label>
-                            <input type="number" step="0.1" min="0" id="pdMiddleZoneLimitInput" placeholder="مثال: 1.7" onchange="PD.updateAvgRSetting('middleZoneLimit', parseFloat(this.value))">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- ---------- Section 2: Small Performance Cards ---------- -->
-        <div class="pd-small-grid" id="pdSmallCardsGrid"></div>
-
-        <!-- ---------- Section 3: Comparison Cards ---------- -->
-        <div class="pd-comparison-grid">
-            <div class="pd-card pd-comparison-card">
-                <div class="pd-card-head">
-                    <span class="pd-card-title"><i data-lucide="layers" style="width:13px;height:13px;"></i> Best / Worst Model</span>
-                    <span class="pd-head-actions">
-                        <select id="pdModelMetricSelect" class="pd-comparison-select" onchange="PD.updateComparisonMetric('model', this.value)">
-                            <option value="winrate">Win Rate</option>
-                            <option value="avgrr">Average RR</option>
-                        </select>
-                        <button type="button" class="pd-icon-btn" title="Eye (قريبًا)"><i data-lucide="eye"></i></button>
-                    </span>
-                </div>
-                <div id="pdCompareModel"></div>
-            </div>
-
-            <div class="pd-card pd-comparison-card">
-                <div class="pd-card-head">
-                    <span class="pd-card-title"><i data-lucide="clock" style="width:13px;height:13px;"></i> Best / Worst Session</span>
-                    <span class="pd-head-actions">
-                        <select id="pdSessionMetricSelect" class="pd-comparison-select" onchange="PD.updateComparisonMetric('session', this.value)">
-                            <option value="winrate">Win Rate</option>
-                            <option value="avgrr">Average RR</option>
-                        </select>
-                        <button type="button" class="pd-icon-btn" title="Eye (قريبًا)"><i data-lucide="eye"></i></button>
-                    </span>
-                </div>
-                <div id="pdCompareSession"></div>
-            </div>
-
-            <div class="pd-card pd-comparison-card">
-                <div class="pd-card-head">
-                    <span class="pd-card-title"><i data-lucide="coins" style="width:13px;height:13px;"></i> Best / Worst Asset</span>
-                    <span class="pd-head-actions">
-                        <select id="pdAssetMetricSelect" class="pd-comparison-select" onchange="PD.updateComparisonMetric('asset', this.value)">
-                            <option value="winrate">Win Rate</option>
-                            <option value="avgrr">Average RR</option>
-                        </select>
-                        <button type="button" class="pd-icon-btn" title="Eye (قريبًا)"><i data-lucide="eye"></i></button>
-                    </span>
-                </div>
-                <div id="pdCompareAsset"></div>
-            </div>
-        </div>
-
-        <!-- ---------- Section 4: Drawdown Cards ---------- -->
-        <h3 style="margin-top:24px;margin-bottom:12px;">Drawdown</h3>
-        <div class="pd-drawdown-grid" id="pdDrawdownGrid"></div>
-
-    </section>
-
-    <!-- ===================== Stats ===================== -->
-    <section class="section">
-        <h2>Overview</h2>
-        <div class="grid grid-stats">
-            <div class="stat-card"><h3>Total Trades</h3><p id="totalTrades">0</p></div>
-            <div class="stat-card"><h3>Win Rate</h3><p id="winRate">0%</p></div>
-            <div class="stat-card"><h3>Total R</h3><p id="totalR">0</p></div>
-            <div class="stat-card"><h3>Average R</h3><p id="averageR">0</p></div>
-            <div class="stat-card"><h3>Best Trade</h3><p id="bestTrade">0</p></div>
-            <div class="stat-card"><h3>Best Model</h3><p id="bestModel">-</p></div>
-            <div class="stat-card"><h3>Top Mistake</h3><p id="topMistake">-</p></div>
-            <div class="stat-card"><h3>Worst Trade</h3><p id="worstTrade">0</p></div>
-            <div class="stat-card"><h3>Profit Factor</h3><p id="profitFactor">0</p></div>
-            <div class="stat-card"><h3>Expectancy</h3><p id="expectancy">0</p></div>
-            <div class="stat-card"><h3>Best Asset</h3><p id="bestAsset">-</p></div>
-            <div class="stat-card"><h3>Total Wins</h3><p id="totalWins">0</p></div>
-            <div class="stat-card"><h3>Total Losses</h3><p id="totalLosses">0</p></div>
-            <div class="stat-card"><h3>Breakeven</h3><p id="totalBE">0</p></div>
-            <div class="stat-card"><h3>Win/Loss Ratio</h3><p id="winLossRatio">0</p></div>
-            <div class="stat-card"><h3>Win Streak</h3><p id="winStreak">0</p></div>
-            <div class="stat-card"><h3>Loss Streak</h3><p id="lossStreak">0</p></div>
-            <div class="stat-card"><h3>Max Drawdown</h3><p id="maxDrawdown">0</p></div>
-            <div class="stat-card"><h3>Best Session</h3><p id="bestSession">-</p></div>
-            <div class="stat-card"><h3>Worst Session</h3><p id="worstSession">-</p></div>
-            <div class="stat-card"><h3>Week Total</h3><p id="weekTotal">0</p></div>
-        </div>
-    </section>
-
-    <!-- ===================== Equity Curve ===================== -->
-    <section class="section">
-        <h2>Equity Curve</h2>
-        <div class="card" style="height:320px;">
-            <canvas id="equityChart"></canvas>
-        </div>
-    </section>
-
-    <!-- ===================== Monthly Performance ===================== -->
-    <section class="section">
-        <div class="section-header">
-            <h2>Monthly Performance</h2>
-            <div style="display:flex;align-items:center;gap:12px;">
-                <button class="btn-secondary btn" onclick="prevMonth()" style="padding:6px 12px;"><i data-lucide="chevron-right"></i></button>
-                <h3 id="monthTitle" style="margin:0;"></h3>
-                <button class="btn-secondary btn" onclick="nextMonth()" style="padding:6px 12px;"><i data-lucide="chevron-left"></i></button>
-            </div>
-        </div>
-        <div id="calendar" class="calendar-grid"></div>
-        <div id="monthStats"></div>
-    </section>
-
-    <!-- ===================== Session Analysis ===================== -->
-    <section class="section">
-        <h2>Session Analysis</h2>
-        <div class="grid grid-2col">
-            <div class="card" style="height:300px;">
-                <canvas id="sessionChart"></canvas>
-            </div>
-            <div id="sessionStats" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;align-content:start;"></div>
-        </div>
-    </section>
-
-    <!-- ===================== Top Tags ===================== -->
-    <section class="section">
-        <h2>Top Tags</h2>
-        <div id="tagsStats" class="grid grid-stats"></div>
-    </section>
-
-    <!-- ===================== Mistake & Emotion Analytics ===================== -->
-    <section class="section" id="mistakeEmotionAnalytics">
-        <h2>Mistake &amp; Emotion Analytics</h2>
-        <p style="font-size:12px;color:var(--text-tertiary);margin-top:-10px;">
-            كل الأرقام هنا بوحدة R (ماكاين رصيد حساب بالدولار فالنظام حاليًا).
-        </p>
-
-        <!-- Discipline Score -->
-        <div class="card" style="margin-top:12px;">
-            <h3 style="margin-bottom:12px;">Discipline Score</h3>
-            <div id="disciplineScoreCard"></div>
-        </div>
-
-        <!-- Mistakes Table -->
-        <h3 style="margin-top:24px;">Mistake Performance</h3>
-        <div id="mistakesAnalyticsTable"></div>
-
-        <!-- Cost Ranking + Frequency Chart -->
-        <div class="grid grid-2col" style="margin-top:16px;">
-            <div class="card">
-                <h3 style="margin-bottom:10px;">Most Costly Mistakes</h3>
-                <div id="mistakeCostRanking"></div>
-            </div>
-            <div class="card" style="height:260px;">
-                <h3 style="margin-bottom:10px;">Frequency</h3>
-                <canvas id="mistakeFrequencyChart"></canvas>
-            </div>
-        </div>
-
-        <!-- With / Without Comparison -->
-        <h3 style="margin-top:24px;">Impact With / Without Mistake</h3>
-        <div id="mistakeWithWithoutTable"></div>
-
-        <!-- Emotion Table -->
-        <h3 style="margin-top:28px;">Emotion Performance</h3>
-        <div id="emotionsAnalyticsTable"></div>
-
-        <!-- Best / Worst Emotion -->
-        <div class="grid grid-2col" style="margin-top:16px;" id="emotionBestWorstCards"></div>
-
-        <!-- Mistake x Emotion Correlation -->
-        <h3 style="margin-top:28px;">Mistake ↔ Emotion Correlation</h3>
-        <div class="grid grid-stats" id="mistakeEmotionCorrelation"></div>
-
-        <!-- Smart Insights -->
-        <h3 style="margin-top:28px;">Smart Insights</h3>
-        <div id="smartInsightsList"></div>
-    </section>
-
-    <!-- ===================== Recent Trades ===================== -->
-    <section class="section">
-        <div class="section-header">
-            <h2>Recent Trades</h2>
-        </div>
-
-        <div style="display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap;">
-            <input id="searchTrade" type="text" placeholder="Search Asset, Model, Tag..." oninput="renderTrades()" style="flex:1;min-width:200px;">
-        </div>
-
-        <p id="tradeCount">0 Trades</p>
-
-        <div class="table-wrap">
-            <table id="tradesTable">
-                <thead>
-                    <tr>
-                        <th>Asset</th>
-                        <th>Model</th>
-                        <th>Session</th>
-                        <th>Result</th>
-                        <th>R</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
-        <button id="showMoreBtn" class="btn btn-secondary" onclick="toggleTrades()" style="margin-top:15px;">Show More</button>
-    </section>
-
-    <!-- ===================== Day Trades Modal ===================== -->
-    <div id="dayModal" class="modal-overlay">
-        <div class="modal-box">
-            <button class="btn-secondary btn" onclick="document.getElementById('dayModal').style.display='none'" style="float:left;"><i data-lucide="x"></i></button>
-            <h2 id="dayTitle"></h2>
-            <div id="dayTrades"></div>
-        </div>
-    </div>
-
-</main>
-
-<!-- ===================== Add/Edit Trade Modal ===================== -->
-<div id="tradeModal" class="modal-overlay">
-    <div class="modal-box">
-        <button class="btn-secondary btn" onclick="toggleForm()" style="float:left;"><i data-lucide="x"></i></button>
-        <h2 id="formTitle">Add Trade</h2>
-
-        <form id="tradeForm">
-            <div class="form-row">
-                <div>
-                    <label>Asset</label>
-                    <select id="asset" class="enhance-select">
-                        <option>EURUSD</option>
-                        <option>GBPUSD</option>
-                        <option>BTCUSD</option>
-                        <option>NAS100</option>
-                        <option>XAUUSD</option>
-                        <option>OIL</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Model</label>
-                    <select id="model" class="enhance-select"></select>
-                </div>
-                <div>
-                    <label>Result</label>
-                    <select id="result" class="enhance-select">
-                        <option>Win</option>
-                        <option>Loss</option>
-                        <option>Breakeven</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Session</label>
-                    <select id="session" class="enhance-select">
-                        <option>Asia</option>
-                        <option>London</option>
-                        <option>New York AM</option>
-                        <option>New York PM</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Result (R)</label>
-                    <input type="number" id="resultR" step="0.1" required>
-                </div>
-                <div>
-                    <label>Date</label>
-                    <input type="text" id="date" required readonly placeholder="اختر التاريخ والوقت" autocomplete="off">
-                </div>
-                <div>
-                    <label>Entry Price</label>
-                    <input type="number" id="entryPrice" step="0.01">
-                </div>
-                <div>
-                    <label>Stop Loss</label>
-                    <input type="number" id="stopLoss" step="0.01">
-                </div>
-                <div>
-                    <label>Take Profit</label>
-                    <input type="number" id="takeProfit" step="0.01">
-                </div>
-                <div>
-                    <label>Risk %</label>
-                    <input type="number" id="risk" step="0.1" required>
-                </div>
-                <div>
-                    <label>Lot Size</label>
-                    <input type="number" id="lotSize" step="0.01">
-                </div>
-            </div>
-
-            <label>Notes</label>
-            <textarea id="notes" rows="5"></textarea>
-
-            <label>Tags</label>
-            <div class="filter-dropdown">
-                <button type="button" class="filter-toggle" onclick="toggleFilterMenu('tagsListMenu')">
-                    <span id="tagsLabel">Select Tags</span>
-                    <i data-lucide="chevron-down"></i>
-                </button>
-                <div id="tagsListMenu" class="filter-menu">
-                    <div id="tagsList" class="filter-checkbox-list"></div>
-                    <div class="dropdown-add-row">
-                        <input type="text" id="newTag" placeholder="Add new tag...">
-                        <button type="button" onclick="addTag()"><i data-lucide="plus"></i></button>
-                        <button type="button" id="tagsDeleteModeBtn" class="delete-mode-toggle" onclick="toggleDeleteMode('tags')" title="حذف من القائمة"><i data-lucide="trash-2"></i></button>
-                    </div>
-                </div>
-            </div>
-            <div id="tagsChips" class="chips-row"></div>
-
-            <label>Mistakes</label>
-            <div class="filter-dropdown">
-                <button type="button" class="filter-toggle" onclick="toggleFilterMenu('mistakesMenu')">
-                    <span id="mistakesLabel">Select Mistakes</span>
-                    <i data-lucide="chevron-down"></i>
-                </button>
-                <div id="mistakesMenu" class="filter-menu">
-                    <div class="dropdown-search-row">
-                        <input type="text" id="mistakesSearch" placeholder="بحث فـ Mistakes..." oninput="renderMistakes(this.value)">
-                        <button type="button" class="clear-selection-btn" onclick="clearMultiSelect('mistakes','mistakesLabel','mistakesChips','Select Mistakes')">Clear</button>
-                    </div>
-                    <div id="mistakes" class="filter-checkbox-list"></div>
-                    <div class="dropdown-add-row">
-                        <input type="text" id="newMistake" placeholder="Add new mistake...">
-                        <button type="button" onclick="addMistake()"><i data-lucide="plus"></i></button>
-                        <button type="button" id="mistakesDeleteModeBtn" class="delete-mode-toggle" onclick="toggleDeleteMode('mistakes')" title="حذف من القائمة"><i data-lucide="trash-2"></i></button>
-                    </div>
-                </div>
-            </div>
-            <div id="mistakesChips" class="chips-row"></div>
-
-            <label>Emotion</label>
-            <div class="filter-dropdown">
-                <button type="button" class="filter-toggle" onclick="toggleFilterMenu('emotionsMenu')">
-                    <span id="emotionsLabel">Select Emotions</span>
-                    <i data-lucide="chevron-down"></i>
-                </button>
-                <div id="emotionsMenu" class="filter-menu">
-                    <div class="dropdown-search-row">
-                        <input type="text" id="emotionsSearch" placeholder="بحث فـ Emotions..." oninput="renderEmotionsList(this.value)">
-                        <button type="button" class="clear-selection-btn" onclick="clearMultiSelect('emotions','emotionsLabel','emotionsChips','Select Emotions')">Clear</button>
-                    </div>
-                    <div id="emotions" class="filter-checkbox-list"></div>
-                    <div class="dropdown-add-row">
-                        <input type="text" id="newEmotion" placeholder="Add new emotion...">
-                        <button type="button" onclick="addEmotion()"><i data-lucide="plus"></i></button>
-                        <button type="button" id="emotionsDeleteModeBtn" class="delete-mode-toggle" onclick="toggleDeleteMode('emotions')" title="حذف من القائمة"><i data-lucide="trash-2"></i></button>
-                    </div>
-                </div>
-            </div>
-            <div id="emotionsChips" class="chips-row"></div>
-
-            <label>Screenshot</label>
-            <input type="file" id="screenshot" accept="image/*">
-
-            <button class="save-btn" type="submit">Save Trade</button>
-        </form>
-    </div>
-</div>
-
-<!-- ===================== View Trade Modal ===================== -->
-<div id="viewModal" class="modal-overlay">
-    <div class="modal-box">
-        <button class="btn-secondary btn" onclick="closeView()" style="float:left;"><i data-lucide="x"></i></button>
-        <h2>Trade Details</h2>
-        <div id="tradeDetails"></div>
-    </div>
-</div>
-
-<div id="tooltip"></div>
-
-<!-- ===================== Export / Import Modal ===================== -->
-<div id="exportImportModal" class="modal-overlay">
-    <div class="modal-box" style="max-width:600px;">
-        <button class="btn-secondary btn" onclick="closeExportImportModal()" style="float:left;"><i data-lucide="x"></i></button>
-        <h2>Export &amp; Import</h2>
-
-        <h3 style="margin-top:20px;">Export</h3>
-
-        <label>Models to Export</label>
-        <div class="filter-dropdown">
-            <button type="button" class="filter-toggle" onclick="toggleFilterMenu('exportModelsMenu')">
-                <span id="exportModelsLabel">All Models (Full Export)</span>
-                <i data-lucide="chevron-down"></i>
-            </button>
-            <div id="exportModelsMenu" class="filter-menu">
-                <div id="exportModelsOptions" class="filter-checkbox-list"></div>
-            </div>
-        </div>
-        <p style="font-size:11.5px;color:var(--text-tertiary);margin-top:4px;">
-            إذا ما اخترتي حتى موديل، غادي يتصدر كل شي. إذا اخترتي موديل ولا أكثر، غادي تتصدر معاهم الصفقات، التاكات، الحالات، والأخطاء المرتبطة بيهم فقط.
-        </p>
-
-        <div class="export-cards-grid">
-
-            <div class="export-card">
-                <i data-lucide="braces"></i>
-                <h4>JSON</h4>
-                <p>كل البيانات (صفقات، موديلات، تاكات، إعدادات) — قابلة لإعادة الاستيراد بلا فقدان</p>
-                <button class="btn btn-secondary" onclick="exportJSON()">Export JSON</button>
-            </div>
-
-            <div class="export-card">
-                <i data-lucide="table"></i>
-                <h4>CSV</h4>
-                <p>جدول الصفقات كامل، متوافق مع Excel و Google Sheets</p>
-                <button class="btn btn-secondary" onclick="exportCSV()">Export CSV</button>
-            </div>
-
-            <div class="export-card">
-                <i data-lucide="file-text"></i>
-                <h4>PDF</h4>
-                <p>تقرير احترافي بالرسوم البيانية والإحصائيات، جاهز للطباعة</p>
-                <button class="btn btn-secondary" onclick="exportPDF()">Export PDF</button>
-            </div>
-
-        </div>
-
-        <h3 style="margin-top:26px;">Import</h3>
-        <p style="font-size:12px;color:var(--text-tertiary);margin-top:-8px;">
-            الاستيراد كيدمج مع بياناتك الحالية بلا ما يمسحها، وكيتجاهل أي صفقة مكررة تلقائيًا.
-        </p>
-
-        <div id="importDropzone" class="import-dropzone">
-            <i data-lucide="upload-cloud"></i>
-            <p>اسحب ملف JSON هنا</p>
-            <span style="font-size:12px;color:var(--text-tertiary);">أو</span>
-            <button class="btn btn-secondary" type="button" onclick="document.getElementById('importFile').click()">اختر ملف</button>
-            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importTrades(event)">
-        </div>
-
-        <div id="importProgressWrap" style="display:none;margin-top:14px;">
-            <div class="import-progress-bar"><div id="importProgressFill" class="import-progress-fill"></div></div>
-            <p id="importProgressText" class="import-progress-text">جاري القراءة...</p>
-        </div>
-
-    </div>
-</div>
-
-<script src="js/auth-debug.js"></script>
-<script type="module" src="js/firebase.js"></script>
-<script src="js/custom-select.js"></script>
-<script src="js/emotions-mistakes-data.js"></script>
-<script src="js/journal.js"></script>
-<script src="js/stats-dashboard.js"></script>
-
-</body>
-</html>
+                            <input t
