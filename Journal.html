@@ -170,6 +170,202 @@
         </div>
     </section>
 
+    <!-- ===================== Performance Dashboard (V2 Redesign) ===================== -->
+    <section class="section" id="performanceDashboard">
+        <div class="pd-section-title">
+            <h2>Performance Dashboard</h2>
+            <span class="pd-badge-new">Premium</span>
+        </div>
+
+        <!-- ---------- Section 1: Primary KPI Cards ---------- -->
+        <div class="pd-kpi-grid">
+
+            <!-- CARD 1: Total Trades -->
+            <div class="pd-card pd-kpi-card">
+                <div class="pd-card-head">
+                    <span class="pd-card-title">
+                        <i data-lucide="target" style="width:13px;height:13px;"></i> Total Trades
+                    </span>
+                    <span class="pd-info-btn" title="عدد الصفقات الحالي مقارنة بالهدف الشهري/الكلي اللي حددتيه. الهدف كيحفزك تبقى منتظم فالتسجيل والتنفيذ.">
+                        <i data-lucide="info" style="width:14px;height:14px;color:var(--text-tertiary);"></i>
+                    </span>
+                </div>
+                <div class="pd-kpi-body">
+                    <div class="pd-gauge-wrap">
+                        <div id="pdTotalTradesGauge"></div>
+                    </div>
+                </div>
+                <div class="pd-settings-footer pd-popover-anchor" id="pdTotalTradesSettingsAnchor">
+                    <button type="button" class="pd-settings-btn" onclick="PD.togglePopover('pdTotalTradesSettingsAnchor')">
+                        <i data-lucide="settings"></i> Settings
+                    </button>
+                    <div class="pd-popover" id="pdTotalTradesPopover">
+                        <div class="pd-popover-row">
+                            <label>Trade Goal Target</label>
+                            <input type="number" min="1" id="pdTradeGoalInput" value="200" onchange="PD.updateTradeGoal(this.value)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD 2: Win Rate -->
+            <div class="pd-card pd-kpi-card">
+                <div class="pd-card-head">
+                    <span class="pd-card-title">
+                        <i data-lucide="percent" style="width:13px;height:13px;"></i> Win Rate
+                    </span>
+                    <span class="pd-head-actions">
+                        <span class="pd-info-btn" title="نسبة الصفقات الرابحة من إجمالي العينة. راجع دايمًا مع Average R — Win Rate عالية بلا أرباح حقيقية ما كتفيدش بوحدها.">
+                            <i data-lucide="info" style="width:14px;height:14px;color:var(--text-tertiary);"></i>
+                        </span>
+                    </span>
+                </div>
+                <div class="pd-kpi-body" id="pdWinRateBody"></div>
+                <div class="pd-settings-footer pd-popover-anchor" id="pdWinRateSettingsAnchor">
+                    <button type="button" class="pd-settings-btn" onclick="PD.togglePopover('pdWinRateSettingsAnchor')">
+                        <i data-lucide="settings"></i> Settings
+                    </button>
+                    <div class="pd-popover" id="pdWinRatePopover">
+                        <div class="pd-popover-switch-row">
+                            <span>Last N Trades</span>
+                            <div class="pd-switch" id="pdWinRateLastNSwitch" onclick="PD.toggleSwitch('winRate','useLastN', this)">
+                                <div class="pd-switch-track"></div>
+                            </div>
+                        </div>
+                        <div class="pd-popover-row">
+                            <label>عدد الصفقات (N)</label>
+                            <input type="number" min="1" id="pdLastNCountInput" value="100" onchange="PD.updateLastNCount(this.value)">
+                        </div>
+                        <div class="pd-popover-switch-row">
+                            <span>Include Breakeven</span>
+                            <div class="pd-switch" id="pdWinRateIncludeBESwitch" onclick="PD.toggleSwitch('winRate','includeBE', this)">
+                                <div class="pd-switch-track"></div>
+                            </div>
+                        </div>
+                        <div class="pd-popover-row" id="pdBeCountsAsRow" style="display:none;">
+                            <label>Breakeven Counts As</label>
+                            <select id="pdBeCountsAsSelect" onchange="PD.updateWinRateSetting('beCountsAs', this.value)">
+                                <option value="win">Win</option>
+                                <option value="loss">Loss</option>
+                            </select>
+                        </div>
+                        <div class="pd-popover-row">
+                            <label>Display Mode</label>
+                            <select onchange="PD.updateWinRateSetting('displayMode', this.value)">
+                                <option value="bar">Progress Bar</option>
+                                <option value="circular">Circular Gauge</option>
+                            </select>
+                        </div>
+                        <div class="pd-popover-switch-row">
+                            <span>Show Percentage</span>
+                            <div class="pd-switch" id="pdWinRateShowPctSwitch" onclick="PD.toggleSwitch('winRate','showPercentage', this)">
+                                <div class="pd-switch-track"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD 3: Average R -->
+            <div class="pd-card pd-kpi-card">
+                <div class="pd-card-head">
+                    <span class="pd-card-title">
+                        <i data-lucide="activity" style="width:13px;height:13px;"></i> Average R
+                    </span>
+                    <span class="pd-info-btn" title="Break-even RR = Loss Rate ÷ Win Rate. هي أقل نسبة ربح/خسارة (RR) خاصك تحققها فالمتوسط باش تكون رابح على المدى الطويل. المؤشر الأبيض كيوريك وين واقفة Average Winning RR ديالك بالنسبة لهاد الخط.">
+                        <i data-lucide="info" style="width:14px;height:14px;color:var(--text-tertiary);"></i>
+                    </span>
+                </div>
+                <div class="pd-kpi-body" style="width:100%;" id="pdAvgRBody"></div>
+                <div class="pd-settings-footer pd-popover-anchor" id="pdAvgRSettingsAnchor">
+                    <button type="button" class="pd-settings-btn" onclick="PD.togglePopover('pdAvgRSettingsAnchor')">
+                        <i data-lucide="settings"></i> Settings
+                    </button>
+                    <div class="pd-popover" id="pdAvgRPopover">
+                        <div class="pd-popover-switch-row">
+                            <span>Last N Trades</span>
+                            <div class="pd-switch" id="pdAvgRLastNSwitch" onclick="PD.toggleSwitch('avgR','useLastN', this)">
+                                <div class="pd-switch-track"></div>
+                            </div>
+                        </div>
+                        <div class="pd-popover-row">
+                            <label>Maximum Scale RR</label>
+                            <select onchange="PD.updateAvgRSetting('maxScale', parseFloat(this.value))">
+                                <option value="5">5R</option>
+                                <option value="10">10R</option>
+                                <option value="20">20R</option>
+                            </select>
+                        </div>
+                        <div class="pd-popover-switch-row">
+                            <span>Enable Middle Zone</span>
+                            <div class="pd-switch" id="pdAvgRMiddleZoneSwitch" onclick="PD.toggleSwitch('avgR','enableMiddleZone', this)">
+                                <div class="pd-switch-track"></div>
+                            </div>
+                        </div>
+                        <div class="pd-popover-row" id="pdMiddleZoneLimitRow" style="display:none;">
+                            <label>Average Zone Limit</label>
+                            <input type="number" step="0.1" min="0" id="pdMiddleZoneLimitInput" placeholder="مثال: 1.7" onchange="PD.updateAvgRSetting('middleZoneLimit', parseFloat(this.value))">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ---------- Section 2: Small Performance Cards ---------- -->
+        <div class="pd-small-grid" id="pdSmallCardsGrid"></div>
+
+        <!-- ---------- Section 3: Comparison Cards ---------- -->
+        <div class="pd-comparison-grid">
+            <div class="pd-card pd-comparison-card">
+                <div class="pd-card-head">
+                    <span class="pd-card-title"><i data-lucide="layers" style="width:13px;height:13px;"></i> Best / Worst Model</span>
+                    <span class="pd-head-actions">
+                        <select id="pdModelMetricSelect" class="pd-comparison-select" onchange="PD.updateComparisonMetric('model', this.value)">
+                            <option value="winrate">Win Rate</option>
+                            <option value="avgrr">Average RR</option>
+                        </select>
+                        <button type="button" class="pd-icon-btn" title="Eye (قريبًا)"><i data-lucide="eye"></i></button>
+                    </span>
+                </div>
+                <div id="pdCompareModel"></div>
+            </div>
+
+            <div class="pd-card pd-comparison-card">
+                <div class="pd-card-head">
+                    <span class="pd-card-title"><i data-lucide="clock" style="width:13px;height:13px;"></i> Best / Worst Session</span>
+                    <span class="pd-head-actions">
+                        <select id="pdSessionMetricSelect" class="pd-comparison-select" onchange="PD.updateComparisonMetric('session', this.value)">
+                            <option value="winrate">Win Rate</option>
+                            <option value="avgrr">Average RR</option>
+                        </select>
+                        <button type="button" class="pd-icon-btn" title="Eye (قريبًا)"><i data-lucide="eye"></i></button>
+                    </span>
+                </div>
+                <div id="pdCompareSession"></div>
+            </div>
+
+            <div class="pd-card pd-comparison-card">
+                <div class="pd-card-head">
+                    <span class="pd-card-title"><i data-lucide="coins" style="width:13px;height:13px;"></i> Best / Worst Asset</span>
+                    <span class="pd-head-actions">
+                        <select id="pdAssetMetricSelect" class="pd-comparison-select" onchange="PD.updateComparisonMetric('asset', this.value)">
+                            <option value="winrate">Win Rate</option>
+                            <option value="avgrr">Average RR</option>
+                        </select>
+                        <button type="button" class="pd-icon-btn" title="Eye (قريبًا)"><i data-lucide="eye"></i></button>
+                    </span>
+                </div>
+                <div id="pdCompareAsset"></div>
+            </div>
+        </div>
+
+        <!-- ---------- Section 4: Drawdown Cards ---------- -->
+        <h3 style="margin-top:24px;margin-bottom:12px;">Drawdown</h3>
+        <div class="pd-drawdown-grid" id="pdDrawdownGrid"></div>
+
+    </section>
+
     <!-- ===================== Stats ===================== -->
     <section class="section">
         <h2>Overview</h2>
@@ -552,6 +748,7 @@
 <script src="js/custom-select.js"></script>
 <script src="js/emotions-mistakes-data.js"></script>
 <script src="js/journal.js"></script>
+<script src="js/stats-dashboard.js"></script>
 
 </body>
 </html>
