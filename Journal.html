@@ -384,39 +384,51 @@
 
     </section>
 
-    <!-- ===================== Stats ===================== -->
+    <!-- ===================== Equity Curve (Professional Redesign) ===================== -->
     <section class="section">
-        <h2>Overview</h2>
-        <div class="grid grid-stats">
-            <div class="stat-card"><h3>Total Trades</h3><p id="totalTrades">0</p></div>
-            <div class="stat-card"><h3>Win Rate</h3><p id="winRate">0%</p></div>
-            <div class="stat-card"><h3>Total R</h3><p id="totalR">0</p></div>
-            <div class="stat-card"><h3>Average R</h3><p id="averageR">0</p></div>
-            <div class="stat-card"><h3>Best Trade</h3><p id="bestTrade">0</p></div>
-            <div class="stat-card"><h3>Best Model</h3><p id="bestModel">-</p></div>
-            <div class="stat-card"><h3>Top Mistake</h3><p id="topMistake">-</p></div>
-            <div class="stat-card"><h3>Worst Trade</h3><p id="worstTrade">0</p></div>
-            <div class="stat-card"><h3>Profit Factor</h3><p id="profitFactor">0</p></div>
-            <div class="stat-card"><h3>Expectancy</h3><p id="expectancy">0</p></div>
-            <div class="stat-card"><h3>Best Asset</h3><p id="bestAsset">-</p></div>
-            <div class="stat-card"><h3>Total Wins</h3><p id="totalWins">0</p></div>
-            <div class="stat-card"><h3>Total Losses</h3><p id="totalLosses">0</p></div>
-            <div class="stat-card"><h3>Breakeven</h3><p id="totalBE">0</p></div>
-            <div class="stat-card"><h3>Win/Loss Ratio</h3><p id="winLossRatio">0</p></div>
-            <div class="stat-card"><h3>Win Streak</h3><p id="winStreak">0</p></div>
-            <div class="stat-card"><h3>Loss Streak</h3><p id="lossStreak">0</p></div>
-            <div class="stat-card"><h3>Max Drawdown</h3><p id="maxDrawdown">0</p></div>
-            <div class="stat-card"><h3>Best Session</h3><p id="bestSession">-</p></div>
-            <div class="stat-card"><h3>Worst Session</h3><p id="worstSession">-</p></div>
-            <div class="stat-card"><h3>Week Total</h3><p id="weekTotal">0</p></div>
-        </div>
-    </section>
-
-    <!-- ===================== Equity Curve ===================== -->
-    <section class="section">
-        <h2>Equity Curve</h2>
-        <div class="card" style="height:320px;">
-            <canvas id="equityChart"></canvas>
+        <div class="eq-card">
+            <div class="eq-header">
+                <div class="eq-title-group">
+                    <h2 class="eq-title">Equity Curve</h2>
+                    <div class="eq-stats-inline">
+                        <div class="eq-stat">
+                            <span class="eq-stat-label">Current</span>
+                            <span class="eq-stat-value" id="eqCurrentValue">0.0R</span>
+                        </div>
+                        <div class="eq-stat">
+                            <span class="eq-stat-label">Peak</span>
+                            <span class="eq-stat-value eq-stat-peak" id="eqPeakValue">0.0R</span>
+                        </div>
+                        <div class="eq-stat">
+                            <span class="eq-stat-label">Drawdown</span>
+                            <span class="eq-stat-value eq-stat-dd" id="eqDrawdownValue">0.0R</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="eq-controls">
+                    <div class="eq-toggle-group" id="eqMetricToggle">
+                        <button type="button" class="eq-toggle-btn active" data-metric="equity" onclick="eqSetMetric('equity')">Equity</button>
+                        <button type="button" class="eq-toggle-btn" data-metric="usd" onclick="eqSetMetric('usd')">$</button>
+                        <button type="button" class="eq-toggle-btn" data-metric="drawdown" onclick="eqSetMetric('drawdown')">Drawdown</button>
+                    </div>
+                    <div class="eq-toggle-group" id="eqRangeToggle">
+                        <button type="button" class="eq-toggle-btn active" data-range="all" onclick="eqSetRange('all')">All</button>
+                        <button type="button" class="eq-toggle-btn" data-range="1m" onclick="eqSetRange('1m')">1M</button>
+                        <button type="button" class="eq-toggle-btn" data-range="3m" onclick="eqSetRange('3m')">3M</button>
+                        <button type="button" class="eq-toggle-btn" data-range="6m" onclick="eqSetRange('6m')">6M</button>
+                        <button type="button" class="eq-toggle-btn" data-range="1y" onclick="eqSetRange('1y')">1Y</button>
+                    </div>
+                </div>
+            </div>
+            <div class="eq-chart-wrap">
+                <canvas id="equityChart"></canvas>
+                <div id="eqEmptyState" class="eq-empty-state" style="display:none;">
+                    <i data-lucide="trending-up"></i>
+                    <h3>No equity data yet</h3>
+                    <p>Add trades to start tracking your equity.</p>
+                </div>
+                <div id="eqTooltip" class="eq-tooltip"></div>
+            </div>
         </div>
     </section>
 
@@ -585,6 +597,10 @@
                 <div>
                     <label>Result (R)</label>
                     <input type="number" id="resultR" step="0.1" required>
+                </div>
+                <div>
+                    <label>الربح/الخسارة بالدولار (اختياري)</label>
+                    <input type="number" id="pnlUSD" step="0.01" placeholder="مثال: 150 أو -75">
                 </div>
                 <div>
                     <label>Date</label>
@@ -834,8 +850,7 @@
                 peakDaily: "R",
                 max: "R",
                 peakMax: "R"
-            },
-            valuePerR: null
+            }
         };
     }
 
@@ -1227,10 +1242,11 @@
     // ---------------------------------------------------------------
     // SECTION 4: Drawdown Cards
     // ---------------------------------------------------------------
-    function pdComputeDayLocalDD(dayTrades) {
+    function pdComputeLocalDD(dayTrades, field) {
         let equity = 0, peak = 0, worstDD = 0, peakAtWorst = 0;
         dayTrades.forEach(function (t) {
-            equity += (t.resultR || 0);
+            const v = (field === "pnlUSD") ? (t.pnlUSD || 0) : (t.resultR || 0);
+            equity += v;
             if (equity > peak) peak = equity;
             const dd = peak - equity;
             if (dd > worstDD) { worstDD = dd; peakAtWorst = peak; }
@@ -1238,6 +1254,23 @@
         return { dd: worstDD, peakAtDD: peakAtWorst };
     }
 
+    function pdComputeFullDD(sortedTrades, field) {
+        let equity = 0, peak = 0, worstDD = 0, peakAtWorstDD = 0;
+        sortedTrades.forEach(function (t) {
+            const v = (field === "pnlUSD") ? (t.pnlUSD || 0) : (t.resultR || 0);
+            equity += v;
+            if (equity > peak) peak = equity;
+            const dd = peak - equity;
+            if (dd > worstDD) { worstDD = dd; peakAtWorstDD = peak; }
+        });
+        return { current: (peak - equity), currentPeak: peak, worst: worstDD, worstPeak: peakAtWorstDD };
+    }
+
+    // كنحسبو مسارين متوازيين: واحد بوحدة R (ديمًا متوفر)، وواحد بالدولار
+    // (مبني على trade.pnlUSD الحقل الجديد — إذا الصفقة ماعندهاش قيمة
+    // بالدولار، كنعتبروها 0 فهاد المسار بالذات، بلا ما تأثر على مسار R).
+    // بهاد الطريقة، اختيار "$" فـ البطاقة كيقرا مباشرة من هاد المسار
+    // الحقيقي، بلا أي سؤال أو تقدير (valuePerR القديمة تحذفات).
     function pdComputeDrawdowns(filteredSorted) {
         const byDay = {};
         filteredSorted.forEach(function (t) {
@@ -1248,41 +1281,43 @@
         });
 
         const todayKey = new Date().toISOString().slice(0, 10);
-        const todayResult = pdComputeDayLocalDD(byDay[todayKey] || []);
 
-        let worstDailyDD = 0, worstDailyPeak = 0;
-        Object.keys(byDay).forEach(function (day) {
-            const r = pdComputeDayLocalDD(byDay[day]);
-            if (r.dd > worstDailyDD) { worstDailyDD = r.dd; worstDailyPeak = r.peakAtDD; }
-        });
+        function buildFor(field) {
+            const todayResult = pdComputeLocalDD(byDay[todayKey] || [], field);
 
-        let equity = 0, peak = 0, worstDD = 0, peakAtWorstDD = 0;
-        filteredSorted.forEach(function (t) {
-            equity += (t.resultR || 0);
-            if (equity > peak) peak = equity;
-            const dd = peak - equity;
-            if (dd > worstDD) { worstDD = dd; peakAtWorstDD = peak; }
-        });
+            let worstDailyDD = 0, worstDailyPeak = 0;
+            Object.keys(byDay).forEach(function (day) {
+                const r = pdComputeLocalDD(byDay[day], field);
+                if (r.dd > worstDailyDD) { worstDailyDD = r.dd; worstDailyPeak = r.peakAtDD; }
+            });
+
+            const full = pdComputeFullDD(filteredSorted, field);
+
+            return {
+                daily: { value: todayResult.dd, peak: todayResult.peakAtDD },
+                peakDaily: { value: worstDailyDD, peak: worstDailyPeak },
+                max: { value: full.current, peak: full.currentPeak },
+                peakMax: { value: full.worst, peak: full.worstPeak }
+            };
+        }
 
         return {
-            daily: { value: todayResult.dd, peak: todayResult.peakAtDD },
-            peakDaily: { value: worstDailyDD, peak: worstDailyPeak },
-            max: { value: (peak - equity), peak: peak },
-            peakMax: { value: worstDD, peak: peakAtWorstDD }
+            r: buildFor("resultR"),
+            usd: buildFor("pnlUSD")
         };
     }
 
-    function pdFormatDrawdownValue(entry, mode) {
-        const value = entry.value, peak = entry.peak;
+    // rEntry مبني على R (كيخدم مع "R" و"%")، usdEntry مبني على pnlUSD
+    // (كيخدم مباشرة مع "$" — بلا ما نسولو على أي تحويل).
+    function pdFormatDrawdownValue(rEntry, usdEntry, mode) {
         if (mode === "%") {
-            if (!peak || peak <= 0) return "0%";
-            return ((value / peak) * 100).toFixed(1) + "%";
+            if (!rEntry.peak || rEntry.peak <= 0) return "0%";
+            return ((rEntry.value / rEntry.peak) * 100).toFixed(1) + "%";
         }
         if (mode === "$") {
-            if (!pdSettings.valuePerR) return "—";
-            return "$" + (value * pdSettings.valuePerR).toFixed(0);
+            return "$" + Math.abs(usdEntry.value).toFixed(0);
         }
-        return value.toFixed(2) + "R";
+        return rEntry.value.toFixed(2) + "R";
     }
 
     function pdRenderDrawdownCards(filteredSorted) {
@@ -1291,20 +1326,23 @@
 
         const dd = pdComputeDrawdowns(filteredSorted);
         const cards = [
-            { key: "daily", label: "Daily Drawdown", entry: dd.daily },
-            { key: "peakDaily", label: "Peak Daily Drawdown", entry: dd.peakDaily },
-            { key: "max", label: "Max Drawdown", entry: dd.max },
-            { key: "peakMax", label: "Peak Max Drawdown", entry: dd.peakMax }
+            { key: "daily", label: "Daily Drawdown" },
+            { key: "peakDaily", label: "Peak Daily Drawdown" },
+            { key: "max", label: "Max Drawdown" },
+            { key: "peakMax", label: "Peak Max Drawdown" }
         ];
 
         grid.innerHTML = cards.map(function (c) {
             const mode = pdSettings.drawdown[c.key] || "R";
+            const rEntry = dd.r[c.key];
+            const usdEntry = dd.usd[c.key];
             return '<div class="pd-card pd-drawdown-card">' +
                 '<div class="pd-card-head">' +
                 '<span class="pd-card-title">' + c.label + '</span>' +
                 '<button type="button" class="pd-icon-btn" title="Eye (قريبًا)"><i data-lucide="eye"></i></button>' +
                 '</div>' +
-                '<div class="pd-drawdown-value">' + pdFormatDrawdownValue(c.entry, mode) + '</div>' +
+                '<div class="pd-drawdown-value">' + pdFormatDrawdownValue(rEntry, usdEntry, mode) + '</div>' +
+                (mode === "$" ? '<div style="font-size:9.5px;color:var(--text-tertiary);margin-top:2px;">بناءً على "الربح/الخسارة بالدولار" المدخلة يدويًا</div>' : "") +
                 '<select class="pd-mode-select" onchange="PD.updateDrawdownMode(\'' + c.key + '\', this.value)">' +
                 '<option value="R"' + (mode === "R" ? " selected" : "") + '>R</option>' +
                 '<option value="%"' + (mode === "%" ? " selected" : "") + '>%</option>' +
@@ -1431,22 +1469,6 @@
         },
 
         updateDrawdownMode: function (key, mode) {
-            if (mode === "$" && !pdSettings.valuePerR) {
-                if (window.customPrompt) {
-                    window.customPrompt("أدخل قيمة الـ 1R بالدولار (تقديري) باش يتحسب مبلغ الـ Drawdown:").then(function (v) {
-                        const num = parseFloat(v);
-                        if (num && num > 0) pdSettings.valuePerR = num;
-                        pdSettings.drawdown[key] = mode;
-                        pdSaveSettings();
-                        renderStatsDashboard();
-                    });
-                    return;
-                } else {
-                    const v = prompt("أدخل قيمة الـ 1R بالدولار (تقديري):");
-                    const num = parseFloat(v);
-                    if (num && num > 0) pdSettings.valuePerR = num;
-                }
-            }
             pdSettings.drawdown[key] = mode;
             pdSaveSettings();
             renderStatsDashboard();
