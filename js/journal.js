@@ -1082,78 +1082,28 @@ asset;
 
 }
 
-document
-.getElementById(
-"totalTrades"
-)
-.textContent =
-totalTrades;
+(function(){ var _el = document.getElementById("totalTrades"); if (_el) _el.textContent = totalTrades; })();
 
-document
-.getElementById(
-"winRate"
-)
-.textContent =
-winRate.toFixed(1)
-+ "%";
+(function(){ var _el = document.getElementById("winRate"); if (_el) _el.textContent = winRate.toFixed(1)
++ "%"; })();
 
-document
-.getElementById(
-"totalR"
-)
-.textContent =
-totalR.toFixed(1);
+(function(){ var _el = document.getElementById("totalR"); if (_el) _el.textContent = totalR.toFixed(1); })();
 
-document
-.getElementById(
-"averageR"
-)
-.textContent =
-averageR.toFixed(2);
+(function(){ var _el = document.getElementById("averageR"); if (_el) _el.textContent = averageR.toFixed(2); })();
 
-document
-.getElementById(
-"bestTrade"
-)
-.textContent =
-bestTrade.toFixed(1);
+(function(){ var _el = document.getElementById("bestTrade"); if (_el) _el.textContent = bestTrade.toFixed(1); })();
 
-document
-.getElementById(
-"worstTrade"
-)
-.textContent =
-worstTrade.toFixed(1);
+(function(){ var _el = document.getElementById("worstTrade"); if (_el) _el.textContent = worstTrade.toFixed(1); })();
 
-document
-.getElementById(
-"profitFactor"
-)
-.textContent =
-(grossLoss === 0 && grossProfit > 0)
+(function(){ var _el = document.getElementById("profitFactor"); if (_el) _el.textContent = (grossLoss === 0 && grossProfit > 0)
 ? "∞"
-: profitFactor.toFixed(2);
+: profitFactor.toFixed(2); })();
 
-document
-.getElementById(
-"expectancy"
-)
-.textContent =
-expectancy.toFixed(2);
+(function(){ var _el = document.getElementById("expectancy"); if (_el) _el.textContent = expectancy.toFixed(2); })();
 
-document
-.getElementById(
-"bestAsset"
-)
-.textContent =
-bestAsset;
+(function(){ var _el = document.getElementById("bestAsset"); if (_el) _el.textContent = bestAsset; })();
 
-document
-.getElementById(
-"bestModel"
-)
-.textContent =
-bestModel;
+(function(){ var _el = document.getElementById("bestModel"); if (_el) _el.textContent = bestModel; })();
 
 // Week Total: مجموع R ديال الصفقات فالأسبوع الحالي (من نهار الأحد)
 const now = new Date();
@@ -1188,76 +1138,26 @@ mistake;
 
 }
 
-document
-.getElementById(
-"topMistake"
-)
-.textContent =
-topMistake;
+(function(){ var _el = document.getElementById("topMistake"); if (_el) _el.textContent = topMistake; })();
 
-document
-.getElementById(
-"maxDrawdown"
-)
-.textContent =
-maxDrawdown.toFixed(1)
-+ "R";
+(function(){ var _el = document.getElementById("maxDrawdown"); if (_el) _el.textContent = maxDrawdown.toFixed(1)
++ "R"; })();
 
-document
-.getElementById(
-"totalWins"
-)
-.textContent =
-wins;
+(function(){ var _el = document.getElementById("totalWins"); if (_el) _el.textContent = wins; })();
 
-document
-.getElementById(
-"totalLosses"
-)
-.textContent =
-losses;
+(function(){ var _el = document.getElementById("totalLosses"); if (_el) _el.textContent = losses; })();
 
-document
-.getElementById(
-"totalBE"
-)
-.textContent =
-breakevens;
+(function(){ var _el = document.getElementById("totalBE"); if (_el) _el.textContent = breakevens; })();
 
-document
-.getElementById(
-"winLossRatio"
-)
-.textContent =
-winLossRatio.toFixed(2);
+(function(){ var _el = document.getElementById("winLossRatio"); if (_el) _el.textContent = winLossRatio.toFixed(2); })();
 
-document
-.getElementById(
-"winStreak"
-)
-.textContent =
-largestWinStreak;
+(function(){ var _el = document.getElementById("winStreak"); if (_el) _el.textContent = largestWinStreak; })();
 
-document
-.getElementById(
-"lossStreak"
-)
-.textContent =
-largestLossStreak;
+(function(){ var _el = document.getElementById("lossStreak"); if (_el) _el.textContent = largestLossStreak; })();
 
-document
-.getElementById(
-"bestSession"
-)
-.textContent =
-bestSession;
+(function(){ var _el = document.getElementById("bestSession"); if (_el) _el.textContent = bestSession; })();
 
-document
-.getElementById(
-"worstSession"
-)
-.textContent =
-worstSession;
+(function(){ var _el = document.getElementById("worstSession"); if (_el) _el.textContent = worstSession; })();
 
 }
 
@@ -1509,150 +1409,342 @@ function closeView(){
 
 }
 
+// ===================================================================
+// Equity Curve — Professional Trading Analytics Redesign
+// ===================================================================
+// حالة الاختيار الحالية (Metric: equity/usd/drawdown، Range: all/1m/3m/6m/1y)
+// كتبقى محفوظة هنا باش drawChart() تقرا منها فـ كل مرة كتترسم.
+let eqMetric = "equity";
+let eqRange = "all";
+
+// كتفلتر الصفقات حسب المدى الزمني المختار (1M/3M/6M/1Y) — "all" كترجع
+// كل شي بلا تغيير.
+function eqFilterByRange(sortedTrades, range) {
+    if (range === "all" || sortedTrades.length === 0) return sortedTrades;
+    const now = new Date();
+    const cutoff = new Date(now);
+    if (range === "1m") cutoff.setMonth(now.getMonth() - 1);
+    else if (range === "3m") cutoff.setMonth(now.getMonth() - 3);
+    else if (range === "6m") cutoff.setMonth(now.getMonth() - 6);
+    else if (range === "1y") cutoff.setFullYear(now.getFullYear() - 1);
+    return sortedTrades.filter(function (t) { return new Date(t.date) >= cutoff; });
+}
+
+function eqSyncToggleUI() {
+    document.querySelectorAll("#eqMetricToggle .eq-toggle-btn").forEach(function (b) {
+        b.classList.toggle("active", b.dataset.metric === eqMetric);
+    });
+    document.querySelectorAll("#eqRangeToggle .eq-toggle-btn").forEach(function (b) {
+        b.classList.toggle("active", b.dataset.range === eqRange);
+    });
+}
+
+function eqSetMetric(metric) {
+    eqMetric = metric;
+    drawChart();
+}
+
+function eqSetRange(range) {
+    eqRange = range;
+    drawChart();
+}
+
+// تنسيق مختصر للأرقام الكبيرة (1.2K / 10K / 1.5M) لمحور Y
+function eqFormatCompactNumber(n) {
+    const abs = Math.abs(n);
+    let sign = n < 0 ? "-" : "";
+    if (abs >= 1000000) return sign + (abs / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
+    if (abs >= 1000) return sign + (abs / 1000).toFixed(1).replace(/\.0$/, "") + "K";
+    return sign + abs.toFixed(abs < 10 ? 1 : 0);
+}
+
+// Plugin خفيف: خط عمودي (Crosshair) كيبان عند الـ Hover، بلا مكتبة خارجية
+const eqCrosshairPlugin = {
+    id: "eqCrosshair",
+    afterDraw: function (chartInstance) {
+        try {
+            const active = chartInstance.tooltip && chartInstance.tooltip._active;
+            if (!active || !active.length) return;
+            const x = active[0].element.x;
+            const yScale = chartInstance.scales.y;
+            const c = chartInstance.ctx;
+            c.save();
+            c.beginPath();
+            c.setLineDash([4, 4]);
+            c.moveTo(x, yScale.top);
+            c.lineTo(x, yScale.bottom);
+            c.lineWidth = 1;
+            c.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--border-color").trim() || "#999";
+            c.stroke();
+            c.restore();
+        } catch (e) { /* لا شيء — الكروسهير تحسين بصري، ماشي أساسي */ }
+    }
+};
+
+// Plugin خفيف: خط مرجعي منقط عند Peak Equity (فوضع Equity/$ فقط)
+const eqPeakLinePlugin = {
+    id: "eqPeakLine",
+    afterDatasetsDraw: function (chartInstance) {
+        try {
+            const peakY = chartInstance.$eqPeakY;
+            if (peakY === undefined || peakY === null) return;
+            const yScale = chartInstance.scales.y;
+            const xScale = chartInstance.scales.x;
+            const pixelY = yScale.getPixelForValue(peakY);
+            const c = chartInstance.ctx;
+            c.save();
+            c.beginPath();
+            c.setLineDash([3, 5]);
+            c.moveTo(xScale.left, pixelY);
+            c.lineTo(xScale.right, pixelY);
+            c.lineWidth = 1;
+            c.strokeStyle = "rgba(109,93,252,0.35)";
+            c.stroke();
+            c.restore();
+        } catch (e) { /* لا شيء */ }
+    }
+};
+
+// Tooltip مخصص (HTML) بديل عن tooltip الافتراضي ديال Chart.js — كيبين
+// التاريخ، القيمة، P/L ديال الصفقة، ورقم الصفقة.
+function eqExternalTooltip(context) {
+    const tooltipEl = document.getElementById("eqTooltip");
+    if (!tooltipEl) return;
+
+    const tooltipModel = context.tooltip;
+
+    if (!tooltipModel || tooltipModel.opacity === 0) {
+        tooltipEl.style.opacity = 0;
+        return;
+    }
+
+    const dp = tooltipModel.dataPoints && tooltipModel.dataPoints[0];
+    if (dp) {
+        const idx = dp.dataIndex;
+        const point = window._eqPoints ? window._eqPoints[idx] : null;
+        if (point) {
+            const isUSD = eqMetric === "usd";
+            const metricLabel = isUSD ? "$" : (eqMetric === "drawdown" ? "Drawdown" : "Equity");
+            const valueText = isUSD ? ("$" + point.equity.toFixed(2)) : (point.equity.toFixed(2) + "R");
+            const plText = (point.pl === null || point.pl === undefined) ? "-" :
+                (isUSD ? ("$" + point.pl.toFixed(2)) : (point.pl.toFixed(2) + "R"));
+            const plClass = (point.pl === null || point.pl === undefined) ? "" : (point.pl >= 0 ? "eq-tt-pos" : "eq-tt-neg");
+
+            tooltipEl.innerHTML =
+                '<div class="eq-tooltip-date">' + point.dateLabel + '</div>' +
+                '<div class="eq-tooltip-row"><span>' + metricLabel + '</span><b>' + valueText + '</b></div>' +
+                '<div class="eq-tooltip-row"><span>P/L</span><b class="' + plClass + '">' + plText + '</b></div>' +
+                '<div class="eq-tooltip-row"><span>Trade #</span><b>' + (idx + 1) + '</b></div>';
+        }
+    }
+
+    const canvas = context.chart.canvas;
+    const canvasRect = canvas.getBoundingClientRect();
+    const wrapRect = canvas.parentElement.getBoundingClientRect();
+
+    tooltipEl.style.opacity = 1;
+    let left = tooltipModel.caretX + (canvasRect.left - wrapRect.left);
+    left = Math.max(60, Math.min(left, wrapRect.width - 60));
+    tooltipEl.style.left = left + "px";
+    tooltipEl.style.top = (tooltipModel.caretY + (canvasRect.top - wrapRect.top)) + "px";
+}
+
+// كيحدث بطاقات Current/Peak/Drawdown فوق الرسم
+function eqUpdateHeaderStats(current, peak, drawdown) {
+    const isUSD = eqMetric === "usd";
+    const prefix = isUSD ? "$" : "";
+    const suffix = isUSD ? "" : "R";
+
+    const curEl = document.getElementById("eqCurrentValue");
+    const peakEl = document.getElementById("eqPeakValue");
+    const ddEl = document.getElementById("eqDrawdownValue");
+
+    if (curEl) curEl.textContent = prefix + current.toFixed(2) + suffix;
+    if (peakEl) peakEl.textContent = prefix + (peak === -Infinity ? 0 : peak).toFixed(2) + suffix;
+    if (ddEl) ddEl.textContent = prefix + Math.abs(drawdown).toFixed(2) + suffix;
+}
+
 function drawChart(){
 
-    const ctx =
-    document.getElementById(
-        "equityChart"
-    );
+    const ctx = document.getElementById("equityChart");
+    if (!ctx) return;
 
-const selectedAsset =
-getCheckedValues("assetFilterOptions");
+    eqSyncToggleUI();
 
-const selectedModel =
-document.getElementById(
-"modelFilter"
-).value;
+    const selectedAsset = getCheckedValues("assetFilterOptions");
+    const selectedModel = document.getElementById("modelFilter").value;
+    const selectedSessions = getCheckedValues("sessionFilterOptions");
+    const selectedTags = getCheckedValues("tagsFilterOptions");
 
-const selectedSessions =
-getCheckedValues("sessionFilterOptions");
+    const filteredTrades = trades.filter(function (trade) {
+        if (selectedAsset.length > 0 && !selectedAsset.includes(trade.asset)) return false;
+        if (selectedModel !== "All" && trade.model !== selectedModel) return false;
+        if (selectedSessions.length > 0 && !selectedSessions.includes(trade.session)) return false;
+        if (selectedTags.length > 0 && !(trade.tags && selectedTags.every(function (t) { return trade.tags && trade.tags.includes(t); }))) return false;
+        return true;
+    });
 
-const selectedTags =
-getCheckedValues("tagsFilterOptions");
+    let sortedTrades = [...filteredTrades].sort(function (a, b) { return new Date(a.date) - new Date(b.date); });
+    sortedTrades = eqFilterByRange(sortedTrades, eqRange);
 
-const filteredTrades =
-trades.filter(trade => {
+    const emptyState = document.getElementById("eqEmptyState");
 
-if(
-selectedAsset.length > 0 &&
-!selectedAsset.includes(trade.asset)
-){
-return false;
-}
+    // ---------- حالة "لا توجد بيانات" ----------
+    if (sortedTrades.length === 0) {
+        if (chart) { chart.destroy(); chart = null; }
+        if (emptyState) emptyState.style.display = "flex";
+        ctx.style.display = "none";
+        eqUpdateHeaderStats(0, 0, 0);
+        return;
+    }
+    if (emptyState) emptyState.style.display = "none";
+    ctx.style.display = "block";
 
-if(
-selectedModel !== "All" &&
-trade.model !== selectedModel
-){
-return false;
-}
+    // ---------- بناء بيانات المسار (Equity / $ / Drawdown) ----------
+    let dates = [];
+    let plotValues = [];
+    let points = [];
+    let total = 0;
+    let peak = -Infinity;
 
-if(
-selectedSessions.length > 0 &&
-!selectedSessions.includes(trade.session)
-){
-return false;
-}
+    sortedTrades.forEach(function (trade) {
 
-if(
-selectedTags.length > 0 &&
-!(trade.tags && selectedTags.every(t => trade.tags && trade.tags.includes(t)))
-){
-return false;
-}
+        const rVal = trade.resultR || 0;
+        const usdVal = trade.pnlUSD || 0;
+        const step = (eqMetric === "usd") ? usdVal : rVal;
 
-return true;
+        total += step;
+        if (total > peak) peak = total;
 
-});
+        const d = new Date(trade.date);
+        dates.push(d.toLocaleDateString());
 
-let sortedTrades =
-[...filteredTrades]
-.sort(
-(a,b)=>
-new Date(a.date) -
-new Date(b.date)
-);
+        const plotValue = (eqMetric === "drawdown") ? -(peak - total) : total;
+        plotValues.push(plotValue);
 
-let dates = [];
-let equity = [];
-let total = 0;
+        points.push({
+            equity: total,
+            pl: (eqMetric === "usd")
+                ? ((trade.pnlUSD !== null && trade.pnlUSD !== undefined) ? trade.pnlUSD : null)
+                : rVal,
+            dateLabel: d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        });
 
-sortedTrades.forEach(trade => {
+    });
 
-    total += trade.resultR;
+    window._eqPoints = points;
 
-    dates.push(
-        new Date(trade.date)
-        .toLocaleDateString()
-    );
+    const finalEquity = total;
+    const currentDrawdown = peak - total;
+    eqUpdateHeaderStats(finalEquity, peak, currentDrawdown);
 
-    equity.push(total);
+    if (chart) {
+        chart.destroy();
+        chart = null;
+    }
 
-});
+    const rootStyles = getComputedStyle(document.documentElement);
+    const primaryColor = rootStyles.getPropertyValue("--primary").trim() || "#6D5DFC";
+    const dangerColor = rootStyles.getPropertyValue("--danger").trim() || "#EF4444";
+    const gridColor = rootStyles.getPropertyValue("--border-soft").trim();
+    const textColor = rootStyles.getPropertyValue("--text-tertiary").trim();
 
-if(chart){
+    const lineColor = (eqMetric === "drawdown") ? dangerColor : primaryColor;
 
-    chart.destroy();
+    const canvasCtx = ctx.getContext("2d");
+    const chartHeight = ctx.parentElement ? ctx.parentElement.clientHeight : 320;
+    const gradient = canvasCtx.createLinearGradient(0, 0, 0, chartHeight);
+    gradient.addColorStop(0, lineColor + "30");
+    gradient.addColorStop(1, lineColor + "00");
 
-}
+    // نعرضو غير 6-8 labels فـ X Axis باش ما تتزاحمش (حتى مع مئات الصفقات)
+    const maxLabels = 7;
+    const skip = Math.max(1, Math.ceil(dates.length / maxLabels));
 
-const rootStyles = getComputedStyle(document.documentElement);
-const primaryColor = rootStyles.getPropertyValue("--primary").trim() || "#6D5DFC";
-const gridColor = rootStyles.getPropertyValue("--border-soft").trim();
-const textColor = rootStyles.getPropertyValue("--text-tertiary").trim();
+    chart = new Chart(ctx, {
 
-chart = new Chart(ctx, {
+        type: "line",
 
-type:"line",
+        data: {
+            labels: dates,
+            datasets: [{
+                label: (eqMetric === "usd") ? "Equity ($)" : (eqMetric === "drawdown") ? "Drawdown" : "Equity (R)",
+                data: plotValues,
+                tension: 0.35,
+                cubicInterpolationMode: "monotone",
+                fill: true,
+                borderWidth: 2.5,
+                pointRadius: 0,
+                pointHitRadius: 12,
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: lineColor,
+                pointHoverBorderColor: "#fff",
+                pointHoverBorderWidth: 2,
+                borderColor: lineColor,
+                backgroundColor: gradient
+            }]
+        },
 
-data:{
-labels:dates,
+        options: {
 
-datasets:[{
-label:"Equity Curve",
-data:equity,
-tension:0.4,
-fill:true,
-borderWidth:3,
-pointRadius:4,
-pointHoverRadius:7,
-borderColor: primaryColor,
-backgroundColor: primaryColor + "22",
-pointBackgroundColor: primaryColor,
-pointBorderColor: primaryColor
-}]
-},
+            responsive: true,
+            maintainAspectRatio: false,
 
-options:{
+            animation: { duration: 650, easing: "easeOutQuart" },
 
-responsive:true,
+            interaction: { mode: "index", intersect: false },
 
-plugins:{
-legend:{
-display:false
-}
-},
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    enabled: false,
+                    external: eqExternalTooltip
+                }
+            },
 
-scales:{
+            scales: {
 
-x:{
-grid:{
-display:false
-},
-ticks:{ color: textColor }
-},
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        color: textColor,
+                        font: { size: 10.5 },
+                        maxRotation: 0,
+                        autoSkip: false,
+                        callback: function (value, index) {
+                            return (index % skip === 0) ? this.getLabelForValue(value) : "";
+                        }
+                    }
+                },
 
-y:{
-beginAtZero:false,
-grid:{ color: gridColor },
-ticks:{ color: textColor }
-}
+                y: {
+                    beginAtZero: false,
+                    grid: { color: gridColor, drawTicks: false },
+                    ticks: {
+                        color: textColor,
+                        font: { size: 10.5 },
+                        maxTicksLimit: 5,
+                        callback: function (value) {
+                            const prefix = (eqMetric === "usd") ? "$" : "";
+                            const suffix = (eqMetric === "usd") ? "" : "R";
+                            return prefix + eqFormatCompactNumber(value) + suffix;
+                        }
+                    }
+                }
 
-}
+            }
 
-}
+        },
 
-});
+        plugins: [eqCrosshairPlugin, eqPeakLinePlugin]
+
+    });
+
+    // خط الـ Peak المرجعي: كيبان غير فوضع Equity/$ (ماشي فوضع Drawdown،
+    // لأن هناك المرجع 0 هو أصلاً القمة)
+    chart.$eqPeakY = (eqMetric !== "drawdown") ? peak : null;
+    chart.update("none");
+
 }
 
 function renderMistakes(searchText){
@@ -4096,370 +4188,4 @@ doc.text(
 doc.setTextColor(0,0,0);
 
 // Session Breakdown: كنبنيوها من pdfTrades (النطاق المختار للتصدير)
-// بدل قراءة الرسم الحي (لي كيعكس فلاتر الداشبورد الحالية)
-const pdfSessions = { "Asia": 0, "London": 0, "New York AM": 0, "New York PM": 0 };
-pdfTrades.forEach(t => {
-    if (t.session && pdfSessions.hasOwnProperty(t.session)) pdfSessions[t.session]++;
-});
-
-const sessionCanvas = document.createElement("canvas");
-sessionCanvas.width = 400;
-sessionCanvas.height = 400;
-const sessionChartTemp = new Chart(sessionCanvas, {
-    type: "doughnut",
-    data: {
-        labels: Object.keys(pdfSessions),
-        datasets: [{
-            data: Object.values(pdfSessions),
-            backgroundColor: ["#6D5DFC", "#8578FF", "#5647E8", "#D9D0C2"],
-            borderWidth: 0
-        }]
-    },
-    options: {
-        responsive: false,
-        animation: false,
-        plugins: { legend: { position: "bottom", labels: { font: { size: 18 } } } }
-    }
-});
-const sessionImage = sessionCanvas.toDataURL("image/png");
-sessionChartTemp.destroy();
-
-doc.setFontSize(12);
-doc.text("Session Breakdown", 15, 34);
-
-doc.addImage(
-sessionImage,
-"PNG",
-15,
-38,
-80,
-80
-);
-
-// Win/Loss Distribution: كنبنيوها بـ Chart.js فـ canvas مؤقت (خارج
-// الشاشة) خاص بالتصدير فقط، ماشي جزء من الواجهة العادية
-const winLossCanvas = document.createElement("canvas");
-winLossCanvas.width = 400;
-winLossCanvas.height = 400;
-const winLossChart = new Chart(winLossCanvas, {
-    type: "doughnut",
-    data: {
-        labels: ["Wins", "Losses", "Breakeven"],
-        datasets: [{
-            data: [wins, losses, be],
-            backgroundColor: ["#22C55E", "#EF4444", "#F59E0B"],
-            borderWidth: 0
-        }]
-    },
-    options: {
-        responsive: false,
-        animation: false,
-        plugins: {
-            legend: {
-                position: "bottom",
-                labels: { font: { size: 20 } }
-            }
-        }
-    }
-});
-
-const winLossImage = winLossCanvas.toDataURL("image/png");
-winLossChart.destroy();
-
-doc.setFontSize(12);
-doc.text("Win / Loss Distribution", 110, 34);
-
-doc.addImage(
-winLossImage,
-"PNG",
-110,
-38,
-80,
-80
-);
-
-/* TABLE */
-
-const rows =
-pdfTrades.map(t=>[
-t.asset,
-t.model,
-t.session,
-t.result,
-t.resultR,
-(t.date||"").substring(0,10)
-]);
-
-doc.autoTable({
-
-startY:130,
-
-head:[[
-"Asset",
-"Model",
-"Session",
-"Result",
-"R",
-"Date"
-]],
-
-body:rows,
-
-theme:"grid",
-
-headStyles:{
-fillColor:[109, 93, 252]
-},
-
-styles:{
-fontSize:8
-},
-
-// نلونو خانة Result حسب النتيجة (أخضر=Win، أحمر=Loss، برتقالي=Breakeven)
-didParseCell: function (data) {
-    if (data.section === "body" && data.column.index === 3) {
-        const value = data.cell.raw;
-        if (value === "Win") {
-            data.cell.styles.textColor = [34, 197, 94];
-            data.cell.styles.fontStyle = "bold";
-        } else if (value === "Loss") {
-            data.cell.styles.textColor = [239, 68, 68];
-            data.cell.styles.fontStyle = "bold";
-        } else if (value === "Breakeven") {
-            data.cell.styles.textColor = [217, 119, 6];
-            data.cell.styles.fontStyle = "bold";
-        }
-    }
-}
-
-});
-
-/* FOOTER */
-
-const pages =
-doc.getNumberOfPages();
-
-for(let i=1;i<=pages;i++){
-
-doc.setPage(i);
-
-doc.setFontSize(9);
-
-doc.setTextColor(120);
-
-doc.text(
-`Page ${i} / ${pages}`,
-pageWidth/2,
-290,
-{
-align:"center"
-}
-);
-
-}
-
-doc.save(
-    "Trading_Journal_Report.pdf"
-);
-
-}
-
-// ملاحظة: كانت هنا دالة handleExport() قديمة كتعتمد على عنصر
-// "exportType" ما كانش موجود حتى فالنسخة الأصلية للموقع (dead code،
-// كانت غادي ترمي error لو تستدعات). وظيفتها مغطاة كاملة بأزرار
-// Modal ديال Export/Import (كل زر عندو onclick مباشر لـ exportPDF/exportCSV/...).
-// تحذفات هنا.
-
-function openExportImportModal(){
-
-document.getElementById(
-"exportImportModal"
-).style.display =
-"flex";
-
-renderExportModelsOptions();
-refreshIcons();
-
-}
-
-// كتبني checkboxes قائمة "Models to Export" من modelsList
-function renderExportModelsOptions() {
-    const container = document.getElementById("exportModelsOptions");
-    if (!container) return;
-    const previouslyChecked = getCheckedValues("exportModelsOptions");
-    container.innerHTML = "";
-    modelsList.forEach(function (model) {
-        const label = document.createElement("label");
-        label.innerHTML =
-            '<input type="checkbox" value="' + model + '" ' +
-            (previouslyChecked.includes(model) ? "checked " : "") +
-            'onchange="updateExportModelsLabel()"> ' + model;
-        container.appendChild(label);
-    });
-    updateExportModelsLabel();
-}
-
-function updateExportModelsLabel() {
-    const selected = getCheckedValues("exportModelsOptions");
-    const labelEl = document.getElementById("exportModelsLabel");
-    if (!labelEl) return;
-    labelEl.textContent =
-        selected.length === 0 ? "All Models (Full Export)" :
-        selected.length === 1 ? selected[0] :
-        selected.length + " Models Selected";
-}
-
-// كتحسب البيانات لي غادي تتصدر: إذا ما تختارش موديل، كلشي (بحال قبل).
-// إذا تختارو موديل ولا أكثر، غير صفقات هاد الموديلات + التاكات/الحالات/
-// الأخطاء لي فعليًا مستعملة فهاد الصفقات (ماشي القوائم الكاملة)
-function getExportScope() {
-    const selectedModels = getCheckedValues("exportModelsOptions");
-
-    if (selectedModels.length === 0) {
-        return {
-            trades: trades,
-            models: modelsList,
-            tags: tagsList,
-            mistakes: mistakesList,
-            emotions: emotionsList
-        };
-    }
-
-    const scopedTrades = trades.filter(t => selectedModels.includes(t.model));
-
-    const usedTags = new Set();
-    const usedMistakes = new Set();
-    const usedEmotions = new Set();
-
-    scopedTrades.forEach(t => {
-        (t.tags || []).forEach(x => usedTags.add(x));
-        (t.mistakes || []).forEach(x => usedMistakes.add(x));
-        (Array.isArray(t.emotion) ? t.emotion : (t.emotion ? [t.emotion] : [])).forEach(x => usedEmotions.add(x));
-    });
-
-    return {
-        trades: scopedTrades,
-        models: selectedModels,
-        tags: Array.from(usedTags),
-        mistakes: Array.from(usedMistakes),
-        emotions: Array.from(usedEmotions)
-    };
-}
-
-function closeExportImportModal(){
-
-document.getElementById(
-"exportImportModal"
-).style.display =
-"none";
-
-}
-
-document.addEventListener(
-"click",
-function(e){
-
-// نسدو قوائم الفلاتر المتعددة (Asset/Session) كي المستخدم يضغط برا منهم
-document.querySelectorAll(".filter-dropdown").forEach(function (dropdown) {
-    if (!dropdown.contains(e.target)) {
-        const filterMenu = dropdown.querySelector(".filter-menu");
-        if (filterMenu) filterMenu.style.display = "none";
-    }
-});
-
-}
-);
-
-
-// Date Picker احترافي (نقطة 2) — بيدير حقل #date بلا التقويم الافتراضي للمتصفح
-let dateFieldInstance = null;
-if (window.flatpickr) {
-    dateFieldInstance = flatpickr("#date", {
-        enableTime: true,
-        dateFormat: "Y-m-d\\TH:i",
-        time_24hr: true,
-        allowInput: false
-    });
-}
-window.dateFieldInstance = dateFieldInstance;
-
-renderModels();
-renderModelsCards();
-renderMistakes();
-renderTagsList();
-renderEmotionsList();
-renderTrades();
-updateStats();
-drawChart();
-drawSessionChart();
-renderTagsStats();
-renderMistakeEmotionAnalytics();
-renderCalendar();
-
-
-
-
-window.addEventListener("cloudDataReady", function () {
-
-    trades = sanitizeTrades(JSON.parse(localStorage.getItem("trades")) || []);
-    modelsList = JSON.parse(localStorage.getItem("modelsList")) || modelsList;
-    mistakesList = JSON.parse(localStorage.getItem("mistakesList")) || mistakesList;
-    tagsList = JSON.parse(localStorage.getItem("tagsList")) || tagsList;
-    emotionsList = JSON.parse(localStorage.getItem("emotionsList")) || emotionsList;
-
-    renderModels();
-    renderModelsCards();
-    renderMistakes();
-    renderTagsList();
-    renderEmotionsList();
-    renderTrades();
-    updateStats();
-    drawChart();
-    drawSessionChart();
-    renderTagsStats();
-    renderMistakeEmotionAnalytics();
-    renderCalendar();
-
-});
-
-// عند تبديل الثيم (Dark/Light)، الرسوم البيانية (Chart.js) ما كتبدلش
-// ألوانها تلقائيًا لأن الألوان كتتقرأ مرة وحدة وقت الرسم، فخاصنا نعاودو
-// نرسموها من جديد باش تاخد ألوان الثيم الجديد
-window.addEventListener("themeChanged", function () {
-    drawChart();
-    drawSessionChart();
-});
-
-// ===================== Drag & Drop للاستيراد =====================
-// كتسمح للمستخدم يسحب ملف JSON مباشرة لمنطقة الاستيراد بدل ما يدور عليه
-(function setupImportDropzone() {
-    const dropzone = document.getElementById("importDropzone");
-    if (!dropzone) return;
-
-    ["dragenter", "dragover"].forEach(function (evt) {
-        dropzone.addEventListener(evt, function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            dropzone.classList.add("dragover");
-        });
-    });
-
-    ["dragleave", "drop"].forEach(function (evt) {
-        dropzone.addEventListener(evt, function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            dropzone.classList.remove("dragover");
-        });
-    });
-
-    dropzone.addEventListener("drop", function (e) {
-        const file = e.dataTransfer && e.dataTransfer.files ? e.dataTransfer.files[0] : null;
-        if (!file) return;
-        if (!file.name.toLowerCase().endsWith(".json")) {
-            customAlert("خاصك تختار ملف بصيغة JSON فقط.");
-            return;
-        }
-        // كنبنيو "event" مزيف بنفس الشكل لي كتوقعو importTrades()
-        importTrades({ target: { files: [file], value: "" } });
-    });
-})();
+// بدل قراءة الرسم الحي (لي كيعكس فلاتر ا
