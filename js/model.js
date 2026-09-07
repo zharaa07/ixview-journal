@@ -217,6 +217,12 @@ document.getElementById(
 ).value
 ) || 0,
 
+pnlUSD:
+(function(){
+    var raw = document.getElementById("pnlUSD").value;
+    return raw === "" ? null : (parseFloat(raw) || 0);
+})(),
+
 date:
 document.getElementById(
 "date"
@@ -1145,6 +1151,10 @@ function editTrade(index){
     document.getElementById(
         "resultR"
     ).value = trade.resultR;
+
+    document.getElementById(
+        "pnlUSD"
+    ).value = (trade.pnlUSD !== undefined && trade.pnlUSD !== null) ? trade.pnlUSD : "";
 
 document.getElementById(
 "model"
