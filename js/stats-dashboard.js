@@ -65,8 +65,7 @@
                 peakDaily: "R",
                 max: "R",
                 peakMax: "R"
-            },
-            valuePerR: null
+            }
         };
     }
 
@@ -458,10 +457,11 @@
     // ---------------------------------------------------------------
     // SECTION 4: Drawdown Cards
     // ---------------------------------------------------------------
-    function pdComputeDayLocalDD(dayTrades) {
+    function pdComputeLocalDD(dayTrades, field) {
         let equity = 0, peak = 0, worstDD = 0, peakAtWorst = 0;
         dayTrades.forEach(function (t) {
-            equity += (t.resultR || 0);
+            const v = (field === "pnlUSD") ? (t.pnlUSD || 0) : (t.resultR || 0);
+            equity += v;
             if (equity > peak) peak = equity;
             const dd = peak - equity;
             if (dd > worstDD) { worstDD = dd; peakAtWorst = peak; }
@@ -469,6 +469,23 @@
         return { dd: worstDD, peakAtDD: peakAtWorst };
     }
 
+    function pdComputeFullDD(sortedTrades, field) {
+        let equity = 0, peak = 0, worstDD = 0, peakAtWorstDD = 0;
+        sortedTrades.forEach(function (t) {
+            const v = (field === "pnlUSD") ? (t.pnlUSD || 0) : (t.resultR || 0);
+            equity += v;
+            if (equity > peak) peak = equity;
+            const dd = peak - equity;
+            if (dd > worstDD) { worstDD = dd; peakAtWorstDD = peak; }
+        });
+        return { current: (peak - equity), currentPeak: peak, worst: worstDD, worstPeak: peakAtWorstDD };
+    }
+
+    // كنحسبو مسارين متوازيين: واحد بوحدة R (ديمًا متوفر)، وواحد بالدولار
+    // (مبني على trade.pnlUSD الحقل الجديد — إذا الصفقة ماعندهاش قيمة
+    // بالدولار، كنعتبروها 0 فهاد المسار بالذات، بلا ما تأثر على مسار R).
+    // بهاد الطريقة، اختيار "$" فـ البطاقة كيقرا مباشرة من هاد المسار
+    // الحقيقي، بلا أي سؤال أو تقدير (valuePerR القديمة تحذفات).
     function pdComputeDrawdowns(filteredSorted) {
         const byDay = {};
         filteredSorted.forEach(function (t) {
@@ -479,41 +496,43 @@
         });
 
         const todayKey = new Date().toISOString().slice(0, 10);
-        const todayResult = pdComputeDayLocalDD(byDay[todayKey] || []);
 
-        let worstDailyDD = 0, worstDailyPeak = 0;
-        Object.keys(byDay).forEach(function (day) {
-            const r = pdComputeDayLocalDD(byDay[day]);
-            if (r.dd > worstDailyDD) { worstDailyDD = r.dd; worstDailyPeak = r.peakAtDD; }
-        });
+        function buildFor(field) {
+            const todayResult = pdComputeLocalDD(byDay[todayKey] || [], field);
 
-        let equity = 0, peak = 0, worstDD = 0, peakAtWorstDD = 0;
-        filteredSorted.forEach(function (t) {
-            equity += (t.resultR || 0);
-            if (equity > peak) peak = equity;
-            const dd = peak - equity;
-            if (dd > worstDD) { worstDD = dd; peakAtWorstDD = peak; }
-        });
+            let worstDailyDD = 0, worstDailyPeak = 0;
+            Object.keys(byDay).forEach(function (day) {
+                const r = pdComputeLocalDD(byDay[day], field);
+                if (r.dd > worstDailyDD) { worstDailyDD = r.dd; worstDailyPeak = r.peakAtDD; }
+            });
+
+            const full = pdComputeFullDD(filteredSorted, field);
+
+            return {
+                daily: { value: todayResult.dd, peak: todayResult.peakAtDD },
+                peakDaily: { value: worstDailyDD, peak: worstDailyPeak },
+                max: { value: full.current, peak: full.currentPeak },
+                peakMax: { value: full.worst, peak: full.worstPeak }
+            };
+        }
 
         return {
-            daily: { value: todayResult.dd, peak: todayResult.peakAtDD },
-            peakDaily: { value: worstDailyDD, peak: worstDailyPeak },
-            max: { value: (peak - equity), peak: peak },
-            peakMax: { value: worstDD, peak: peakAtWorstDD }
+            r: buildFor("resultR"),
+            usd: buildFor("pnlUSD")
         };
     }
 
-    function pdFormatDrawdownValue(entry, mode) {
-        const value = entry.value, peak = entry.peak;
+    // rEntry مبني على R (كيخدم مع "R" و"%")، usdEntry مبني على pnlUSD
+    // (كيخدم مباشرة مع "$" — بلا ما نسولو على أي تحويل).
+    function pdFormatDrawdownValue(rEntry, usdEntry, mode) {
         if (mode === "%") {
-            if (!peak || peak <= 0) return "0%";
-            return ((value / peak) * 100).toFixed(1) + "%";
+            if (!rEntry.peak || rEntry.peak <= 0) return "0%";
+            return ((rEntry.value / rEntry.peak) * 100).toFixed(1) + "%";
         }
         if (mode === "$") {
-            if (!pdSettings.valuePerR) return "—";
-            return "$" + (value * pdSettings.valuePerR).toFixed(0);
+            return "$" + Math.abs(usdEntry.value).toFixed(0);
         }
-        return value.toFixed(2) + "R";
+        return rEntry.value.toFixed(2) + "R";
     }
 
     function pdRenderDrawdownCards(filteredSorted) {
@@ -522,20 +541,23 @@
 
         const dd = pdComputeDrawdowns(filteredSorted);
         const cards = [
-            { key: "daily", label: "Daily Drawdown", entry: dd.daily },
-            { key: "peakDaily", label: "Peak Daily Drawdown", entry: dd.peakDaily },
-            { key: "max", label: "Max Drawdown", entry: dd.max },
-            { key: "peakMax", label: "Peak Max Drawdown", entry: dd.peakMax }
+            { key: "daily", label: "Daily Drawdown" },
+            { key: "peakDaily", label: "Peak Daily Drawdown" },
+            { key: "max", label: "Max Drawdown" },
+            { key: "peakMax", label: "Peak Max Drawdown" }
         ];
 
         grid.innerHTML = cards.map(function (c) {
             const mode = pdSettings.drawdown[c.key] || "R";
+            const rEntry = dd.r[c.key];
+            const usdEntry = dd.usd[c.key];
             return '<div class="pd-card pd-drawdown-card">' +
                 '<div class="pd-card-head">' +
                 '<span class="pd-card-title">' + c.label + '</span>' +
                 '<button type="button" class="pd-icon-btn" title="Eye (قريبًا)"><i data-lucide="eye"></i></button>' +
                 '</div>' +
-                '<div class="pd-drawdown-value">' + pdFormatDrawdownValue(c.entry, mode) + '</div>' +
+                '<div class="pd-drawdown-value">' + pdFormatDrawdownValue(rEntry, usdEntry, mode) + '</div>' +
+                (mode === "$" ? '<div style="font-size:9.5px;color:var(--text-tertiary);margin-top:2px;">بناءً على "الربح/الخسارة بالدولار" المدخلة يدويًا</div>' : "") +
                 '<select class="pd-mode-select" onchange="PD.updateDrawdownMode(\'' + c.key + '\', this.value)">' +
                 '<option value="R"' + (mode === "R" ? " selected" : "") + '>R</option>' +
                 '<option value="%"' + (mode === "%" ? " selected" : "") + '>%</option>' +
@@ -662,22 +684,6 @@
         },
 
         updateDrawdownMode: function (key, mode) {
-            if (mode === "$" && !pdSettings.valuePerR) {
-                if (window.customPrompt) {
-                    window.customPrompt("أدخل قيمة الـ 1R بالدولار (تقديري) باش يتحسب مبلغ الـ Drawdown:").then(function (v) {
-                        const num = parseFloat(v);
-                        if (num && num > 0) pdSettings.valuePerR = num;
-                        pdSettings.drawdown[key] = mode;
-                        pdSaveSettings();
-                        renderStatsDashboard();
-                    });
-                    return;
-                } else {
-                    const v = prompt("أدخل قيمة الـ 1R بالدولار (تقديري):");
-                    const num = parseFloat(v);
-                    if (num && num > 0) pdSettings.valuePerR = num;
-                }
-            }
             pdSettings.drawdown[key] = mode;
             pdSaveSettings();
             renderStatsDashboard();
