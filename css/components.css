@@ -1422,19 +1422,30 @@ input#date{
 }
 
 /* ---------- Card Shell عام (كل بطاقات V2) ---------- */
+/* ملاحظة مهمة: كانت هنا backdrop-filter + gradient overlay خفيف
+   (تأثير "Glass") — تحذفات لأن backdrop-filter كيدير "stacking context"
+   معزول لكل بطاقة، وهادشي كان هو السبب فمشكل ظهور نافذة Settings
+   (.pd-popover) تحت البطاقات الجارة بدل فوقها. دابا البطاقة سطح
+   بسيط (بحال .card/.stat-card فباقي الموقع) بلا عزل، باش أي عنصر
+   بـ z-index مرتفع جواها (بحال الـ popover) يقدر يطلع فوق كل شي فعليًا. */
 .pd-card{
     position: relative;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)) , var(--bg-surface);
+    background: var(--bg-surface);
     border: 1px solid var(--border-soft);
     border-radius: 22px;
     padding: var(--space-5);
     box-shadow: var(--shadow-sm);
-    backdrop-filter: blur(6px);
     transition: box-shadow var(--transition-base), border-color var(--transition-base);
 }
 .pd-card:hover{
     box-shadow: var(--shadow-md);
     border-color: rgba(109,93,252,0.35);
+}
+/* كي تكون popover مفتوحة جوا بطاقة، البطاقة كاملة كتطلع فـ الأعلى
+   (z-index مرتفع) باش الـ popover يبان فوق كل البطاقات الجارة، ماشي
+   غير فوق البطاقة ديالو. :has() مدعومة فكل المتصفحات الحديثة. */
+.pd-card:has(.pd-popover.open){
+    z-index: 200;
 }
 .pd-card-head{
     display: flex;
@@ -1682,7 +1693,7 @@ input#date{
 .pd-popover-anchor{ position: relative; }
 .pd-popover{
     position: absolute;
-    z-index: 80;
+    z-index: 500;
     top: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%);
