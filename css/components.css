@@ -1253,75 +1253,10 @@ input#date{
 }
 
 /* ===================== Mistake & Emotion Analytics ===================== */
-.cost-rank-row{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border-soft);
-    font-size: 13px;
-}
-.cost-rank-row:last-child{ border-bottom: none; }
-.cost-rank-num{
-    width: 22px;
-    height: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-surface-2);
-    border-radius: 50%;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-tertiary);
-    flex-shrink: 0;
-}
-.cost-rank-name{
-    flex: 1;
-    color: var(--text-primary);
-}
-.cost-rank-value{
-    font-weight: 700;
-}
-
-.emotion-rank-row{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    padding: 7px 0;
-    border-bottom: 1px solid var(--border-soft);
-    font-size: 12.5px;
-}
-.emotion-rank-row:last-child{ border-bottom: none; }
-.emotion-rank-row span:first-child{
-    color: var(--text-tertiary);
-    flex-shrink: 0;
-}
-.emotion-rank-row b{
-    flex: 1;
-    text-align: center;
-    color: var(--text-primary);
-    font-weight: 600;
-}
-
-.correlation-card{
-    background: var(--bg-surface);
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-md);
-    padding: var(--space-3);
-}
-.correlation-card h4{
-    margin: 0 0 8px;
-    font-size: 13px;
-    color: var(--primary);
-}
-.correlation-row{
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    padding: 4px 0;
-    color: var(--text-secondary);
-}
+/* ملاحظة: .cost-rank-*، .emotion-rank-row، و .correlation-card/.correlation-row
+   كانت خاصة بأقسام "Most Costly Mistakes" و"Best/Worst Emotion" و"Mistake
+   ↔ Emotion Correlation" (التصميم القديم) — تحذفات نهائيًا لأنها ماعادش
+   مستعملة فأي مكان بعد إعادة التصميم (.rank-list-row الجديدة عوضتها). */
 
 .insight-card{
     display: flex;
@@ -2144,3 +2079,151 @@ input#date{
 
 .eq-tt-pos{ color: var(--success) !important; }
 .eq-tt-neg{ color: var(--danger) !important; }
+
+/* ===================================================================
+   Session Analysis (Redesigned) + Analytics Blocks (View More/Less)
+   =================================================================== */
+
+.sa-card{
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: var(--space-5);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+}
+@media (max-width: 780px){
+    .sa-card{
+        grid-template-columns: 1fr;
+    }
+}
+.sa-chart-col{
+    position: relative;
+    height: 240px;
+}
+.sa-ranking-col{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+}
+.sa-row{
+    display: grid;
+    grid-template-columns: 26px 1fr 90px 70px;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 10px;
+    border-radius: var(--radius-md);
+    background: var(--bg-surface-2);
+}
+.sa-row-rank{
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-tertiary);
+}
+.sa-row-name{
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.sa-row-sub{
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+.sa-row-bar-wrap{
+    height: 6px;
+    border-radius: 999px;
+    background: var(--border-soft);
+    overflow: hidden;
+    margin-top: 4px;
+}
+.sa-row-bar-fill{
+    height: 100%;
+    border-radius: 999px;
+    background: var(--primary);
+}
+.sa-row-r{
+    text-align: left;
+    font-size: 13px;
+    font-weight: 800;
+}
+.sa-row-best{
+    border: 1px solid rgba(34,197,94,0.35);
+    background: rgba(34,197,94,0.06);
+}
+.sa-row-worst{
+    border: 1px solid rgba(239,68,68,0.3);
+    background: rgba(239,68,68,0.05);
+}
+
+/* ---------- Analytics Blocks (Mistake/Emotion/Correlation) ---------- */
+.analytics-block{
+    margin-top: 26px;
+}
+.analytics-block-head{
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+.analytics-block-head h3{
+    margin: 0;
+}
+.analytics-subtitle{
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+.analytics-subhead{
+    font-size: 13px;
+    font-weight: 700;
+    margin: 0 0 10px;
+}
+.analytics-subhead-danger{ color: var(--danger); }
+.analytics-subhead-success{ color: var(--success); }
+
+.view-more-wrap{
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+}
+.view-more-btn{
+    padding: 7px 22px;
+    height: 34px;
+    font-size: 12.5px;
+}
+
+/* صفوف الترتيب المستعملة فـ Emotion Losing/Profitable و Correlation */
+.rank-list-row{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 13px;
+}
+.rank-list-row:last-child{ border-bottom: none; }
+.rank-list-num{
+    width: 20px;
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+}
+.rank-list-name{
+    flex: 1;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+.rank-list-sub{
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+}
+.rank-list-value{
+    font-weight: 800;
+    flex-shrink: 0;
+}
