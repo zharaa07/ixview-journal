@@ -446,28 +446,22 @@
         <div id="monthStats"></div>
     </section>
 
-    <!-- ===================== Session Analysis ===================== -->
+    <!-- ===================== Session Analysis (Redesigned) ===================== -->
     <section class="section">
         <h2>Session Analysis</h2>
-        <div class="grid grid-2col">
-            <div class="card" style="height:300px;">
+        <div class="sa-card">
+            <div class="sa-chart-col">
                 <canvas id="sessionChart"></canvas>
             </div>
-            <div id="sessionStats" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;align-content:start;"></div>
+            <div class="sa-ranking-col" id="sessionRanking"></div>
         </div>
-    </section>
-
-    <!-- ===================== Top Tags ===================== -->
-    <section class="section">
-        <h2>Top Tags</h2>
-        <div id="tagsStats" class="grid grid-stats"></div>
     </section>
 
     <!-- ===================== Mistake & Emotion Analytics ===================== -->
     <section class="section" id="mistakeEmotionAnalytics">
         <h2>Mistake &amp; Emotion Analytics</h2>
         <p style="font-size:12px;color:var(--text-tertiary);margin-top:-10px;">
-            كل الأرقام هنا بوحدة R (ماكاين رصيد حساب بالدولار فالنظام حاليًا).
+            كل الأرقام هنا بوحدة R (ماكاين رصيد حساب بالدولار فالنظام حاليًا)، وكتتفاعل مباشرة مع الفلاتر فوق.
         </p>
 
         <!-- Discipline Score -->
@@ -476,36 +470,52 @@
             <div id="disciplineScoreCard"></div>
         </div>
 
-        <!-- Mistakes Table -->
-        <h3 style="margin-top:24px;">Mistake Performance</h3>
-        <div id="mistakesAnalyticsTable"></div>
-
-        <!-- Cost Ranking + Frequency Chart -->
-        <div class="grid grid-2col" style="margin-top:16px;">
-            <div class="card">
-                <h3 style="margin-bottom:10px;">Most Costly Mistakes</h3>
-                <div id="mistakeCostRanking"></div>
+        <!-- Mistake Performance: Top 5/10 by Total R (الأسوأ أولاً) -->
+        <div class="analytics-block">
+            <div class="analytics-block-head">
+                <h3>Mistake Performance</h3>
+                <span class="analytics-subtitle">مرتبة حسب Total R (الأكثر خسارة أولاً)</span>
             </div>
-            <div class="card" style="height:260px;">
-                <h3 style="margin-bottom:10px;">Frequency</h3>
-                <canvas id="mistakeFrequencyChart"></canvas>
+            <div id="mistakesAnalyticsTable"></div>
+            <div class="view-more-wrap">
+                <button type="button" class="btn-secondary btn view-more-btn" id="mistakePerfViewMoreBtn" onclick="toggleAnalyticsView('mistakePerf')">View More</button>
             </div>
         </div>
 
-        <!-- With / Without Comparison -->
-        <h3 style="margin-top:24px;">Impact With / Without Mistake</h3>
-        <div id="mistakeWithWithoutTable"></div>
+        <!-- Emotion Performance: Top Losing + Top Profitable -->
+        <div class="analytics-block">
+            <div class="analytics-block-head">
+                <h3>Emotion Performance</h3>
+            </div>
+            <div class="grid grid-2col">
+                <div>
+                    <h4 class="analytics-subhead analytics-subhead-danger">📉 Most Losing Emotions</h4>
+                    <div id="emotionLosingTable"></div>
+                    <div class="view-more-wrap">
+                        <button type="button" class="btn-secondary btn view-more-btn" id="emotionLosingViewMoreBtn" onclick="toggleAnalyticsView('emotionLosing')">View More</button>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="analytics-subhead analytics-subhead-success">📈 Most Profitable Emotions</h4>
+                    <div id="emotionProfitableTable"></div>
+                    <div class="view-more-wrap">
+                        <button type="button" class="btn-secondary btn view-more-btn" id="emotionProfitableViewMoreBtn" onclick="toggleAnalyticsView('emotionProfitable')">View More</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <!-- Emotion Table -->
-        <h3 style="margin-top:28px;">Emotion Performance</h3>
-        <div id="emotionsAnalyticsTable"></div>
-
-        <!-- Best / Worst Emotion -->
-        <div class="grid grid-2col" style="margin-top:16px;" id="emotionBestWorstCards"></div>
-
-        <!-- Mistake x Emotion Correlation -->
-        <h3 style="margin-top:28px;">Mistake ↔ Emotion Correlation</h3>
-        <div class="grid grid-stats" id="mistakeEmotionCorrelation"></div>
+        <!-- Mistake x Emotion Correlation: أكثر التركيبات تكرارًا -->
+        <div class="analytics-block">
+            <div class="analytics-block-head">
+                <h3>Mistake ↔ Emotion Correlation</h3>
+                <span class="analytics-subtitle">أكثر التركيبات (خطأ + حالة نفسية) تكرارًا</span>
+            </div>
+            <div id="mistakeEmotionCorrelation"></div>
+            <div class="view-more-wrap">
+                <button type="button" class="btn-secondary btn view-more-btn" id="correlationViewMoreBtn" onclick="toggleAnalyticsView('correlation')">View More</button>
+            </div>
+        </div>
 
         <!-- Smart Insights -->
         <h3 style="margin-top:28px;">Smart Insights</h3>
