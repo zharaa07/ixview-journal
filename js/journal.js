@@ -387,7 +387,6 @@ drawChart();
 
 renderModelsCards();
 
-renderTagsStats();
 renderMistakeEmotionAnalytics();
 
 toggleForm();
@@ -1186,7 +1185,6 @@ drawChart();
 
 renderModelsCards();
 
-renderTagsStats();
 renderMistakeEmotionAnalytics();
 
 renderCalendar();
@@ -2242,93 +2240,24 @@ input.value = "";
 
 }
 
-function renderTagsStats() {
-    
-    const container =
-        document.getElementById(
-            "tagsStats"
-        );
-    
-    let tagStats = {};
-    
-    trades.forEach(trade => {
-        
-        if (!trade.tags) return;
-        
-        trade.tags.forEach(tag => {
-            
-            if (!tagStats[tag]) {
-                
-                tagStats[tag] = {
-                    count: 0,
-                    totalR: 0
-                };
-                
-            }
-            
-            tagStats[tag].count++;
-            
-            tagStats[tag].totalR +=
-                trade.resultR;
-            
-        });
-        
-    });
-    
-    container.innerHTML = "";
-    
-    Object.entries(tagStats)
-        
-        .sort(
-            (a, b) =>
-            b[1].count -
-            a[1].count
-        )
-        
-        .forEach(([tag, data]) => {
-            
-            container.innerHTML += `
-
-<div class="stat-card">
-
-<h3>${tag}</h3>
-
-<p>
-${data.count} Trades
-</p>
-
-<p>
-${data.totalR.toFixed(1)}R
-</p>
-
-</div>
-
-`;
-            
-        });
-    
-}
-// ===================================================================
-// نظام تحليل الأخطاء والحالة النفسية (Mistake & Emotion Analytics)
-// ===================================================================
-//
-// ملاحظة مهمة بخصوص الدقة المالية:
-// النظام الحالي ما فيهش رصيد حساب (Account Balance) ولا حجم مركز
-// محول للدولار — كاين غير resultR (وحدة R). فـ كل الحسابات هنا
-// مبنية على R، وماشي على "$" وهمية. هادشي أدق وأصدق من اختلاق أرقام
-// دولار ماعندهاش أساس حقيقي فالبيانات.
-//
-// الأداء: كل الحساب كيدير مرة وحدة (single-pass O(n)) على الصفقات،
-// بدل ما نفلترو الصفقات بوحدها لكل خطأ/حالة (كان غادي يكون O(n×m)
-// وبطيء مع آلاف الصفقات). هادشي كيضمن ديما نفس الأرقام مهما كبر عدد
-// الصفقات، وبلا احتساب مزدوج — كل صفقة كتترجم فالتجميع مرة وحدة
-// فكل خطأ/حالة لي فعليًا موجودة فـ trade.mistakes/trade.emotion ديالها.
-
 function computeMistakeEmotionAnalytics() {
 
-    // النطاق: كل الصفقات (بلا ما يرتبط بفلاتر الداشبورد)، باش الأرقام
-    // تبقى ثابتة ومفهومة كتقرير عام، بحال renderTagsStats المجاورة ليه
-    const source = trades;
+    // دابا كنحسبو من الصفقات المفلترة (Asset/Model/Session/Tags) —
+    // بحال باقي الداشبورد، باش هاد القسم يتفاعل مع الفلاتر فوق مباشرة
+    // (بطلب صريح: "لا تكسر أي Filter... يجب أن تتحدث جميع الأقسام
+    // مباشرة عند تغيير الـ filters").
+    const selectedAsset = getCheckedValues("assetFilterOptions");
+    const selectedModel = document.getElementById("modelFilter").value;
+    const selectedSessions = getCheckedValues("sessionFilterOptions");
+    const selectedTags = getCheckedValues("tagsFilterOptions");
+
+    const source = trades.filter(trade => {
+        if (selectedAsset.length > 0 && !selectedAsset.includes(trade.asset)) return false;
+        if (selectedModel !== "All" && trade.model !== selectedModel) return false;
+        if (selectedSessions.length > 0 && !selectedSessions.includes(trade.session)) return false;
+        if (selectedTags.length > 0 && !(trade.tags && selectedTags.every(t => trade.tags && trade.tags.includes(t)))) return false;
+        return true;
+    });
 
     const mistakeAgg = {};
     const emotionAgg = {};
@@ -2416,31 +2345,6 @@ function deriveMetrics(agg) {
         (grossProfit > 0 ? Infinity : 0) :
         grossProfit / grossLoss;
     return { occurrences, wins: agg.wins, losses: agg.losses, be: agg.be, winRate, totalR: agg.totalR, avgR, avgWinR, avgLossR, profitFactor };
-}
-
-// "مقارنة الأداء بوجود الخطأ وعدم وجوده": كنستافدو من overall - with
-// = without (تقسيم رياضي صحيح 100%، لأن كل صفقة إما عندها الخطأ إما لا،
-// بلا حاجة نفلترو الصفقات مرة ثانية)
-function computeWithWithout(name, agg, overall, totalTrades) {
-    const withM = deriveMetrics(agg);
-
-    const withoutRaw = {
-        occurrences: totalTrades - agg.occurrences,
-        wins: overall.wins - agg.wins,
-        losses: overall.losses - agg.losses,
-        be: overall.be - agg.be,
-        totalR: overall.totalR - agg.totalR
-    };
-    const withoutM = {
-        occurrences: withoutRaw.occurrences,
-        wins: withoutRaw.wins,
-        losses: withoutRaw.losses,
-        winRate: withoutRaw.occurrences ? (withoutRaw.wins / withoutRaw.occurrences) * 100 : 0,
-        avgR: withoutRaw.occurrences ? withoutRaw.totalR / withoutRaw.occurrences : 0,
-        totalR: withoutRaw.totalR
-    };
-
-    return { name, withM, withoutM };
 }
 
 // ===================== Discipline Score =====================
@@ -2565,228 +2469,157 @@ function generateSmartInsights(analytics) {
 
 
 // ===================== الدالة الرئيسية: كتبني كل أقسام التحليل =====================
+// حالة "View More/Show Less" لكل قسم — كل مفتاح كيحمل 5 أو 10
+let analyticsViewState = { mistakePerf: 5, emotionLosing: 5, emotionProfitable: 5, correlation: 5 };
+
+function toggleAnalyticsView(key) {
+    analyticsViewState[key] = analyticsViewState[key] === 5 ? 10 : 5;
+    renderMistakeEmotionAnalytics();
+}
+
+function eaUpdateViewMoreBtn(btnId, totalAvailable, key) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    if (totalAvailable <= 5) {
+        btn.style.display = "none";
+    } else {
+        btn.style.display = "inline-flex";
+        btn.textContent = analyticsViewState[key] === 5 ? "View More" : "Show Less";
+    }
+}
+
 function renderMistakeEmotionAnalytics() {
 
     const container = document.getElementById("mistakeEmotionAnalytics");
     if (!container) return; // ماكاينش الحاوية فهاد الصفحة، نخرجو بلا error
 
     const analytics = computeMistakeEmotionAnalytics();
-    const { mistakeAgg, emotionAgg, mistakeEmotionCross, overall, totalTrades } = analytics;
+    const { mistakeAgg, emotionAgg, mistakeEmotionCross } = analytics;
 
     const mistakeEntries = Object.entries(mistakeAgg).map(([name, agg]) => ({ name, ...deriveMetrics(agg) }));
     const emotionEntries = Object.entries(emotionAgg).map(([name, agg]) => ({ name, ...deriveMetrics(agg) }));
 
     function fmtR(n) { return (n >= 0 ? "+" : "") + n.toFixed(2) + "R"; }
-    function fmtPF(pf) { return pf === Infinity ? "∞" : pf.toFixed(2); }
     function colorForR(n) { return n > 0 ? "var(--success)" : n < 0 ? "var(--danger)" : "var(--text-tertiary)"; }
 
-    // ---------- 1) جدول أداء الأخطاء ----------
-    let mistakesTableHTML = "";
-    if (mistakeEntries.length === 0) {
-        mistakesTableHTML = `<div class="empty-state"><div class="empty-icon"><i data-lucide="inbox"></i></div><h3>لا توجد أخطاء مسجلة بعد</h3><p>سجل الأخطاء فالصفقات باش يبان هنا التحليل</p></div>`;
-    } else {
-        mistakesTableHTML = `
-        <div class="table-wrap">
-        <table>
-        <thead><tr>
-            <th>Mistake</th><th>Occurrences</th><th>Wins</th><th>Losses</th>
-            <th>Win Rate</th><th>Total R</th><th>Avg R</th><th>Avg Win R</th><th>Avg Loss R</th>
-        </tr></thead>
-        <tbody>
-        ${[...mistakeEntries].sort((a, b) => b.occurrences - a.occurrences).map(m => `
-            <tr>
-                <td>${m.name}</td>
-                <td>${m.occurrences}</td>
-                <td>${m.wins}</td>
-                <td>${m.losses}</td>
-                <td>${m.winRate.toFixed(1)}%</td>
-                <td style="color:${colorForR(m.totalR)};font-weight:700;">${fmtR(m.totalR)}</td>
-                <td>${m.avgR.toFixed(2)}R</td>
-                <td>${m.avgWinR.toFixed(2)}R</td>
-                <td>${m.avgLossR.toFixed(2)}R</td>
-            </tr>
-        `).join("")}
-        </tbody>
-        </table>
-        </div>`;
-    }
+    // ---------- 1) Mistake Performance: Top 5/10 حسب Total R (الأسوأ أولاً) ----------
     const mistakesTableEl = document.getElementById("mistakesAnalyticsTable");
-    if (mistakesTableEl) mistakesTableEl.innerHTML = mistakesTableHTML;
+    if (mistakesTableEl) {
+        const sortedByTotalR = [...mistakeEntries].sort((a, b) => a.totalR - b.totalR);
+        const limit = analyticsViewState.mistakePerf;
+        const shown = sortedByTotalR.slice(0, limit);
 
-    // ---------- 2) تكلفة كل خطأ (ترتيب حسب أكبر خسارة R) ----------
-    const costRankingEl = document.getElementById("mistakeCostRanking");
-    if (costRankingEl) {
-        const costliest = [...mistakeEntries].filter(m => m.totalR < 0).sort((a, b) => a.totalR - b.totalR).slice(0, 5);
-        costRankingEl.innerHTML = costliest.length === 0 ?
-            `<p style="color:var(--text-tertiary);font-size:13px;">ماكاينش أخطاء سببت خسارة سلبية بعد</p>` :
-            costliest.map((m, i) => `
-                <div class="cost-rank-row">
-                    <span class="cost-rank-num">#${i + 1}</span>
-                    <span class="cost-rank-name">${m.name}</span>
-                    <span class="cost-rank-value" style="color:var(--danger);">${fmtR(m.totalR)}</span>
-                </div>
-            `).join("");
-    }
-
-    // ---------- 3) أكثر الأخطاء تكرارًا (رسم بياني) ----------
-    const freqCanvas = document.getElementById("mistakeFrequencyChart");
-    if (freqCanvas) {
-        if (window._mistakeFreqChart) window._mistakeFreqChart.destroy();
-        const sorted = [...mistakeEntries].sort((a, b) => b.occurrences - a.occurrences);
-        if (sorted.length > 0) {
-            const rootStyles = getComputedStyle(document.documentElement);
-            window._mistakeFreqChart = new Chart(freqCanvas, {
-                type: "bar",
-                data: {
-                    labels: sorted.map(m => m.name),
-                    datasets: [{
-                        data: sorted.map(m => m.occurrences),
-                        backgroundColor: rootStyles.getPropertyValue("--primary").trim() || "#6D5DFC"
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: "y",
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { ticks: { color: rootStyles.getPropertyValue("--text-tertiary").trim(), stepSize: 1 }, grid: { color: rootStyles.getPropertyValue("--border-soft").trim() } },
-                        y: { ticks: { color: rootStyles.getPropertyValue("--text-primary").trim() }, grid: { display: false } }
-                    }
-                }
-            });
-        }
-    }
-
-    // ---------- 4) مقارنة الأداء بوجود/عدم وجود كل خطأ ----------
-    const withoutTableEl = document.getElementById("mistakeWithWithoutTable");
-    if (withoutTableEl) {
         if (mistakeEntries.length === 0) {
-            withoutTableEl.innerHTML = "";
+            mistakesTableEl.innerHTML = `<div class="empty-state"><div class="empty-icon"><i data-lucide="inbox"></i></div><h3>لا توجد أخطاء مسجلة بعد</h3><p>سجل الأخطاء فالصفقات باش يبان هنا التحليل</p></div>`;
         } else {
-            withoutTableEl.innerHTML = `
+            mistakesTableEl.innerHTML = `
             <div class="table-wrap">
             <table>
             <thead><tr>
-                <th>Mistake</th>
-                <th>Win Rate (With)</th><th>Win Rate (Without)</th>
-                <th>Avg R (With)</th><th>Avg R (Without)</th>
-                <th>Net R (With)</th><th>Net R (Without)</th>
+                <th>Mistake</th><th>Occurrences</th><th>Losses</th>
+                <th>Win Rate</th><th>Total R</th><th>Avg R</th>
             </tr></thead>
             <tbody>
-            ${Object.entries(mistakeAgg).map(([name, agg]) => {
-                const cmp = computeWithWithout(name, agg, overall, totalTrades);
-                return `
+            ${shown.map(m => `
                 <tr>
-                    <td>${name}</td>
-                    <td>${cmp.withM.winRate.toFixed(1)}%</td>
-                    <td>${cmp.withoutM.winRate.toFixed(1)}%</td>
-                    <td style="color:${colorForR(cmp.withM.avgR)};">${cmp.withM.avgR.toFixed(2)}R</td>
-                    <td style="color:${colorForR(cmp.withoutM.avgR)};">${cmp.withoutM.avgR.toFixed(2)}R</td>
-                    <td style="color:${colorForR(cmp.withM.totalR)};">${fmtR(cmp.withM.totalR)}</td>
-                    <td style="color:${colorForR(cmp.withoutM.totalR)};">${fmtR(cmp.withoutM.totalR)}</td>
-                </tr>`;
-            }).join("")}
-            </tbody>
-            </table>
-            </div>`;
-        }
-    }
-
-    // ---------- 5) جدول أداء الحالة النفسية ----------
-    const emotionsTableEl = document.getElementById("emotionsAnalyticsTable");
-    if (emotionsTableEl) {
-        emotionsTableEl.innerHTML = emotionEntries.length === 0 ?
-            `<div class="empty-state"><div class="empty-icon"><i data-lucide="inbox"></i></div><h3>لا توجد حالات نفسية مسجلة بعد</h3></div>` :
-            `<div class="table-wrap">
-            <table>
-            <thead><tr>
-                <th>Emotion</th><th>Trades</th><th>Win Rate</th><th>Profit Factor</th>
-                <th>Avg R</th><th>Avg Win R</th><th>Avg Loss R</th><th>Total R</th>
-            </tr></thead>
-            <tbody>
-            ${[...emotionEntries].sort((a, b) => b.occurrences - a.occurrences).map(e => `
-                <tr>
-                    <td>${e.name}</td>
-                    <td>${e.occurrences}</td>
-                    <td>${e.winRate.toFixed(1)}%</td>
-                    <td>${fmtPF(e.profitFactor)}</td>
-                    <td>${e.avgR.toFixed(2)}R</td>
-                    <td>${e.avgWinR.toFixed(2)}R</td>
-                    <td>${e.avgLossR.toFixed(2)}R</td>
-                    <td style="color:${colorForR(e.totalR)};font-weight:700;">${fmtR(e.totalR)}</td>
+                    <td>${m.name}</td>
+                    <td>${m.occurrences}</td>
+                    <td>${m.losses}</td>
+                    <td>${m.winRate.toFixed(1)}%</td>
+                    <td style="color:${colorForR(m.totalR)};font-weight:700;">${fmtR(m.totalR)}</td>
+                    <td>${m.avgR.toFixed(2)}R</td>
                 </tr>
             `).join("")}
             </tbody>
             </table>
             </div>`;
-    }
-
-    // ---------- 6) أفضل/أسوأ حالة نفسية ----------
-    const bestWorstEl = document.getElementById("emotionBestWorstCards");
-    if (bestWorstEl) {
-        const eligible = emotionEntries.filter(e => e.occurrences >= 1);
-        if (eligible.length === 0) {
-            bestWorstEl.innerHTML = "";
-        } else {
-            const bestByR = [...eligible].sort((a, b) => b.avgR - a.avgR)[0];
-            const bestByWinRate = [...eligible].sort((a, b) => b.winRate - a.winRate)[0];
-            const bestByNet = [...eligible].sort((a, b) => b.totalR - a.totalR)[0];
-            const worstByR = [...eligible].sort((a, b) => a.avgR - b.avgR)[0];
-            const worstByWinRate = [...eligible].sort((a, b) => a.winRate - b.winRate)[0];
-            const worstByNet = [...eligible].sort((a, b) => a.totalR - b.totalR)[0];
-
-            function emotionCard(title, iconColor, items) {
-                return `
-                <div class="card">
-                    <h3 style="color:${iconColor};margin-bottom:10px;">${title}</h3>
-                    ${items.map(it => `
-                        <div class="emotion-rank-row">
-                            <span>${it.label}</span>
-                            <b>${it.emotion.name} <span style="color:var(--text-tertiary);font-weight:400;">(${it.emotion.occurrences} trades)</span></b>
-                            <span style="color:${it.color || "var(--text-primary)"};">${it.value}</span>
-                        </div>
-                    `).join("")}
-                </div>`;
-            }
-
-            bestWorstEl.innerHTML =
-                emotionCard("🏆 أفضل حالة نفسية", "var(--success)", [
-                    { label: "بـ Average R:", emotion: bestByR, value: bestByR.avgR.toFixed(2) + "R", color: "var(--success)" },
-                    { label: "بـ Win Rate:", emotion: bestByWinRate, value: bestByWinRate.winRate.toFixed(1) + "%", color: "var(--success)" },
-                    { label: "بـ Net R:", emotion: bestByNet, value: fmtR(bestByNet.totalR), color: "var(--success)" }
-                ]) +
-                emotionCard("⚠️ أسوأ حالة نفسية", "var(--danger)", [
-                    { label: "بـ Average R:", emotion: worstByR, value: worstByR.avgR.toFixed(2) + "R", color: "var(--danger)" },
-                    { label: "بـ Win Rate:", emotion: worstByWinRate, value: worstByWinRate.winRate.toFixed(1) + "%", color: "var(--danger)" },
-                    { label: "بـ Net R:", emotion: worstByNet, value: fmtR(worstByNet.totalR), color: "var(--danger)" }
-                ]);
         }
+        eaUpdateViewMoreBtn("mistakePerfViewMoreBtn", mistakeEntries.length, "mistakePerf");
     }
 
-    // ---------- 7) ربط الأخطاء بالحالة النفسية ----------
+    // ---------- 2) Emotion Performance: Top Losing + Top Profitable حسب Total R ----------
+    const losingEl = document.getElementById("emotionLosingTable");
+    if (losingEl) {
+        const losing = [...emotionEntries].filter(e => e.totalR < 0).sort((a, b) => a.totalR - b.totalR);
+        const limit = analyticsViewState.emotionLosing;
+        const shown = losing.slice(0, limit);
+
+        losingEl.innerHTML = shown.length === 0 ?
+            `<p style="color:var(--text-tertiary);font-size:13px;">ماكاينش حالات نفسية سببت خسارة صافية بعد</p>` :
+            shown.map((e, i) => `
+                <div class="rank-list-row">
+                    <span class="rank-list-num">#${i + 1}</span>
+                    <span class="rank-list-name">${e.name} <span class="rank-list-sub">(${e.occurrences} trades)</span></span>
+                    <span class="rank-list-value" style="color:var(--danger);">${fmtR(e.totalR)}</span>
+                </div>
+            `).join("");
+        eaUpdateViewMoreBtn("emotionLosingViewMoreBtn", losing.length, "emotionLosing");
+    }
+
+    const profitableEl = document.getElementById("emotionProfitableTable");
+    if (profitableEl) {
+        const profitable = [...emotionEntries].filter(e => e.totalR > 0).sort((a, b) => b.totalR - a.totalR);
+        const limit = analyticsViewState.emotionProfitable;
+        const shown = profitable.slice(0, limit);
+
+        profitableEl.innerHTML = shown.length === 0 ?
+            `<p style="color:var(--text-tertiary);font-size:13px;">ماكاينش حالات نفسية حققت ربح صافي بعد</p>` :
+            shown.map((e, i) => `
+                <div class="rank-list-row">
+                    <span class="rank-list-num">#${i + 1}</span>
+                    <span class="rank-list-name">${e.name} <span class="rank-list-sub">(${e.occurrences} trades)</span></span>
+                    <span class="rank-list-value" style="color:var(--success);">${fmtR(e.totalR)}</span>
+                </div>
+            `).join("");
+        eaUpdateViewMoreBtn("emotionProfitableViewMoreBtn", profitable.length, "emotionProfitable");
+    }
+
+    // ---------- 3) Mistake ↔ Emotion Correlation: أكثر التركيبات تكرارًا ----------
     const correlationEl = document.getElementById("mistakeEmotionCorrelation");
     if (correlationEl) {
-        const entries = Object.entries(mistakeEmotionCross);
-        if (entries.length === 0) {
+        const pairs = [];
+        Object.entries(mistakeEmotionCross).forEach(([emotion, mistakesCount]) => {
+            const totalForEmotion = Object.values(mistakesCount).reduce((s, c) => s + c, 0);
+            Object.entries(mistakesCount).forEach(([mistake, count]) => {
+                pairs.push({
+                    mistake,
+                    emotion,
+                    occurrences: count,
+                    percentage: totalForEmotion ? (count / totalForEmotion) * 100 : 0
+                });
+            });
+        });
+        pairs.sort((a, b) => b.occurrences - a.occurrences);
+
+        const limit = analyticsViewState.correlation;
+        const shown = pairs.slice(0, limit);
+
+        if (pairs.length === 0) {
             correlationEl.innerHTML = `<p style="color:var(--text-tertiary);font-size:13px;">محتاجين صفقات فيها حالة نفسية وخطأ مسجلين مع بعض باش يبان هنا تحليل</p>`;
         } else {
-            correlationEl.innerHTML = entries.map(([emotion, mistakesCount]) => {
-                const totalForEmotion = Object.values(mistakesCount).reduce((s, c) => s + c, 0);
-                const sortedMistakes = Object.entries(mistakesCount).sort((a, b) => b[1] - a[1]);
-                return `
-                <div class="correlation-card">
-                    <h4>${emotion}</h4>
-                    ${sortedMistakes.map(([mName, count]) => {
-                        const pct = ((count / totalForEmotion) * 100).toFixed(0);
-                        return `<div class="correlation-row"><span>${mName}</span><span>${pct}%</span></div>`;
-                    }).join("")}
-                </div>`;
-            }).join("");
+            correlationEl.innerHTML = `
+            <div class="table-wrap">
+            <table>
+            <thead><tr>
+                <th>Mistake</th><th>Emotion</th><th>Occurrences</th><th>Percentage</th>
+            </tr></thead>
+            <tbody>
+            ${shown.map(p => `
+                <tr>
+                    <td>${p.mistake}</td>
+                    <td>${p.emotion}</td>
+                    <td>${p.occurrences}</td>
+                    <td>${p.percentage.toFixed(0)}%</td>
+                </tr>
+            `).join("")}
+            </tbody>
+            </table>
+            </div>`;
         }
+        eaUpdateViewMoreBtn("correlationViewMoreBtn", pairs.length, "correlation");
     }
 
-    // ---------- 8) Smart Insights ----------
+    // ---------- 4) Smart Insights ----------
     const insightsEl = document.getElementById("smartInsightsList");
     if (insightsEl) {
         const insights = generateSmartInsights(analytics);
@@ -2795,7 +2628,7 @@ function renderMistakeEmotionAnalytics() {
             insights.map(i => `<div class="insight-card"><i data-lucide="lightbulb"></i><span>${i}</span></div>`).join("");
     }
 
-    // ---------- 9) Discipline Score ----------
+    // ---------- 5) Discipline Score ----------
     const disciplineEl = document.getElementById("disciplineScoreCard");
     if (disciplineEl) {
         const score = computeDisciplineScore(analytics);
@@ -3232,20 +3065,26 @@ color: getComputedStyle(document.documentElement).getPropertyValue("--text-secon
 
 });
 
-let statsHTML = "";
+let sessionRows = [];
 
 for(let sessionName in sessions){
 
     const sessionTrades =
     sessions[sessionName];
 
-    const totalTrades =
+    const totalTradesCount =
     sessionTrades.length;
 
     const wins =
     sessionTrades.filter(
         trade =>
         trade.result === "Win"
+    ).length;
+
+    const losses =
+    sessionTrades.filter(
+        trade =>
+        trade.result === "Loss"
     ).length;
 
     const totalR =
@@ -3256,41 +3095,53 @@ for(let sessionName in sessions){
     );
 
     const winRate =
-    totalTrades
+    (wins + losses) > 0
     ?
-    ((wins / totalTrades) * 100)
-    .toFixed(1)
+    (wins / (wins + losses)) * 100
     :
     0;
 
-statsHTML += `
-<div class="session-mini-card">
-    
-    <h3>${sessionName}</h3>
-    
-    <p>
-        <b>Trades:</b>
-        ${totalTrades}
-    </p>
-    
-    <p>
-        <b>Total R:</b>
-        ${totalR.toFixed(1)}
-    </p>
-    
-    <p>
-        <b>Win Rate:</b>
-        ${winRate}%
-    </p>
-    
-</div>
-`;
+    sessionRows.push({
+        name: sessionName,
+        trades: totalTradesCount,
+        totalR: totalR,
+        winRate: winRate
+    });
+
 }
 
-document.getElementById(
-    "sessionStats"
-).innerHTML =
-statsHTML;
+// كنرتبو الجلسات حسب Total R تنازليًا (الأفضل فوق) — نفس منطق ترتيب
+// الخسائر/الأرباح المعتمد فباقي الأقسام (القيمة الأعلى إيجابية أولاً)
+sessionRows.sort((a, b) => b.totalR - a.totalR);
+
+const rankingContainer = document.getElementById("sessionRanking");
+if (rankingContainer) {
+
+    const eligible = sessionRows.filter(s => s.trades > 0);
+
+    if (eligible.length === 0) {
+        rankingContainer.innerHTML = `<p style="color:var(--text-tertiary);font-size:13px;text-align:center;">ماكاينش صفقات مسجلة بعد فحال الفلاتر الحالية</p>`;
+    } else {
+        rankingContainer.innerHTML = eligible.map((s, i) => {
+            const isBest = i === 0 && s.totalR > 0;
+            const isWorst = i === eligible.length - 1 && s.totalR < 0 && eligible.length > 1;
+            const rowClass = isBest ? "sa-row sa-row-best" : isWorst ? "sa-row sa-row-worst" : "sa-row";
+            const rValueColor = s.totalR > 0 ? "var(--success)" : s.totalR < 0 ? "var(--danger)" : "var(--text-tertiary)";
+            return `
+            <div class="${rowClass}">
+                <span class="sa-row-rank">#${i + 1}</span>
+                <div>
+                    <div class="sa-row-name">${s.name}${isBest ? " 🏆" : ""}${isWorst ? " ⚠️" : ""}</div>
+                    <div class="sa-row-sub">${s.trades} Trades</div>
+                    <div class="sa-row-bar-wrap"><div class="sa-row-bar-fill" style="width:${Math.min(s.winRate, 100)}%;"></div></div>
+                </div>
+                <span class="sa-row-sub">${s.winRate.toFixed(0)}% WR</span>
+                <span class="sa-row-r" style="color:${rValueColor};">${(s.totalR >= 0 ? "+" : "") + s.totalR.toFixed(1)}R</span>
+            </div>`;
+        }).join("");
+    }
+
+}
 
 }
 
@@ -3754,7 +3605,6 @@ function importTrades(event) {
             updateStats();
             drawChart();
             drawSessionChart();
-            renderTagsStats();
             renderMistakeEmotionAnalytics();
             renderCalendar();
 
@@ -4402,156 +4252,4 @@ function updateExportModelsLabel() {
 }
 
 // كتحسب البيانات لي غادي تتصدر: إذا ما تختارش موديل، كلشي (بحال قبل).
-// إذا تختارو موديل ولا أكثر، غير صفقات هاد الموديلات + التاكات/الحالات/
-// الأخطاء لي فعليًا مستعملة فهاد الصفقات (ماشي القوائم الكاملة)
-function getExportScope() {
-    const selectedModels = getCheckedValues("exportModelsOptions");
-
-    if (selectedModels.length === 0) {
-        return {
-            trades: trades,
-            models: modelsList,
-            tags: tagsList,
-            mistakes: mistakesList,
-            emotions: emotionsList
-        };
-    }
-
-    const scopedTrades = trades.filter(t => selectedModels.includes(t.model));
-
-    const usedTags = new Set();
-    const usedMistakes = new Set();
-    const usedEmotions = new Set();
-
-    scopedTrades.forEach(t => {
-        (t.tags || []).forEach(x => usedTags.add(x));
-        (t.mistakes || []).forEach(x => usedMistakes.add(x));
-        (Array.isArray(t.emotion) ? t.emotion : (t.emotion ? [t.emotion] : [])).forEach(x => usedEmotions.add(x));
-    });
-
-    return {
-        trades: scopedTrades,
-        models: selectedModels,
-        tags: Array.from(usedTags),
-        mistakes: Array.from(usedMistakes),
-        emotions: Array.from(usedEmotions)
-    };
-}
-
-function closeExportImportModal(){
-
-document.getElementById(
-"exportImportModal"
-).style.display =
-"none";
-
-}
-
-document.addEventListener(
-"click",
-function(e){
-
-// نسدو قوائم الفلاتر المتعددة (Asset/Session) كي المستخدم يضغط برا منهم
-document.querySelectorAll(".filter-dropdown").forEach(function (dropdown) {
-    if (!dropdown.contains(e.target)) {
-        const filterMenu = dropdown.querySelector(".filter-menu");
-        if (filterMenu) filterMenu.style.display = "none";
-    }
-});
-
-}
-);
-
-
-// Date Picker احترافي (نقطة 2) — بيدير حقل #date بلا التقويم الافتراضي للمتصفح
-let dateFieldInstance = null;
-if (window.flatpickr) {
-    dateFieldInstance = flatpickr("#date", {
-        enableTime: true,
-        dateFormat: "Y-m-d\\TH:i",
-        time_24hr: true,
-        allowInput: false
-    });
-}
-window.dateFieldInstance = dateFieldInstance;
-
-renderModels();
-renderModelsCards();
-renderMistakes();
-renderTagsList();
-renderEmotionsList();
-renderTrades();
-updateStats();
-drawChart();
-drawSessionChart();
-renderTagsStats();
-renderMistakeEmotionAnalytics();
-renderCalendar();
-
-
-
-
-window.addEventListener("cloudDataReady", function () {
-
-    trades = sanitizeTrades(JSON.parse(localStorage.getItem("trades")) || []);
-    modelsList = JSON.parse(localStorage.getItem("modelsList")) || modelsList;
-    mistakesList = JSON.parse(localStorage.getItem("mistakesList")) || mistakesList;
-    tagsList = JSON.parse(localStorage.getItem("tagsList")) || tagsList;
-    emotionsList = JSON.parse(localStorage.getItem("emotionsList")) || emotionsList;
-
-    renderModels();
-    renderModelsCards();
-    renderMistakes();
-    renderTagsList();
-    renderEmotionsList();
-    renderTrades();
-    updateStats();
-    drawChart();
-    drawSessionChart();
-    renderTagsStats();
-    renderMistakeEmotionAnalytics();
-    renderCalendar();
-
-});
-
-// عند تبديل الثيم (Dark/Light)، الرسوم البيانية (Chart.js) ما كتبدلش
-// ألوانها تلقائيًا لأن الألوان كتتقرأ مرة وحدة وقت الرسم، فخاصنا نعاودو
-// نرسموها من جديد باش تاخد ألوان الثيم الجديد
-window.addEventListener("themeChanged", function () {
-    drawChart();
-    drawSessionChart();
-});
-
-// ===================== Drag & Drop للاستيراد =====================
-// كتسمح للمستخدم يسحب ملف JSON مباشرة لمنطقة الاستيراد بدل ما يدور عليه
-(function setupImportDropzone() {
-    const dropzone = document.getElementById("importDropzone");
-    if (!dropzone) return;
-
-    ["dragenter", "dragover"].forEach(function (evt) {
-        dropzone.addEventListener(evt, function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            dropzone.classList.add("dragover");
-        });
-    });
-
-    ["dragleave", "drop"].forEach(function (evt) {
-        dropzone.addEventListener(evt, function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            dropzone.classList.remove("dragover");
-        });
-    });
-
-    dropzone.addEventListener("drop", function (e) {
-        const file = e.dataTransfer && e.dataTransfer.files ? e.dataTransfer.files[0] : null;
-        if (!file) return;
-        if (!file.name.toLowerCase().endsWith(".json")) {
-            customAlert("خاصك تختار ملف بصيغة JSON فقط.");
-            return;
-        }
-        // كنبنيو "event" مزيف بنفس الشكل لي كتوقعو importTrades()
-        importTrades({ target: { files: [file], value: "" } });
-    });
-})();
+// إذا تختارو موديل ولا أكثر، غير صفقات هاد المودي
