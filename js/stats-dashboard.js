@@ -26,8 +26,6 @@
     // ملف stats-dashboard.js ما تحملش أصلاً (404 أو مسار خاطئ) —
     // السبب الأكثر احتمالاً فهاد الحالة هو نسيان رفع الملف لنفس
     // مسار js/ فـ الاستضافة (GitHub Pages).
-    console.log("[Performance Dashboard] stats-dashboard.js تم تحميله بنجاح.");
-
     const PD_SETTINGS_KEY = "pdDashboardSettings";
 
     // ---------------------------------------------------------------
@@ -96,7 +94,7 @@
         try {
             localStorage.setItem(PD_SETTINGS_KEY, JSON.stringify(pdSettings));
         } catch (e) {
-            console.error("تعذر حفظ إعدادات Performance Dashboard:", e);
+            console.error("Failed to save Performance Dashboard settings:", e);
         }
     }
 
@@ -215,7 +213,7 @@
         container.innerHTML =
             pdBuildSemicircleGauge(pct, color) +
             '<div class="pd-gauge-value"><span class="pd-big">' + current + '</span><span class="pd-slash">/</span><span style="font-size:18px;color:var(--text-tertiary);font-weight:600;">' + target + '</span></div>' +
-            '<div class="pd-gauge-caption">' + (overGoal ? "🎯 تم تحقيق الهدف" : (Math.max(0, target - current) + " صفقة متبقية للهدف")) + '</div>';
+            '<div class="pd-gauge-caption">' + (overGoal ? "🎯 Goal reached" : (Math.max(0, target - current) + " trades to go")) + '</div>';
 
         const input = document.getElementById("pdTradeGoalInput");
         if (input && document.activeElement !== input) input.value = target;
@@ -420,7 +418,7 @@
         const names = Object.keys(groups);
 
         if (names.length === 0) {
-            container.innerHTML = '<p style="font-size:12px;color:var(--text-tertiary);text-align:center;padding:20px 0;">لا توجد بيانات كافية بعد</p>';
+            container.innerHTML = '<p style="font-size:12px;color:var(--text-tertiary);text-align:center;padding:20px 0;">Not enough data yet</p>';
             return;
         }
 
@@ -554,10 +552,10 @@
             return '<div class="pd-card pd-drawdown-card">' +
                 '<div class="pd-card-head">' +
                 '<span class="pd-card-title">' + c.label + '</span>' +
-                '<button type="button" class="pd-icon-btn" title="Eye (قريبًا)"><i data-lucide="eye"></i></button>' +
+                '<button type="button" class="pd-icon-btn" title="Eye (coming soon)"><i data-lucide="eye"></i></button>' +
                 '</div>' +
                 '<div class="pd-drawdown-value">' + pdFormatDrawdownValue(rEntry, usdEntry, mode) + '</div>' +
-                (mode === "$" ? '<div style="font-size:9.5px;color:var(--text-tertiary);margin-top:2px;">بناءً على "الربح/الخسارة بالدولار" المدخلة يدويًا</div>' : "") +
+                (mode === "$" ? '<div style="font-size:9.5px;color:var(--text-tertiary);margin-top:2px;">Based on the manually entered "Profit/Loss in USD" values</div>' : "") +
                 '<select class="pd-mode-select" onchange="PD.updateDrawdownMode(\'' + c.key + '\', this.value)">' +
                 '<option value="R"' + (mode === "R" ? " selected" : "") + '>R</option>' +
                 '<option value="%"' + (mode === "%" ? " selected" : "") + '>%</option>' +
@@ -579,7 +577,7 @@
         try {
             fn();
         } catch (e) {
-            console.error("[Performance Dashboard] خطأ فـ " + label + ":", e);
+            console.error("[Performance Dashboard] error in " + label + ":", e);
         }
     }
 
@@ -595,7 +593,7 @@
 
         let filtered = [];
         let sorted = [];
-        pdSafeRun("قراءة بيانات الصفقات", function () {
+        pdSafeRun("Reading trade data", function () {
             filtered = pdGetFilteredTrades();
             sorted = pdSortedByDate(filtered);
         });
@@ -609,9 +607,9 @@
 
         // إذا بقى شي حاوية فارغة رغم كل هاد المحاولات (خطأ ماتوقعناهش)،
         // نبينو رسالة بدل الفراغ الصامت
-        pdShowFallback("pdTotalTradesGauge", "تعذر عرض البيانات");
-        pdShowFallback("pdWinRateBody", "تعذر عرض البيانات");
-        pdShowFallback("pdAvgRBody", "تعذر عرض البيانات");
+        pdShowFallback("pdTotalTradesGauge", "Failed to load data");
+        pdShowFallback("pdWinRateBody", "Failed to load data");
+        pdShowFallback("pdAvgRBody", "Failed to load data");
 
         pdRefreshIcons();
     }
@@ -624,12 +622,12 @@
         togglePopover: function (anchorId) {
             const anchor = document.getElementById(anchorId);
             if (!anchor) {
-                console.error("[Performance Dashboard] ماكاينش anchor بالاسم:", anchorId);
+                console.error("[Performance Dashboard] no anchor found with id:", anchorId);
                 return;
             }
             const popover = anchor.querySelector(".pd-popover");
             if (!popover) {
-                console.error("[Performance Dashboard] ماكاينش popover جوا anchor:", anchorId);
+                console.error("[Performance Dashboard] no popover found inside anchor:", anchorId);
                 return;
             }
             const willOpen = !popover.classList.contains("open");
@@ -716,7 +714,7 @@
     }
 
     window.addEventListener("themeChanged", function () {
-        try { renderStatsDashboard(); } catch (e) { /* لا شيء */ }
+        try { renderStatsDashboard(); } catch (e) { /* no-op */ }
     });
 
     function pdInitialRender() {
