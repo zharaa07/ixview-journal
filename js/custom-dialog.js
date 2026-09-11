@@ -37,12 +37,12 @@
         cancelBtn = document.createElement("button");
         cancelBtn.type = "button";
         cancelBtn.className = "btn btn-secondary";
-        cancelBtn.textContent = "إلغاء";
+        cancelBtn.textContent = "Cancel";
 
         okBtn = document.createElement("button");
         okBtn.type = "button";
         okBtn.className = "btn btn-primary";
-        okBtn.textContent = "حسنًا";
+        okBtn.textContent = "OK";
 
         actions.appendChild(cancelBtn);
         actions.appendChild(okBtn);
@@ -61,8 +61,8 @@
         inputEl.style.display = options.showInput ? "block" : "none";
         inputEl.value = options.defaultValue || "";
         cancelBtn.style.display = options.showCancel ? "inline-flex" : "none";
-        okBtn.textContent = options.okText || "حسنًا";
-        cancelBtn.textContent = options.cancelText || "إلغاء";
+        okBtn.textContent = options.okText || "OK";
+        cancelBtn.textContent = options.cancelText || "Cancel";
 
         overlay.style.display = "flex";
 
@@ -102,7 +102,7 @@
         });
     }
 
-    // بديل alert() — كتبين رسالة وزر "حسنًا" وحيد
+    // بديل alert() — كتبين رسالة وزر "OK" وحيد
     window.customAlert = function (message) {
         return open({ message: message, showInput: false, showCancel: false });
     };
@@ -139,7 +139,7 @@
 
         inputEl.style.display = "none";
         cancelBtn.style.display = "none";
-        okBtn.textContent = "حسنًا";
+        okBtn.textContent = "OK";
         overlay.style.display = "flex";
 
         return new Promise(function (resolve) {
