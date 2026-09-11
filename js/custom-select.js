@@ -1,3 +1,4 @@
+
 // ===================================================================
 // js/custom-select.js
 // كيبدل أي <select class="enhance-select"> بقائمة احترافية (Custom
@@ -29,7 +30,7 @@ function enhanceSelect(selectEl) {
     searchInput = document.createElement("input");
     searchInput.type = "text";
     searchInput.className = "custom-select-search";
-    searchInput.placeholder = "بحث...";
+    searchInput.placeholder = "Search...";
     panel.appendChild(searchInput);
   }
   
