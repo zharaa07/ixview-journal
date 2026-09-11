@@ -26,7 +26,7 @@
         const toggle = document.getElementById("themeToggle");
         if (toggle) {
             toggle.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
-            toggle.setAttribute("title", theme === "dark" ? "التبديل لـ Light Mode" : "التبديل لـ Dark Mode");
+            toggle.setAttribute("title", theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode");
         }
         const icon = document.getElementById("themeIcon");
         if (icon) {
