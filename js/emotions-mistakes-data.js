@@ -96,7 +96,7 @@ function ensureOrphanOptions(containerId, values) {
         label.innerHTML =
             '<input type="checkbox" value="' + escapeAttr(value) + '" checked> ' +
             escapeAttr(value) +
-            ' <span style="color:var(--text-tertiary);font-size:11px;">(محذوف من القائمة)</span>';
+            ' <span style="color:var(--text-tertiary);font-size:11px;">(removed from list)</span>';
         container.appendChild(label);
     });
 }
