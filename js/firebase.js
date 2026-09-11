@@ -62,7 +62,7 @@ function isEmailUnverified() {
 
 function blockIfUnverified() {
     if (isEmailUnverified()) {
-        const msg = "يرجى تفعيل بريدك الإلكتروني أولاً قبل حفظ أو تعديل البيانات.";
+        const msg = "Please verify your email address before saving or editing data.";
         if (window.customAlert) window.customAlert(msg);
         else alert(msg);
         return true;
@@ -95,7 +95,7 @@ window.cloudSaveField = async function (fieldName, value) {
             { merge: true }
         );
     } catch (err) {
-        console.error("تعذر الحفظ السحابي (" + fieldName + "):", err);
+        console.error("Cloud save failed (" + fieldName + "):", err);
     }
 };
 
@@ -121,7 +121,7 @@ window.cloudSaveTrade = async function (trade) {
             trade
         );
     } catch (err) {
-        console.error("تعذر حفظ الصفقة فالسحابة:", err);
+        console.error("Failed to save trade to the cloud:", err);
     }
     return trade.id;
 };
@@ -133,7 +133,7 @@ window.cloudDeleteTrade = async function (tradeId) {
             doc(db, "users", window.currentUser.uid, "trades", tradeId)
         );
     } catch (err) {
-        console.error("تعذر حذف الصفقة من السحابة:", err);
+        console.error("Failed to delete trade from the cloud:", err);
     }
 };
 
@@ -165,25 +165,25 @@ function clearLocalUserCache() {
     window.dispatchEvent(new CustomEvent("cloudUserCleared"));
 }
 
-// كترجم أكواد أخطاء Firebase Auth لرسائل واضحة بالعربية للمستخدم
+// كترجم أكواد أخطاء Firebase Auth لرسائل واضحة بالإنجليزية للمستخدم
 const AUTH_ERROR_MESSAGES = {
-    "auth/email-already-in-use": "هاد البريد الإلكتروني مستعمل من قبل. جرب تسجيل الدخول.",
-    "auth/invalid-email": "صيغة البريد الإلكتروني غير صحيحة.",
-    "auth/weak-password": "كلمة المرور ضعيفة، خاصها تكون 6 حروف/أرقام على الأقل.",
-    "auth/missing-password": "دخل كلمة المرور.",
-    "auth/user-not-found": "ما كايناش حساب بهاد البريد الإلكتروني.",
-    "auth/wrong-password": "كلمة المرور غير صحيحة.",
-    "auth/invalid-credential": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-    "auth/user-disabled": "هاد الحساب تم تعطيله.",
-    "auth/too-many-requests": "محاولات كثيرة، حاول من بعد شوية.",
-    "auth/network-request-failed": "تأكد من اتصالك بالإنترنت وحاول مرة أخرى."
+    "auth/email-already-in-use": "This email is already registered. Try signing in instead.",
+    "auth/invalid-email": "Invalid email format.",
+    "auth/weak-password": "Password is too weak — use at least 6 characters.",
+    "auth/missing-password": "Please enter a password.",
+    "auth/user-not-found": "No account found with this email.",
+    "auth/wrong-password": "Incorrect password.",
+    "auth/invalid-credential": "Incorrect email or password.",
+    "auth/user-disabled": "This account has been disabled.",
+    "auth/too-many-requests": "Too many attempts, please try again later.",
+    "auth/network-request-failed": "Check your internet connection and try again."
 };
 
 function mapAuthError(err) {
     if (err && err.code && AUTH_ERROR_MESSAGES[err.code]) {
         return AUTH_ERROR_MESSAGES[err.code];
     }
-    return "وقع خطأ، حاول مرة أخرى.";
+    return "Something went wrong, please try again.";
 }
 
 window.signUpWithEmail = async function (email, password) {
@@ -195,12 +195,12 @@ window.signUpWithEmail = async function (email, password) {
             await sendEmailVerification(cred.user);
             if (window.authDebugLog) window.authDebugLog("Email Verification", "success", { step: "verification email sent" });
         } catch (verifyErr) {
-            console.error("تعذر إرسال رسالة التحقق:", verifyErr);
+            console.error("Failed to send verification email:", verifyErr);
             if (window.authDebugLog) window.authDebugLog("Email Verification", "error", { code: verifyErr.code, message: verifyErr.message, name: verifyErr.name });
         }
         return { ok: true };
     } catch (err) {
-        console.error("خطأ إنشاء الحساب:", err);
+        console.error("Sign up error:", err);
         if (window.authDebugLog) window.authDebugLog("Email Sign Up", "error", { code: err.code, message: err.message, name: err.name });
         return { ok: false, message: mapAuthError(err) };
     }
@@ -213,7 +213,7 @@ window.loginWithEmail = async function (email, password) {
         if (window.authDebugLog) window.authDebugLog("Email Login", "success", {});
         return { ok: true };
     } catch (err) {
-        console.error("خطأ تسجيل الدخول بالبريد:", err);
+        console.error("Email sign-in error:", err);
         if (window.authDebugLog) window.authDebugLog("Email Login", "error", { code: err.code, message: err.message, name: err.name });
         return { ok: false, message: mapAuthError(err) };
     }
@@ -226,7 +226,7 @@ window.sendPasswordReset = async function (email) {
         if (window.authDebugLog) window.authDebugLog("Password Reset", "success", {});
         return { ok: true };
     } catch (err) {
-        console.error("خطأ إعادة تعيين كلمة المرور:", err);
+        console.error("Password reset error:", err);
         if (window.authDebugLog) window.authDebugLog("Password Reset", "error", { code: err.code, message: err.message, name: err.name });
         return { ok: false, message: mapAuthError(err) };
     }
@@ -238,12 +238,12 @@ window.resendVerificationEmail = async function () {
     try {
         await sendEmailVerification(window.currentUser);
         if (window.authDebugLog) window.authDebugLog("Resend Verification", "success", {});
-        const msg = "تم إرسال رسالة تحقق جديدة لبريدك الإلكتروني.";
+        const msg = "A new verification email has been sent to your inbox.";
         if (window.customAlert) window.customAlert(msg); else alert(msg);
     } catch (err) {
-        console.error("تعذر إعادة إرسال رسالة التحقق:", err);
+        console.error("Failed to resend verification email:", err);
         if (window.authDebugLog) window.authDebugLog("Resend Verification", "error", { code: err.code, message: err.message, name: err.name });
-        const msg = "تعذر إرسال الرسالة، حاول من بعد شوية.";
+        const msg = "Could not send the email, please try again later.";
         if (window.customAlert) window.customAlert(msg); else alert(msg);
     }
 };
@@ -284,7 +284,7 @@ async function syncUserData(user) {
     const uid = user.uid;
     const userRef = doc(db, "users", uid);
     const statusEl = document.getElementById("syncStatus");
-    if (statusEl) statusEl.textContent = "جاري المزامنة...";
+    if (statusEl) statusEl.textContent = "Syncing...";
 
     try {
         const snap = await getDoc(userRef);
@@ -331,8 +331,8 @@ async function syncUserData(user) {
             }
         }
     } catch (err) {
-        console.error("تعذر مزامنة البيانات مع Firestore:", err);
-        if (statusEl) statusEl.textContent = "تعذرت المزامنة";
+        console.error("Failed to sync data with Firestore:", err);
+        if (statusEl) statusEl.textContent = "Sync failed";
         setTimeout(() => { if (statusEl) statusEl.textContent = ""; }, 3000);
         window.dispatchEvent(new CustomEvent("cloudDataReady"));
         return;
@@ -392,10 +392,10 @@ window.loginWithGoogle = async function () {
         if (window.authDebugLog) window.authDebugLog("Google Login SUCCESS", "success", { step: "popup" });
     } catch (err) {
         if (window.authDebugLog) window.authDebugLog("Google Login ERROR", "error", { code: err && err.code, message: err && err.message, name: err && err.name, step: "popup" });
-        console.error("خطأ تسجيل الدخول بـ Google:", err);
+        console.error("Google sign-in error:", err);
         const msg = (err && err.code === "auth/popup-blocked")
-            ? "المتصفح بلوكا النافذة المنبثقة. فعّل popups لهاد الموقع وحاول مرة أخرى."
-            : "تعذر تسجيل الدخول، حاول مرة أخرى.";
+            ? "Your browser blocked the popup. Please allow popups for this site and try again."
+            : "Sign-in failed, please try again.";
         if (window.customAlert) window.customAlert(msg);
         else alert(msg);
     }
@@ -417,7 +417,7 @@ getRedirectResult(auth).then((result) => {
         if (window.authDebugLog) window.authDebugLog("Google Login REDIRECT RESULT", "info", { result: "none pending" });
     }
 }).catch((err) => {
-    console.error("خطأ فـ نتيجة redirect:", err);
+    console.error("Redirect result error:", err);
     if (window.authDebugLog) window.authDebugLog("Google Login ERROR", "error", { code: err && err.code, message: err && err.message, name: err && err.name, step: "redirect-result" });
 });
 
@@ -453,7 +453,7 @@ onAuthStateChanged(auth, (user) => {
         loginBtn.style.display = "none";
         userInfo.style.display = "flex";
         userPhoto.src = user.photoURL || "";
-        userName.textContent = user.displayName || user.email || "مستخدم";
+        userName.textContent = user.displayName || user.email || "User";
 
         const verifyBanner = document.getElementById("emailVerifyBanner");
         if (verifyBanner) {
@@ -482,11 +482,11 @@ onAuthStateChanged(auth, (user) => {
 // أوتوماتيكياً كي يرجع الاتصال (المزامنة التالية غادي تتصايب من عندها)
 window.addEventListener("offline", function () {
     const statusEl = document.getElementById("syncStatus");
-    if (statusEl) statusEl.textContent = "غير متصل بالإنترنت";
+    if (statusEl) statusEl.textContent = "Offline";
 });
 window.addEventListener("online", function () {
     const statusEl = document.getElementById("syncStatus");
-    if (statusEl && statusEl.textContent === "غير متصل بالإنترنت") {
+    if (statusEl && statusEl.textContent === "Offline") {
         statusEl.textContent = "";
         if (window.currentUser) syncUserData(window.currentUser);
     }
@@ -529,7 +529,7 @@ window.switchEmailAuthTab = function (mode) {
         loginTab.classList.toggle("active", mode === "login");
         signupTab.classList.toggle("active", mode === "signup");
     }
-    if (submitBtn) submitBtn.textContent = mode === "login" ? "تسجيل الدخول" : "إنشاء حساب";
+    if (submitBtn) submitBtn.textContent = mode === "login" ? "Sign In" : "Sign Up";
     if (forgotLink) forgotLink.style.display = mode === "login" ? "inline" : "none";
 };
 
@@ -544,7 +544,7 @@ window.submitEmailAuthForm = async function () {
     const password = passInput.value;
 
     if (!email || !password) {
-        if (errEl) errEl.textContent = "عمر الحقول كاملين.";
+        if (errEl) errEl.textContent = "Please fill in all fields.";
         return;
     }
 
@@ -567,13 +567,13 @@ window.forgotPasswordFlow = async function () {
     let email = emailInput ? emailInput.value.trim() : "";
 
     if (!email && window.customPrompt) {
-        email = await window.customPrompt("دخل بريدك الإلكتروني باش نصيفطولك رابط إعادة التعيين:");
+        email = await window.customPrompt("Enter your email address to receive a reset link:");
     }
     if (!email) return;
 
     const result = await window.sendPasswordReset(email);
     const msg = result.ok
-        ? "تم إرسال رابط إعادة تعيين كلمة المرور لبريدك الإلكتروني."
+        ? "A password reset link has been sent to your email."
         : result.message;
 
     if (result.ok) {
