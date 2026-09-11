@@ -137,11 +137,11 @@
         const btn = document.getElementById("authDebugCopyBtn");
         try {
             await navigator.clipboard.writeText(report);
-            if (btn) { const old = btn.textContent; btn.textContent = "✓ تم النسخ"; setTimeout(() => btn.textContent = old, 1500); }
+            if (btn) { const old = btn.textContent; btn.textContent = "✓ Copied"; setTimeout(() => btn.textContent = old, 1500); }
         } catch (e) {
             // فولباك: نافذة نص يقدر يسلكت ويكوبي يدوي
-            if (window.customPrompt) window.customPrompt("انسخ التقرير يدويًا:", report);
-            else prompt("انسخ التقرير يدويًا:", report);
+            if (window.customPrompt) window.customPrompt("Copy the report manually:", report);
+            else prompt("Copy the report manually:", report);
         }
     };
 
