@@ -1,15 +1,13 @@
 
-// كل مرة كنزيدو HTML فيه data-lucide (أزرار، أيقونات...) خاصنا نستدعيو
-// هاد الدالة باش Lucide يرسمها كـ SVG. ما تخدمش والو إذا المكتبة ما تحملاتش بعد.
 function refreshIcons() {
     if (window.lucide && typeof window.lucide.createIcons === "function") {
         window.lucide.createIcons();
     }
 }
 
-// ===================================================================
-// App Header v2 — Hamburger Menu + Navigation Tabs
-// ===================================================================
+
+// App Header
+
 function toggleHeaderMenu() {
     const panel = document.getElementById("headerMenuPanel");
     const overlay = document.getElementById("headerMenuOverlay");
@@ -36,7 +34,7 @@ function headerSetActiveTab(tab) {
     });
 }
 
-// Journal.html: التنقل غير Scroll داخلي (كل شي فنفس الصفحة)
+// Journal.html
 function headerNavigate(target) {
     closeHeaderMenu();
     headerSetActiveTab(target);
@@ -52,13 +50,12 @@ function headerNavigate(target) {
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-// نسدو الـ menu كي نضغطو Escape، أو كي الصفحة تتفتح من جديد
+
 document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") closeHeaderMenu();
 });
 
-// كتقرا القيم المختارة (checkboxes) من فلتر متعدد الاختيار (Asset / Session).
-// إذا ما كانش أي اختيار، كنعتبروها "الكل" (بحال ما كان الفلتر القديم "All")
+
 function getCheckedValues(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return [];
@@ -83,8 +80,7 @@ function toggleFilterMenu(menuId) {
     menu.style.display = menu.style.display === "block" ? "none" : "block";
 }
 
-// فلتر "All Tags" (نقطة 11): كيبني القائمة من tagsList كل مرة تتفتح
-// (باش تبقى محدثة)، وفيها حقل بحث حي لأن عدد الـ Tags ممكن يكبر
+
 function toggleTagsFilterMenu() {
     const menu = document.getElementById("tagsFilterMenu");
     if (!menu) return;
@@ -97,8 +93,7 @@ function toggleTagsFilterMenu() {
     }
 }
 
-// كتخدم كي المستخدم يبدل الاختيار فـ Asset/Session فلتر: كتحدث اللابل
-// وتعاود ترسم كل شي (نفس اللي كان كيوقع عند onchange ديال الـ select القديم)
+
 function onFilterChange() {
     updateFilterLabel("assetFilterOptions", "assetFilterLabel", "All Assets");
     updateFilterLabel("sessionFilterOptions", "sessionFilterLabel", "All Sessions");
@@ -110,8 +105,7 @@ function onFilterChange() {
     if (typeof renderCalendar === "function") renderCalendar();
 }
 
-// كتبني checkboxes فلتر "All Tags" من tagsList، مع حقل بحث لأن عدد
-// الـ Tags ممكن يكبر بزاف (نقطة 11)
+
 function renderTagsFilterOptions(searchText) {
     const container = document.getElementById("tagsFilterOptions");
     if (!container) return;
@@ -128,8 +122,7 @@ function renderTagsFilterOptions(searchText) {
     });
 }
 
-// حماية: أي صفقة قديمة عندها resultR فاسد (NaN/undefined) كتبدل بـ 0
-// بلا ما نمس أي حقل آخر فالصفقة (ما كنمسحوش البيانات، غير كنصلحو رقم واحد فاسد)
+
 function sanitizeTrades(arr) {
     if (!Array.isArray(arr)) return [];
     arr.forEach(t => {
@@ -213,8 +206,7 @@ document.getElementById(
 "tradeForm"
 ).reset();
 
-// نحدثو labels الـ Custom Select لأن reset() كيبدل .value
-// ديال الـ select الأصلي بلا ما يمر من زر الاختيار
+
 refreshCustomSelect(document.getElementById("asset"));
 refreshCustomSelect(document.getElementById("result"));
 refreshCustomSelect(document.getElementById("model"));
@@ -256,9 +248,7 @@ box.checked = false;
 updateMultiSelectUI("mistakes", "mistakesLabel", "mistakesChips", "Select Mistakes");
 updateMultiSelectUI("emotions", "emotionsLabel", "emotionsChips", "Select Emotions");
 updateMultiSelectUI("tagsList", "tagsLabel", "tagsChips", "Select Tags");
-
-// نطلعو من وضع الحذف (إذا كان مفعّل) — غير فحالة "صفقة جديدة"،
-// باش ما نمسحوش الاختيارات لي editTrade() دابا عمرها قبل ما يوصل هنا
+    
 exitAllDeleteModes();
 renderTagsList();
 renderMistakes();
@@ -1154,7 +1144,7 @@ asset;
 
 (function(){ var _el = document.getElementById("bestModel"); if (_el) _el.textContent = bestModel; })();
 
-// Week Total: مجموع R ديال الصفقات فالأسبوع الحالي (من نهار الأحد)
+// Week Total
 const now = new Date();
 const startOfWeek = new Date(now);
 startOfWeek.setDate(now.getDate() - now.getDay());
