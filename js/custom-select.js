@@ -1,12 +1,5 @@
 
-// ===================================================================
-// js/custom-select.js
-// كيبدل أي <select class="enhance-select"> بقائمة احترافية (Custom
-// Select) بحث + Dark Mode + Animated، بلا ما يمس الـ <select> الأصلي.
-// الـ <select> الأصلي كيبقى موجود فالـ DOM (مخفي)، وهو اللي كيبقى
-// "مصدر الحقيقة" (source of truth) لكل الكود القديم اللي كيقرا/كيكتب
-// .value ديالو — بهاد الطريقة ما تنكسر حتى وظيفة قديمة.
-// ===================================================================
+
 
 function enhanceSelect(selectEl) {
   if (!selectEl || selectEl.dataset.enhanced === "true") return;
@@ -97,10 +90,7 @@ function enhanceSelect(selectEl) {
   selectEl.insertAdjacentElement("afterend", wrapper);
   
   syncLabel();
-  
-  // كنخلّيو دالة تحديث متاحة على الـ select نفسو، باش الكود القديم
-  // (editTrade، renderModels...) يقدر يعيّط ليها بعد ما يبدل .value
-  // أو يبدل الخيارات (options) بلا ما نبدلو أي منطق قديم
+
   selectEl._refreshCustomSelect = syncLabel;
   
   if (window.lucide) window.lucide.createIcons();
@@ -114,7 +104,7 @@ function initAllCustomSelects() {
   document.querySelectorAll("select.enhance-select").forEach(enhanceSelect);
 }
 
-// نسدو أي panel مفتوحة كي المستخدم يضغط برا منها
+
 document.addEventListener("click", function(e) {
   if (!e.target.closest(".custom-select")) {
     document.querySelectorAll(".custom-select-panel.open").forEach(function(p) {
