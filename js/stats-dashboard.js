@@ -1,36 +1,11 @@
-// ===================================================================
-// js/stats-dashboard.js
-// "Performance Dashboard" — إعادة تصميم قسم الإحصائيات (V2)
-// بناءً على برومت "IXVIEW JOURNAL - Professional Statistics Dashboard".
-//
-// مبدأ العمل: هاد الملف مستقل بالكامل (Self-contained)، ما كيبدلش أي
-// دالة موجودة فـ journal.js. كيقرا مباشرة من المتغير العام `trades`
-// (وباقي الدوال العامة زي getCheckedValues/refreshIcons) اللي كاينين
-// فـ journal.js لأن السكريبتات الكلاسيكية (بلا type="module") كتشارك
-// نفس الـ Global Scope.
-//
-// للتحديث التلقائي كي تتبدل الصفقات/الفلاتر، كنديرو "monkey-patch"
-// خفيف على window.updateStats (دالة عامة كتتعيط من كل مكان فـ journal.js
-// بعد Add/Edit/Delete/Import/Filter/Sync) — بلا ما نمس أي سطر فـ journal.js
-// نفسها.
-//
-// الإعدادات (Trade Goal، Last N، Zones، Display Modes...) محفوظة فـ
-// localStorage تحت مفتاح واحد، خاصة بهاد الجهاز (ماشي مرتبطة بـ Firestore
-// حاليًا — يمكن تطويرها مستقبلاً لتتزامن عبر cloudSaveField بحال باقي
-// القوائم).
-// ===================================================================
+
 
 (function () {
 
-    // علامة تشخيصية: إذا ما بانتش هاد الرسالة فـ Console، معناه
-    // ملف stats-dashboard.js ما تحملش أصلاً (404 أو مسار خاطئ) —
-    // السبب الأكثر احتمالاً فهاد الحالة هو نسيان رفع الملف لنفس
-    // مسار js/ فـ الاستضافة (GitHub Pages).
+    
     const PD_SETTINGS_KEY = "pdDashboardSettings";
 
-    // ---------------------------------------------------------------
-    // الإعدادات: تحميل / حفظ
-    // ---------------------------------------------------------------
+    
     function pdDefaultSettings() {
         return {
             tradeGoal: 200,
@@ -98,9 +73,7 @@
         }
     }
 
-    // ---------------------------------------------------------------
-    // Helpers عامة (قراءة البيانات من journal.js)
-    // ---------------------------------------------------------------
+
     function pdSafeGetChecked(id) {
         return (typeof getCheckedValues === "function") ? getCheckedValues(id) : [];
     }
@@ -153,15 +126,14 @@
         else if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
     }
 
-    // ---------------------------------------------------------------
-    // SVG Gauges (Semicircle "Fuel Gauge" + Circular)
-    // ---------------------------------------------------------------
+
+    // SVG Gauges 
     function pdPolarToCartesian(cx, cy, r, angleDeg) {
         const rad = (angleDeg - 90) * Math.PI / 180.0;
         return { x: cx + (r * Math.cos(rad)), y: cy + (r * Math.sin(rad)) };
     }
 
-    // angleDeg: 0 = أعلى القوس، -90 = يسار، 90 = يمين (نصف دائرة علوي)
+    // angleDeg
     function pdDescribeArc(cx, cy, r, startAngle, endAngle) {
         const start = pdPolarToCartesian(cx, cy, r, endAngle);
         const end = pdPolarToCartesian(cx, cy, r, startAngle);
@@ -197,9 +169,9 @@
             '</svg>';
     }
 
-    // ---------------------------------------------------------------
-    // CARD 1: Total Trades
-    // ---------------------------------------------------------------
+
+    // CARD 1Total Trades
+
     function pdRenderTotalTrades(filteredSorted) {
         const container = document.getElementById("pdTotalTradesGauge");
         if (!container) return;
@@ -219,9 +191,9 @@
         if (input && document.activeElement !== input) input.value = target;
     }
 
-    // ---------------------------------------------------------------
-    // CARD 2: Win Rate
-    // ---------------------------------------------------------------
+
+    // CARD 2 Win Rate
+    
     function pdRenderWinRate(filteredSorted) {
         const body = document.getElementById("pdWinRateBody");
         if (!body) return;
@@ -269,9 +241,9 @@
         if (lastNInput && document.activeElement !== lastNInput) lastNInput.value = pdSettings.lastNCount;
     }
 
-    // ---------------------------------------------------------------
-    // CARD 3: Average R (Break-even RR + Performance Scale)
-    // ---------------------------------------------------------------
+    
+    // CARD 3 Average R 
+    
     function pdRenderAvgR(filteredSorted) {
         const body = document.getElementById("pdAvgRBody");
         if (!body) return;
@@ -342,9 +314,9 @@
         if (midInput && document.activeElement !== midInput && s.middleZoneLimit) midInput.value = s.middleZoneLimit;
     }
 
-    // ---------------------------------------------------------------
-    // SECTION 2: Small Performance Cards
-    // ---------------------------------------------------------------
+    
+    // SECTION 2 Small  Cards
+    
     function pdRenderSmallCards(filteredSorted) {
         const grid = document.getElementById("pdSmallCardsGrid");
         if (!grid) return;
@@ -388,9 +360,8 @@
         }).join("");
     }
 
-    // ---------------------------------------------------------------
-    // SECTION 3: Comparison Cards (Best vs Worst)
-    // ---------------------------------------------------------------
+    
+    // SECTION 3: Comparison Cards
     function pdGroupBy(arr, keyFn) {
         const map = {};
         arr.forEach(function (t) {
@@ -452,9 +423,9 @@
         if (assetSel) assetSel.value = pdSettings.comparison.asset;
     }
 
-    // ---------------------------------------------------------------
+    
     // SECTION 4: Drawdown Cards
-    // ---------------------------------------------------------------
+    
     function pdComputeLocalDD(dayTrades, field) {
         let equity = 0, peak = 0, worstDD = 0, peakAtWorst = 0;
         dayTrades.forEach(function (t) {
@@ -479,11 +450,7 @@
         return { current: (peak - equity), currentPeak: peak, worst: worstDD, worstPeak: peakAtWorstDD };
     }
 
-    // كنحسبو مسارين متوازيين: واحد بوحدة R (ديمًا متوفر)، وواحد بالدولار
-    // (مبني على trade.pnlUSD الحقل الجديد — إذا الصفقة ماعندهاش قيمة
-    // بالدولار، كنعتبروها 0 فهاد المسار بالذات، بلا ما تأثر على مسار R).
-    // بهاد الطريقة، اختيار "$" فـ البطاقة كيقرا مباشرة من هاد المسار
-    // الحقيقي، بلا أي سؤال أو تقدير (valuePerR القديمة تحذفات).
+
     function pdComputeDrawdowns(filteredSorted) {
         const byDay = {};
         filteredSorted.forEach(function (t) {
@@ -520,8 +487,6 @@
         };
     }
 
-    // rEntry مبني على R (كيخدم مع "R" و"%")، usdEntry مبني على pnlUSD
-    // (كيخدم مباشرة مع "$" — بلا ما نسولو على أي تحويل).
     function pdFormatDrawdownValue(rEntry, usdEntry, mode) {
         if (mode === "%") {
             if (!rEntry.peak || rEntry.peak <= 0) return "0%";
@@ -567,12 +532,7 @@
         pdRefreshIcons();
     }
 
-    // ---------------------------------------------------------------
-    // الدالة الرئيسية: كتبني كل أقسام Performance Dashboard
-    // كل قسم معزول بـ try/catch خاص بيه: إذا وقع خطأ فـ قسم واحد
-    // (مثلاً Drawdown)، باقي الأقسام كيكملو يترسمو عادي، وكيبان
-    // فـ الكونصول بالضبط شكون السبب — بلا ما تبقى الصفحة فارغة بصمت.
-    // ---------------------------------------------------------------
+
     function pdSafeRun(label, fn) {
         try {
             fn();
@@ -605,8 +565,6 @@
         pdSafeRun("Comparison Cards", function () { pdRenderComparisons(sorted); });
         pdSafeRun("Drawdown Cards", function () { pdRenderDrawdownCards(sorted); });
 
-        // إذا بقى شي حاوية فارغة رغم كل هاد المحاولات (خطأ ماتوقعناهش)،
-        // نبينو رسالة بدل الفراغ الصامت
         pdShowFallback("pdTotalTradesGauge", "Failed to load data");
         pdShowFallback("pdWinRateBody", "Failed to load data");
         pdShowFallback("pdAvgRBody", "Failed to load data");
@@ -614,9 +572,7 @@
         pdRefreshIcons();
     }
 
-    // ---------------------------------------------------------------
-    // واجهة PD.* المستعملة من الـ onclick/onchange فـ الـ HTML
-    // ---------------------------------------------------------------
+    
     window.PD = {
 
         togglePopover: function (anchorId) {
@@ -691,20 +647,14 @@
 
     window.renderStatsDashboard = renderStatsDashboard;
 
-    // ---------------------------------------------------------------
-    // إغلاق أي Popover مفتوح كي نضغطو برا منه
-    // ---------------------------------------------------------------
+
     document.addEventListener("click", function (e) {
         if (!e.target.closest(".pd-popover-anchor")) {
             document.querySelectorAll(".pd-popover.open").forEach(function (p) { p.classList.remove("open"); });
         }
     });
 
-    // ---------------------------------------------------------------
-    // Hook خفيف على window.updateStats (بلا ما نمس journal.js)
-    // كل استدعاء لـ updateStats() (بعد Add/Edit/Delete/Import/Filter/Sync)
-    // غادي يعاود يرسم Performance Dashboard تلقائيًا.
-    // ---------------------------------------------------------------
+
     const _pdOrigUpdateStats = window.updateStats;
     if (typeof _pdOrigUpdateStats === "function") {
         window.updateStats = function () {
