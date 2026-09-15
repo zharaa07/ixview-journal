@@ -1,9 +1,6 @@
-/* ===================================================================
-   css/components.css
-   كل المكونات المرئية: أزرار، بطاقات، جداول، modals، تقويم، فورمات
-   =================================================================== */
 
-/* ===================== Buttons ===================== */
+
+/* Buttons  */
 button{
     font-family: inherit;
     font-size: 14px;
@@ -109,7 +106,7 @@ button:active:not(:disabled){
 }
 .export-btn:hover{ border-color: var(--primary); }
 
-/* ===================== Cards ===================== */
+/*  Cards  */
 .card{
     background: var(--bg-surface);
     border: 1px solid var(--border-soft);
@@ -178,7 +175,7 @@ button:active:not(:disabled){
     margin-top: var(--space-3);
 }
 
-/* ===================== Forms / Inputs ===================== */
+/*  Forms / Inputs */
 label{
     display: block;
     font-size: 12px;
@@ -232,11 +229,9 @@ input:disabled, select:disabled, textarea:disabled{
     margin-bottom: var(--space-3);
 }
 
-/* ملاحظة: كانت هنا قواعد قديمة خاصة بـ #mistakes بوحدها (pills أفقية)
-   من قبل ما يتوحد التصميم مع Tags/Emotion — تحذفات لأنها كانت
-   كتبدل شكل Mistakes وتخليه مختلف عن الاثنين الآخرين */
 
-/* ===================== Table ===================== */
+
+/* Table  */
 .table-wrap{
     overflow-x: auto;
     border-radius: var(--radius-lg);
@@ -284,7 +279,7 @@ tbody tr:hover{
 .pill-loss{ background: var(--danger-bg); color: var(--danger); }
 .pill-be{ background: var(--bg-surface-2); color: var(--text-tertiary); }
 
-/* ===================== Modal ===================== */
+/*  Modal */
 .modal-overlay{
     position: fixed;
     inset: 0;
@@ -308,7 +303,7 @@ tbody tr:hover{
     box-shadow: var(--shadow-lg);
 }
 
-/* ===================== Calendar ===================== */
+/*  Calendar  */
 .calendar-grid{
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -366,7 +361,7 @@ tbody tr:hover{
     z-index: 3000;
 }
 
-/* ===================== Empty States ===================== */
+/* Empty States */
 .empty-state{
     display: flex;
     flex-direction: column;
@@ -390,7 +385,7 @@ tbody tr:hover{
     margin-bottom: var(--space-4);
 }
 
-/* ===================== Theme Toggle ===================== */
+/* Theme Toggle  */
 .theme-toggle{
     width: 40px;
     height: 40px;
@@ -407,7 +402,7 @@ tbody tr:hover{
     border-color: var(--primary);
 }
 
-/* ===================== Nav ===================== */
+/* Nav  */
 .top-nav{
     display: flex;
     align-items: center;
@@ -445,7 +440,7 @@ tbody tr:hover{
     color: #fff;
 }
 
-/* ===================== Auth Widget ===================== */
+/*  Auth Widget  */
 .auth-widget{
     display: flex;
     align-items: center;
@@ -606,7 +601,7 @@ tbody tr:hover{
 }
 
 
-/* أزرار model-card (Open / Add Trade / Delete) — نقطة 8، معدلة لتبان احترافية */
+
 .model-buttons button{
     flex: 1;
     padding: 9px 12px;
@@ -652,7 +647,7 @@ tbody tr:hover{
     height: 15px;
 }
 
-/* بطاقات الجلسات (Session Analysis) — أصغر من stat-card العادية، جنب بعض */
+
 .session-mini-card{
     background: var(--bg-surface);
     border: 1px solid var(--border-soft);
@@ -677,8 +672,8 @@ tbody tr:hover{
     font-weight: 600;
 }
 
-/* ===================== Professional Select Arrow ===================== */
-/* سهم مخصص للقوائم الاختيارية العادية، بلون يتبع الثيم تلقائيًا (نقطة 4) */
+/* Professional Select Arrow  */
+
 select{
     appearance: none;
     -webkit-appearance: none;
@@ -696,7 +691,7 @@ select{
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23E8E0D4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 }
 
-/* ===================== Multi-select Filter Dropdown (Asset/Session) ===================== */
+/* Multi-select Filter Dropdown (Asset/Session) */
 .filter-dropdown{
     position: relative;
 }
@@ -770,8 +765,8 @@ select{
     cursor: pointer;
 }
 
-/* ===================== إزالة مظهر المتصفح الافتراضي (نقطة 10) ===================== */
-/* زر "اختر ملف" الافتراضي للمتصفح */
+
+
 input[type="file"]{
     padding: 8px;
     cursor: pointer;
@@ -794,7 +789,7 @@ input[type="file"]::file-selector-button:hover{
     color: var(--primary);
 }
 
-/* أسهم الزيادة/النقصان الافتراضية لحقول الأرقام */
+
 input[type="number"]{
     -moz-appearance: textfield;
 }
@@ -804,7 +799,7 @@ input[type="number"]::-webkit-inner-spin-button{
     margin: 0;
 }
 
-/* ===================== Custom Select (نقطة 1) ===================== */
+/*  Custom Select  */
 .visually-hidden-select{
     position: absolute !important;
     width: 1px; height: 1px;
@@ -897,7 +892,7 @@ input[type="number"]::-webkit-inner-spin-button{
     color: #fff;
 }
 
-/* ===================== Flatpickr Theme (نقطة 2) ===================== */
+/* Flatpickr Theme  */
 .flatpickr-calendar{
     background: var(--bg-elevated) !important;
     border: 1px solid var(--border-color) !important;
@@ -1012,7 +1007,7 @@ input#date{
     cursor: pointer;
 }
 
-/* ===================== Chips (Emotions/Tags/Mistakes المختارة) ===================== */
+/* Chips (Emotions/Tags/Mistakes المختارة)  */
 .chips-row{
     display: flex;
     flex-wrap: wrap;
@@ -1042,7 +1037,7 @@ input#date{
     opacity: 0.7;
 }
 
-/* صف "إضافة عنصر جديد" جوا القائمة المنسدلة (Tags/Mistakes/Emotions) */
+
 .dropdown-add-row{
     display: flex;
     gap: 6px;
@@ -1074,7 +1069,6 @@ input#date{
     height: 14px;
 }
 
-/* ===================== Custom Dialog (بديل alert/confirm/prompt) ===================== */
 .custom-dialog-overlay{
     z-index: 5000;
 }
@@ -1111,7 +1105,7 @@ input#date{
     line-height: 1.9;
 }
 
-/* ===================== Export Cards ===================== */
+/* Export Cards */
 .export-cards-grid{
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -1158,7 +1152,7 @@ input#date{
     font-size: 12.5px;
 }
 
-/* ===================== Import Dropzone ===================== */
+/* Import Dropzone  */
 .import-dropzone{
     margin-top: var(--space-3);
     border: 2px dashed var(--border-color);
@@ -1186,7 +1180,7 @@ input#date{
     font-size: 13px;
 }
 
-/* ===================== Import Progress Bar ===================== */
+/*  Import Progress Bar  */
 .import-progress-bar{
     width: 100%;
     height: 8px;
@@ -1207,7 +1201,7 @@ input#date{
     margin-top: 6px;
 }
 
-/* ===================== Delete Mode (Tags/Mistakes/Emotions) ===================== */
+/*  Delete Mode (Tags/Mistakes/Emotions)  */
 .delete-mode-toggle{
     width: 32px;
     height: 32px;
@@ -1252,11 +1246,8 @@ input#date{
     flex-shrink: 0;
 }
 
-/* ===================== Mistake & Emotion Analytics ===================== */
-/* ملاحظة: .cost-rank-*، .emotion-rank-row، و .correlation-card/.correlation-row
-   كانت خاصة بأقسام "Most Costly Mistakes" و"Best/Worst Emotion" و"Mistake
-   ↔ Emotion Correlation" (التصميم القديم) — تحذفات نهائيًا لأنها ماعادش
-   مستعملة فأي مكان بعد إعادة التصميم (.rank-list-row الجديدة عوضتها). */
+/* Mistake & Emotion Analytics */
+
 
 .insight-card{
     display: flex;
@@ -1283,10 +1274,8 @@ input#date{
     display: none !important;
 }
 
-/* ===================== System/Custom Options: Search + Groups (نقاط 4, 6, 7) ===================== */
-/* هاد الجزء زيد باش يدعم قوائم Mistakes/Emotions الجداد (System + Custom)
-   بحقل بحث، عدة اختيارات، تصنيف حسب الأقسام، وزر Clear — بلا ما نبدلو
-   أي قاعدة قديمة فوق (Chips/dropdown-add-row/delete-mode بقاو بحالهم) */
+/* System/Custom Options: Search + Groups  */
+
 .dropdown-search-row{
     display: flex;
     gap: 6px;
@@ -1329,12 +1318,7 @@ input#date{
     padding-top: 4px;
 }
 
-/* ===================================================================
-   Performance Dashboard v2 — إعادة تصميم قسم الإحصائيات الاحترافية
-   (KPI Cards, Gauges, Comparison Cards, Drawdown Cards)
-   Design Language: Premium Trading Platform — Rounded 18-24px،
-   Soft Shadows، Glass خفيف، Spacing متناسق.
-   =================================================================== */
+
 
 .pd-section-title{
     display: flex;
@@ -1356,13 +1340,8 @@ input#date{
     border-radius: 999px;
 }
 
-/* ---------- Card Shell عام (كل بطاقات V2) ---------- */
-/* ملاحظة مهمة: كانت هنا backdrop-filter + gradient overlay خفيف
-   (تأثير "Glass") — تحذفات لأن backdrop-filter كيدير "stacking context"
-   معزول لكل بطاقة، وهادشي كان هو السبب فمشكل ظهور نافذة Settings
-   (.pd-popover) تحت البطاقات الجارة بدل فوقها. دابا البطاقة سطح
-   بسيط (بحال .card/.stat-card فباقي الموقع) بلا عزل، باش أي عنصر
-   بـ z-index مرتفع جواها (بحال الـ popover) يقدر يطلع فوق كل شي فعليًا. */
+/* Card Shell */
+
 .pd-card{
     position: relative;
     background: var(--bg-surface);
@@ -1376,9 +1355,7 @@ input#date{
     box-shadow: var(--shadow-md);
     border-color: rgba(109,93,252,0.35);
 }
-/* كي تكون popover مفتوحة جوا بطاقة، البطاقة كاملة كتطلع فـ الأعلى
-   (z-index مرتفع) باش الـ popover يبان فوق كل البطاقات الجارة، ماشي
-   غير فوق البطاقة ديالو. :has() مدعومة فكل المتصفحات الحديثة. */
+
 .pd-card:has(.pd-popover.open){
     z-index: 200;
 }
@@ -1423,7 +1400,7 @@ input#date{
 }
 .pd-info-btn{ cursor: help; }
 
-/* ---------- Section 1: Primary KPI Cards (كبيرة) ---------- */
+/*  Section 1 Primary KPI Cards */
 .pd-kpi-grid{
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1447,7 +1424,7 @@ input#date{
     gap: var(--space-2);
 }
 
-/* ---------- Fuel-style Semicircle Gauge (Total Trades) ---------- */
+/*  Fuel-style Semicircle Gauge (Total Trades)  */
 .pd-gauge-wrap{
     width: 100%;
     max-width: 230px;
@@ -1475,7 +1452,7 @@ input#date{
     text-align: center;
 }
 
-/* ---------- Circular Progress (Win Rate alt mode) ---------- */
+/*  Circular Progress (Win Rate alt mode)  */
 .pd-circular-wrap{
     width: 170px;
     height: 170px;
@@ -1502,7 +1479,7 @@ input#date{
     margin-top: 2px;
 }
 
-/* ---------- Progress Bar (Win Rate default mode) ---------- */
+/* Progress Bar */
 .pd-progress-track{
     width: 100%;
     height: 14px;
@@ -1537,7 +1514,7 @@ input#date{
     user-select: none;
 }
 
-/* ---------- Toggles داخل البطاقة ---------- */
+/* Toggles  */
 .pd-inline-toggles{
     display: flex;
     flex-wrap: wrap;
@@ -1599,7 +1576,7 @@ input#date{
     background: var(--primary);
 }
 
-/* ---------- Settings Popover (زر الترس أسفل البطاقة) ---------- */
+/* Settings Popover  */
 .pd-settings-footer{
     display: flex;
     justify-content: center;
@@ -1664,7 +1641,7 @@ input#date{
     margin-bottom: var(--space-3);
 }
 
-/* ---------- Average R — Performance Scale ---------- */
+/*  Average R — Performance Scale  */
 .pd-avgr-top{
     display: flex;
     align-items: baseline;
@@ -1751,7 +1728,7 @@ input#date{
 .pd-status-average{ color: var(--warning) !important; }
 .pd-status-profitable{ color: var(--success) !important; }
 
-/* ---------- Section 2: Small Performance Cards ---------- */
+/* Section 2 Small  Cards  */
 .pd-small-grid{
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -1784,7 +1761,7 @@ input#date{
     color: var(--primary);
 }
 
-/* ---------- Section 3: Comparison Cards (Best vs Worst) ---------- */
+/*  Section 3Comparison Cards  */
 .pd-comparison-grid{
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1855,7 +1832,7 @@ input#date{
     color: var(--text-tertiary);
 }
 
-/* ---------- Section 4: Drawdown Cards ---------- */
+/*  Section rawdown Cards  */
 .pd-drawdown-grid{
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -1881,10 +1858,7 @@ input#date{
     border-radius: 999px;
 }
 
-/* ===================================================================
-   Equity Curve — Professional Trading Analytics Redesign
-   Card احترافي، Toggle Controls، Tooltip زجاجي، Empty State.
-   =================================================================== */
+/*  Equity Curve */
 
 .eq-card{
     background: var(--bg-surface);
@@ -2035,7 +2009,7 @@ input#date{
     margin: 0;
 }
 
-/* Tooltip زجاجي مخصص — بديل عن Tooltip الافتراضي ديال Chart.js */
+
 .eq-tooltip{
     position: absolute;
     pointer-events: none;
@@ -2080,9 +2054,7 @@ input#date{
 .eq-tt-pos{ color: var(--success) !important; }
 .eq-tt-neg{ color: var(--danger) !important; }
 
-/* ===================================================================
-   Session Analysis (Redesigned) + Analytics Blocks (View More/Less)
-   =================================================================== */
+/* Session Analysis  */
 
 .sa-card{
     display: grid;
@@ -2159,7 +2131,7 @@ input#date{
     background: rgba(239,68,68,0.05);
 }
 
-/* ---------- Analytics Blocks (Mistake/Emotion/Correlation) ---------- */
+/* Analytics Blocks (Mistake/Emotion/Correlation) */
 .analytics-block{
     margin-top: 26px;
 }
@@ -2196,7 +2168,7 @@ input#date{
     font-size: 12.5px;
 }
 
-/* صفوف الترتيب المستعملة فـ Emotion Losing/Profitable و Correlation */
+
 .rank-list-row{
     display: flex;
     align-items: center;
@@ -2228,14 +2200,7 @@ input#date{
     flex-shrink: 0;
 }
 
-/* ===================================================================
-   App Header v2 — Premium SaaS Redesign (Production)
-   Dark luxury fintech: Glassmorphism + Backdrop Blur + Sticky.
-   ملاحظة: هاد الهيدر معزول عمدًا بـ direction:ltr (بغض النظر عن
-   dir="rtl" ديال باقي الصفحة) باش يبان بالضبط "Logo يسار / Hamburger
-   يمين" كيفما طلب بالضبط، ويحس بحال TradingView/Linear/Stripe
-   (منصات LTR بطبعها) — باقي الصفحة ما تأثرتش خالص.
-   =================================================================== */
+
 
 .app-header{
     position: sticky;
@@ -2333,7 +2298,7 @@ input#date{
     .header-tab{ padding: 6px 12px; font-size: 12px; }
 }
 
-/* ---------- Hamburger Dropdown Menu ---------- */
+/* Hamburger Dropdown Menu  */
 .header-menu-overlay{
     position: fixed;
     inset: 0;
