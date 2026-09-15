@@ -9,17 +9,15 @@
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/components.css">
 
-<!-- theme.js خاصها تخدم قبل ما يترسم الـ body باش ما يبانش "فلاش" أبيض -->
+<!-- مدري -->
 <script src="js/theme.js"></script>
 <script src="js/custom-dialog.js"></script>
 
-<!-- Chart.js مطلوبة فورًا (Equity Curve + Session Chart كيبانو مباشرة فالـ Dashboard) -->
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- مكتبة أيقونات حديثة (Lucide) -->
 <script src="https://unpkg.com/lucide@latest"></script>
 
-<!-- Date Picker احترافي (Flatpickr) بدل التقويم الافتراضي للمتصفح -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
@@ -47,7 +45,7 @@
     <button onclick="resendVerificationEmail()">Resend</button>
 </div>
 
-<!-- ===== Hamburger Menu ===== -->
+<!-- Menu -->
 <div class="header-menu-overlay" id="headerMenuOverlay" onclick="closeHeaderMenu()"></div>
 <div class="header-menu-panel" id="headerMenuPanel">
 
@@ -95,7 +93,7 @@
 
 </div>
 
-<!-- ===================== Email/Password Auth Modal ===================== -->
+<!-- Email/Password Auth Modal -->
 <div id="emailAuthModal" class="modal-overlay">
     <div class="modal-box" style="max-width:380px;">
         <button class="btn-secondary btn" onclick="closeEmailAuthModal()" style="float:left;"><i data-lucide="x"></i></button>
@@ -119,7 +117,7 @@
         <button class="btn btn-primary" onclick="toggleForm()">+ Add Trade</button>
     </div>
 
-    <!-- ===================== Models ===================== -->
+    <!-- Models -->
     <section class="section" id="modelsSection">
         <div class="section-header">
             <h2>Models</h2>
@@ -128,7 +126,7 @@
         <div id="modelsContainer" class="models-grid grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));"></div>
     </section>
 
-    <!-- ===================== Filters ===================== -->
+    <!-- Filters -->
     <section class="section">
         <div class="form-row" style="max-width:720px;">
             <div>
@@ -203,16 +201,16 @@
         </div>
     </section>
 
-    <!-- ===================== Performance Dashboard (V2 Redesign) ===================== -->
+    <!-- Performance Dashboard -->
     <section class="section" id="performanceDashboard">
         <div class="pd-section-title">
             <h2>Performance Dashboard</h2>
         </div>
 
-        <!-- ---------- Section 1: Primary KPI Cards ---------- -->
+        <!-- Section 1: Primary Cards -->
         <div class="pd-kpi-grid">
 
-            <!-- CARD 1: Total Trades -->
+            <!-- CARD: Total Trades -->
             <div class="pd-card pd-kpi-card">
                 <div class="pd-card-head">
                     <span class="pd-card-title">
@@ -240,7 +238,7 @@
                 </div>
             </div>
 
-            <!-- CARD 2: Win Rate -->
+            <!-- CARD : Win Rate -->
             <div class="pd-card pd-kpi-card">
                 <div class="pd-card-head">
                     <span class="pd-card-title">
@@ -298,7 +296,7 @@
                 </div>
             </div>
 
-            <!-- CARD 3: Average R -->
+            <!-- CARD : Average R -->
             <div class="pd-card pd-kpi-card">
                 <div class="pd-card-head">
                     <span class="pd-card-title">
@@ -344,10 +342,10 @@
 
         </div>
 
-        <!-- ---------- Section 2: Small Performance Cards ---------- -->
+        <!-- Section 2: Small Cards -->
         <div class="pd-small-grid" id="pdSmallCardsGrid"><p style="font-size:11px;color:var(--text-tertiary);">Loading...</p></div>
 
-        <!-- ---------- Section 3: Comparison Cards ---------- -->
+        <!-- Section 3: Comparison Cards -->
         <div class="pd-comparison-grid">
             <div class="pd-card pd-comparison-card">
                 <div class="pd-card-head">
@@ -392,13 +390,13 @@
             </div>
         </div>
 
-        <!-- ---------- Section 4: Drawdown Cards ---------- -->
+        <!-- Section 4: Drawdown Cards -->
         <h3 style="margin-top:24px;margin-bottom:12px;">Drawdown</h3>
         <div class="pd-drawdown-grid" id="pdDrawdownGrid"><p style="font-size:11px;color:var(--text-tertiary);">Loading...</p></div>
 
     </section>
 
-    <!-- ===================== Equity Curve (Professional Redesign) ===================== -->
+    <!-- Equity Curve -->
     <section class="section">
         <div class="eq-card">
             <div class="eq-header">
@@ -446,7 +444,7 @@
         </div>
     </section>
 
-    <!-- ===================== Monthly Performance ===================== -->
+    <!-- Monthly Performance -->
     <section class="section">
         <div class="section-header">
             <h2>Monthly Performance</h2>
@@ -460,7 +458,7 @@
         <div id="monthStats"></div>
     </section>
 
-    <!-- ===================== Session Analysis (Redesigned) ===================== -->
+    <!-- Session Analysis -->
     <section class="section">
         <h2>Session Analysis</h2>
         <div class="sa-card">
@@ -471,7 +469,7 @@
         </div>
     </section>
 
-    <!-- ===================== Mistake & Emotion Analytics ===================== -->
+    <!-- Mistake & Emotion Analytics -->
     <section class="section" id="mistakeEmotionAnalytics">
         <h2>Mistake &amp; Emotion Analytics</h2>
         <p style="font-size:12px;color:var(--text-tertiary);margin-top:-10px;">
@@ -484,7 +482,7 @@
             <div id="disciplineScoreCard"></div>
         </div>
 
-        <!-- Mistake Performance: Top 5/10 by Total R (الأسوأ أولاً) -->
+        <!-- Mistake Performance -->
         <div class="analytics-block">
             <div class="analytics-block-head">
                 <h3>Mistake Performance</h3>
@@ -496,7 +494,7 @@
             </div>
         </div>
 
-        <!-- Emotion Performance: Top Losing + Top Profitable -->
+        <!-- Emotion Performance -->
         <div class="analytics-block">
             <div class="analytics-block-head">
                 <h3>Emotion Performance</h3>
@@ -519,7 +517,7 @@
             </div>
         </div>
 
-        <!-- Mistake x Emotion Correlation: أكثر التركيبات تكرارًا -->
+        <!-- Mistake x Emotion Correlation -->
         <div class="analytics-block">
             <div class="analytics-block-head">
                 <h3>Mistake ↔ Emotion Correlation</h3>
@@ -531,12 +529,12 @@
             </div>
         </div>
 
-        <!-- Smart Insights -->
+    
         <h3 style="margin-top:28px;">Smart Insights</h3>
         <div id="smartInsightsList"></div>
     </section>
 
-    <!-- ===================== Recent Trades ===================== -->
+    <!-- Recent Trades -->
     <section class="section">
         <div class="section-header">
             <h2>Recent Trades</h2>
@@ -567,7 +565,7 @@
         <button id="showMoreBtn" class="btn btn-secondary" onclick="toggleTrades()" style="margin-top:15px;">Show More</button>
     </section>
 
-    <!-- ===================== Day Trades Modal ===================== -->
+    <!-- Trades Modal -->
     <div id="dayModal" class="modal-overlay">
         <div class="modal-box">
             <button class="btn-secondary btn" onclick="document.getElementById('dayModal').style.display='none'" style="float:left;"><i data-lucide="x"></i></button>
@@ -578,7 +576,7 @@
 
 </main>
 
-<!-- ===================== Add/Edit Trade Modal ===================== -->
+<!-- Add/Edit Trade Modal -->
 <div id="tradeModal" class="modal-overlay">
     <div class="modal-box">
         <button class="btn-secondary btn" onclick="toggleForm()" style="float:left;"><i data-lucide="x"></i></button>
@@ -736,7 +734,7 @@
     </div>
 </div>
 
-<!-- ===================== View Trade Modal ===================== -->
+<!-- View Trade Modal -->
 <div id="viewModal" class="modal-overlay">
     <div class="modal-box">
         <button class="btn-secondary btn" onclick="closeView()" style="float:left;"><i data-lucide="x"></i></button>
@@ -747,7 +745,7 @@
 
 <div id="tooltip"></div>
 
-<!-- ===================== Export / Import Modal ===================== -->
+<!-- Export / Import Modal -->
 <div id="exportImportModal" class="modal-overlay">
     <div class="modal-box" style="max-width:600px;">
         <button class="btn-secondary btn" onclick="closeExportImportModal()" style="float:left;"><i data-lucide="x"></i></button>
@@ -821,27 +819,9 @@
 <script src="js/emotions-mistakes-data.js"></script>
 <script src="js/journal.js"></script>
 <script>
-// ===================================================================
+
 // js/stats-dashboard.js
-// "Performance Dashboard" — إعادة تصميم قسم الإحصائيات (V2)
-// بناءً على برومت "IXVIEW JOURNAL - Professional Statistics Dashboard".
-//
-// مبدأ العمل: هاد الملف مستقل بالكامل (Self-contained)، ما كيبدلش أي
-// دالة موجودة فـ journal.js. كيقرا مباشرة من المتغير العام `trades`
-// (وباقي الدوال العامة زي getCheckedValues/refreshIcons) اللي كاينين
-// فـ journal.js لأن السكريبتات الكلاسيكية (بلا type="module") كتشارك
-// نفس الـ Global Scope.
-//
-// للتحديث التلقائي كي تتبدل الصفقات/الفلاتر، كنديرو "monkey-patch"
-// خفيف على window.updateStats (دالة عامة كتتعيط من كل مكان فـ journal.js
-// بعد Add/Edit/Delete/Import/Filter/Sync) — بلا ما نمس أي سطر فـ journal.js
-// نفسها.
-//
-// الإعدادات (Trade Goal، Last N، Zones، Display Modes...) محفوظة فـ
-// localStorage تحت مفتاح واحد، خاصة بهاد الجهاز (ماشي مرتبطة بـ Firestore
-// حاليًا — يمكن تطويرها مستقبلاً لتتزامن عبر cloudSaveField بحال باقي
-// القوائم).
-// ===================================================================
+
 
 (function () {
 
