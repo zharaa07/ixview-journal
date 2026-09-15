@@ -1,9 +1,4 @@
-// ===================================================================
-// js/theme.js
-// تبديل Light Mode / Dark Mode + حفظ اختيار المستخدم.
-// كيخدم بـ CSS variable وحدة على <html data-theme="dark|light">،
-// وكل الألوان فـ css/tokens.css كتتبدل تلقائيًا حسب هاد الـ attribute.
-// ===================================================================
+
 
 (function () {
     const STORAGE_KEY = "ixview-theme";
@@ -15,7 +10,7 @@
     function getPreferredTheme() {
         const saved = getSavedTheme();
         if (saved === "light" || saved === "dark") return saved;
-        // إذا ما اختارش المستخدم شي حاجة، نتبعو تفضيل النظام
+        
         return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
             ? "dark"
             : "light";
@@ -37,7 +32,7 @@
         }
     }
 
-    // نطبقو الثيم أول حاجة (قبل ما يترسم باقي الصفحة) باش ما يبانش "فلاش" أبيض
+    
     applyTheme(getPreferredTheme());
 
     window.toggleTheme = function () {
@@ -45,7 +40,7 @@
         const next = current === "dark" ? "light" : "dark";
         localStorage.setItem(STORAGE_KEY, next);
         applyTheme(next);
-        // كنخبرو باقي السكريبتات (الرسوم البيانية) باش تعاود ترسم بألوان الثيم الجديد
+        
         window.dispatchEvent(new CustomEvent("themeChanged", { detail: { theme: next } }));
     };
 
