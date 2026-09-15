@@ -1265,8 +1265,7 @@ document.getElementById(
 "session"
 ).value = trade.session;
 
-// نحدثو label الـ Custom Select (نقطة 1) لأن .value تبدل مباشرة
-// بلا ما يمر من زر الاختيار، فالزر ما يعرفش بالتغيير إلا كنخبروه هنا
+
 refreshCustomSelect(document.getElementById("asset"));
 refreshCustomSelect(document.getElementById("result"));
 refreshCustomSelect(document.getElementById("model"));
@@ -1292,8 +1291,7 @@ document.getElementById(
 "lotSize"
 ).value = trade.lotSize;
 
-// دعم توافقي: صفقات قديمة قد يكون فيها emotion نص مفرد (قبل التحديث)
-// بدل array. هنا كنطبعوها لـ array فكلتا الحالتين.
+
 const tradeEmotions =
 Array.isArray(trade.emotion) ?
 trade.emotion :
@@ -1447,16 +1445,12 @@ function closeView(){
 
 }
 
-// ===================================================================
-// Equity Curve — Professional Trading Analytics Redesign
-// ===================================================================
-// حالة الاختيار الحالية (Metric: equity/usd/drawdown، Range: all/1m/3m/6m/1y)
-// كتبقى محفوظة هنا باش drawChart() تقرا منها فـ كل مرة كتترسم.
+
+// Equity Curve 
 let eqMetric = "equity";
 let eqRange = "all";
 
-// كتفلتر الصفقات حسب المدى الزمني المختار (1M/3M/6M/1Y) — "all" كترجع
-// كل شي بلا تغيير.
+
 function eqFilterByRange(sortedTrades, range) {
     if (range === "all" || sortedTrades.length === 0) return sortedTrades;
     const now = new Date();
@@ -1487,7 +1481,7 @@ function eqSetRange(range) {
     drawChart();
 }
 
-// تنسيق مختصر للأرقام الكبيرة (1.2K / 10K / 1.5M) لمحور Y
+
 function eqFormatCompactNumber(n) {
     const abs = Math.abs(n);
     let sign = n < 0 ? "-" : "";
@@ -1496,7 +1490,7 @@ function eqFormatCompactNumber(n) {
     return sign + abs.toFixed(abs < 10 ? 1 : 0);
 }
 
-// Plugin خفيف: خط عمودي (Crosshair) كيبان عند الـ Hover، بلا مكتبة خارجية
+
 const eqCrosshairPlugin = {
     id: "eqCrosshair",
     afterDraw: function (chartInstance) {
@@ -1515,11 +1509,11 @@ const eqCrosshairPlugin = {
             c.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--border-color").trim() || "#999";
             c.stroke();
             c.restore();
-        } catch (e) { /* لا شيء — الكروسهير تحسين بصري، ماشي أساسي */ }
+        } catch (e) 
     }
 };
 
-// Plugin خفيف: خط مرجعي منقط عند Peak Equity (فوضع Equity/$ فقط)
+
 const eqPeakLinePlugin = {
     id: "eqPeakLine",
     afterDatasetsDraw: function (chartInstance) {
@@ -1543,8 +1537,7 @@ const eqPeakLinePlugin = {
     }
 };
 
-// Tooltip مخصص (HTML) بديل عن tooltip الافتراضي ديال Chart.js — كيبين
-// التاريخ، القيمة، P/L ديال الصفقة، ورقم الصفقة.
+// Tooltip
 function eqExternalTooltip(context) {
     const tooltipEl = document.getElementById("eqTooltip");
     if (!tooltipEl) return;
@@ -1587,7 +1580,7 @@ function eqExternalTooltip(context) {
     tooltipEl.style.top = (tooltipModel.caretY + (canvasRect.top - wrapRect.top)) + "px";
 }
 
-// كيحدث بطاقات Current/Peak/Drawdown فوق الرسم
+//   Current/Peak/Drawdown 
 function eqUpdateHeaderStats(current, peak, drawdown) {
     const isUSD = eqMetric === "usd";
     const prefix = isUSD ? "$" : "";
@@ -1627,7 +1620,7 @@ function drawChart(){
 
     const emptyState = document.getElementById("eqEmptyState");
 
-    // ---------- حالة "لا توجد بيانات" ----------
+    
     if (sortedTrades.length === 0) {
         if (chart) { chart.destroy(); chart = null; }
         if (emptyState) emptyState.style.display = "flex";
@@ -1638,7 +1631,7 @@ function drawChart(){
     if (emptyState) emptyState.style.display = "none";
     ctx.style.display = "block";
 
-    // ---------- بناء بيانات المسار (Equity / $ / Drawdown) ----------
+    // (Equity / $ / Drawdown) 
     let dates = [];
     let plotValues = [];
     let points = [];
@@ -1695,7 +1688,7 @@ function drawChart(){
     gradient.addColorStop(0, lineColor + "30");
     gradient.addColorStop(1, lineColor + "00");
 
-    // نعرضو غير 6-8 labels فـ X Axis باش ما تتزاحمش (حتى مع مئات الصفقات)
+    
     const maxLabels = 7;
     const skip = Math.max(1, Math.ceil(dates.length / maxLabels));
 
@@ -1778,8 +1771,7 @@ function drawChart(){
 
     });
 
-    // خط الـ Peak المرجعي: كيبان غير فوضع Equity/$ (ماشي فوضع Drawdown،
-    // لأن هناك المرجع 0 هو أصلاً القمة)
+    
     chart.$eqPeakY = (eqMetric !== "drawdown") ? peak : null;
     chart.update("none");
 
@@ -1802,7 +1794,7 @@ container.querySelectorAll('input[type="checkbox"]:checked')
 const search = (searchText || "").trim().toLowerCase();
 container.innerHTML = "";
 
-// ----- وضع الحذف: غير Custom قابل للحذف، System ما يبانش هنا خالص -----
+// ----- 
 if (deleteModeState.mistakes) {
 
     const customItems = getMergedMistakesCustom(mistakesList)
@@ -1828,7 +1820,7 @@ if (deleteModeState.mistakes) {
 
 const renderedValues = new Set();
 
-// ----- System Mistakes، مصنفة حسب الأقسام -----
+//  System Mistakes، مصنفة حسب القسام 
 SYSTEM_MISTAKES_CATEGORIES.forEach(cat => {
     const items = cat.items.filter(m => !search || m.toLowerCase().includes(search));
     if (items.length === 0) return;
@@ -1849,7 +1841,7 @@ ${mistake}
     });
 });
 
-// ----- Custom Mistakes -----
+// Custom Mistakes
 const customItems = getMergedMistakesCustom(mistakesList)
     .filter(m => !search || m.toLowerCase().includes(search));
 
@@ -1871,8 +1863,7 @@ ${mistake}
     });
 }
 
-// ----- قيم يتيمة (Orphan): كانت مختارة (صفقة كنعدلو فيها) وتمسحات من
-// كل القوائم — كنبقيو نبيّنوها باش ما تضيعش عند الحفظ (نقطة 5) -----
+
 if (!search) {
     previouslyChecked.forEach(value => {
         if (!renderedValues.has(value)) {
@@ -1898,8 +1889,7 @@ refreshIcons();
 }
 
 // ملاحظة: toggleMistakes()/toggleTagsList()/toggleEmotions() القديمة
-// تحذفات — دابا الثلاثة كيستعملو toggleFilterMenu() المشتركة (نفس
-// الدالة المستعملة مع فلاتر Asset/Session) باش ما يتكررش نفس المنطق
+
 
 function addMistake(){
 
@@ -1940,7 +1930,7 @@ input.value = "";
 
 }
 
-// ===================== Tags (قابلة لإعادة الاستخدام، بحال Mistakes) =====================
+// Tags 
 
 function renderTagsList(){
 
@@ -1951,8 +1941,7 @@ document.getElementById(
 
 if (!container) return;
 
-// نحافظو على الاختيارات الحالية قبل ما نمسحو ونعاودو نبنيو القائمة
-// (باش استعمال وضع الحذف ما يمسحش اختيار صفقة كتعدل فيها دابا)
+
 const previouslyChecked =
 Array.from(
 container.querySelectorAll('input[type="checkbox"]:checked')
@@ -2032,15 +2021,7 @@ input.value = "";
 
 }
 
-// ===================== دالة موحدة: label + chips (Emotions/Tags/Mistakes) =====================
-// كتحدث نص الزر ("Select X" أو "N Selected") وكتبني chips قابلة للإزالة
-// فوق الزر لكل عنصر مختار، باش يقدر المستخدم يشيل اختيار بضغطة وحدة
-// ===================== Delete Mode (Tags/Mistakes/Emotions) =====================
-// كي يضغط المستخدم على زر الحذف (🗑️) جنب زر الإضافة (+)، القائمة كتبدل
-// لوضع "حذف": الضغط على أي عنصر كيمسحو من قائمة الاختيار نهائيًا (localStorage
-// + Firestore)، بصح الصفقات لي عندها هاد العنصر من قبل ما تتأثرش —
-// لأننا كنمسو غير من الـ list الأصلية (tagsList/mistakesList/emotionsList)،
-// وماشي من trade.tags/trade.mistakes/trade.emotion ديال الصفقات المحفوظة.
+
 let deleteModeState = { tags: false, mistakes: false, emotions: false };
 
 function toggleDeleteMode(type) {
@@ -2091,7 +2072,7 @@ function removeFromList(type, value) {
 
     renderFn();
 
-    // إذا الـ Tag لي تمسح كان مختار فـ فلتر "All Tags"، نحدثو الفلتر أيضًا
+    
     if (type === "tags" && typeof renderTagsFilterOptions === "function") {
         renderTagsFilterOptions("");
     }
@@ -2133,7 +2114,7 @@ function updateMultiSelectUI(containerId, labelId, chipsId, placeholder) {
     }
 }
 
-// ===================== Emotions (قائمة ديناميكية قابلة للإضافة، بحال Mistakes/Tags) =====================
+// Emotions 
 
 function renderEmotionsList(searchText){
 
@@ -2282,10 +2263,6 @@ input.value = "";
 
 function computeMistakeEmotionAnalytics() {
 
-    // دابا كنحسبو من الصفقات المفلترة (Asset/Model/Session/Tags) —
-    // بحال باقي الداشبورد، باش هاد القسم يتفاعل مع الفلاتر فوق مباشرة
-    // (بطلب صريح: "لا تكسر أي Filter... يجب أن تتحدث جميع الأقسام
-    // مباشرة عند تغيير الـ filters").
     const selectedAsset = getCheckedValues("assetFilterOptions");
     const selectedModel = document.getElementById("modelFilter").value;
     const selectedSessions = getCheckedValues("sessionFilterOptions");
@@ -2370,8 +2347,7 @@ function computeMistakeEmotionAnalytics() {
     };
 }
 
-// كتحول تجميع خام (aggregate) لمقاييس جاهزة للعرض (Win Rate, Avg R...)
-// بنفس المعادلات المطلوبة بالضبط
+
 function deriveMetrics(agg) {
     const occurrences = agg.occurrences || 0;
     const winRate = occurrences ? (agg.wins / occurrences) * 100 : 0;
@@ -2387,17 +2363,8 @@ function deriveMetrics(agg) {
     return { occurrences, wins: agg.wins, losses: agg.losses, be: agg.be, winRate, totalR: agg.totalR, avgR, avgWinR, avgLossR, profitFactor };
 }
 
-// ===================== Discipline Score =====================
-// النسخة الأساسية (مطلوبة بالضبط): صفقات بلا أخطاء ÷ إجمالي الصفقات × 100
-//
-// النسخة المتقدمة: كتاخد بعين الاعتبار (بحال ما طلب):
-// 1) نسبة الصفقات النظيفة (نفس الأساسية، أكبر وزن)
-// 2) تكرار الأخطاء: متوسط عدد الأخطاء لكل صفقة (avgMistakesPerTrade) —
-//    كل ما زاد، كل ما نقصات النقطة (بحد أقصى 30 نقطة عقوبة)
-// 3) شدة الأخطاء: الفرق بين متوسط R ديال الصفقات "النظيفة" ومتوسط R
-//    ديال الصفقات "فيها خطأ" — كل ما كان الفرق كبير (يعني الأخطاء
-//    كتأثر بزاف سلبيًا) كل ما زادت العقوبة (بحد أقصى 20 نقطة)
-// الصيغة كاملة موثقة هنا باش تكون قابلة للتعديل مستقبلاً بسهولة.
+// Discipline Score 
+
 function computeDisciplineScore(analytics) {
 
     const { totalTrades, cleanTrades, totalMistakeInstances, source } = analytics;
@@ -2441,8 +2408,7 @@ function computeDisciplineScore(analytics) {
     };
 }
 
-// ===================== Smart Insights =====================
-// جمل تلقائية مبنية 100% على الأرقام المحسوبة فوق، بلا نصوص ثابتة
+// Smart Insights
 function generateSmartInsights(analytics) {
 
     const insights = [];
@@ -2508,8 +2474,7 @@ function generateSmartInsights(analytics) {
 }
 
 
-// ===================== الدالة الرئيسية: كتبني كل أقسام التحليل =====================
-// حالة "View More/Show Less" لكل قسم — كل مفتاح كيحمل 5 أو 10
+// الدالة الرئيسية: كل أقسام التحليل
 let analyticsViewState = { mistakePerf: 5, emotionLosing: 5, emotionProfitable: 5, correlation: 5 };
 
 function toggleAnalyticsView(key) {
@@ -2542,7 +2507,7 @@ function renderMistakeEmotionAnalytics() {
     function fmtR(n) { return (n >= 0 ? "+" : "") + n.toFixed(2) + "R"; }
     function colorForR(n) { return n > 0 ? "var(--success)" : n < 0 ? "var(--danger)" : "var(--text-tertiary)"; }
 
-    // ---------- 1) Mistake Performance: Top 5/10 حسب Total R (الأسوأ أولاً) ----------
+    // 1 Mistake Performance
     const mistakesTableEl = document.getElementById("mistakesAnalyticsTable");
     if (mistakesTableEl) {
         const sortedByTotalR = [...mistakeEntries].sort((a, b) => a.totalR - b.totalR);
@@ -2577,7 +2542,7 @@ function renderMistakeEmotionAnalytics() {
         eaUpdateViewMoreBtn("mistakePerfViewMoreBtn", mistakeEntries.length, "mistakePerf");
     }
 
-    // ---------- 2) Emotion Performance: Top Losing + Top Profitable حسب Total R ----------
+    //  2Emotion Performance
     const losingEl = document.getElementById("emotionLosingTable");
     if (losingEl) {
         const losing = [...emotionEntries].filter(e => e.totalR < 0).sort((a, b) => a.totalR - b.totalR);
@@ -2614,7 +2579,7 @@ function renderMistakeEmotionAnalytics() {
         eaUpdateViewMoreBtn("emotionProfitableViewMoreBtn", profitable.length, "emotionProfitable");
     }
 
-    // ---------- 3) Mistake ↔ Emotion Correlation: أكثر التركيبات تكرارًا ----------
+    // 3Mistake ↔ Emotion Correlation
     const correlationEl = document.getElementById("mistakeEmotionCorrelation");
     if (correlationEl) {
         const pairs = [];
@@ -2659,7 +2624,7 @@ function renderMistakeEmotionAnalytics() {
         eaUpdateViewMoreBtn("correlationViewMoreBtn", pairs.length, "correlation");
     }
 
-    // ---------- 4) Smart Insights ----------
+    // 4 Smart Insights 
     const insightsEl = document.getElementById("smartInsightsList");
     if (insightsEl) {
         const insights = generateSmartInsights(analytics);
@@ -2668,7 +2633,7 @@ function renderMistakeEmotionAnalytics() {
             insights.map(i => `<div class="insight-card"><i data-lucide="lightbulb"></i><span>${i}</span></div>`).join("");
     }
 
-    // ---------- 5) Discipline Score ----------
+    //  5 Discipline Score
     const disciplineEl = document.getElementById("disciplineScoreCard");
     if (disciplineEl) {
         const score = computeDisciplineScore(analytics);
@@ -2841,9 +2806,7 @@ totalR < 0
 :
 "var(--bg-surface-2)";
 
-// كي تكون الخلفية مشبعة (intensity عالية)، نبدلو لون النص لأبيض
-// باش يبقى واضح، بدل ما يبقى نفس لون الخلفية (أخضر على أخضر
-// أو أحمر على أحمر). نفس المنطق للربح والخسارة.
+
 let valueColor =
 intensity > 35
 ?
@@ -2986,7 +2949,7 @@ ${model}
 
 });
 
-// نحدثو label الـ Custom Select لأن الخيارات (options) تبدلات
+
 refreshCustomSelect(select);
 refreshCustomSelect(filter);
 
@@ -3150,8 +3113,7 @@ for(let sessionName in sessions){
 
 }
 
-// كنرتبو الجلسات حسب Total R تنازليًا (الأفضل فوق) — نفس منطق ترتيب
-// الخسائر/الأرباح المعتمد فباقي الأقسام (القيمة الأعلى إيجابية أولاً)
+
 sessionRows.sort((a, b) => b.totalR - a.totalR);
 
 const rankingContainer = document.getElementById("sessionRanking");
@@ -3503,8 +3465,7 @@ function exportJSON() {
     }, 1000);
     
 }
-// دالة صغيرة كتدمج قائمة (models/tags/mistakes/emotions) بلا تكرار،
-// وكترجع عدد العناصر الجداد لي تزادو فعليًا
+
 function mergeUniqueList(existingList, incomingList) {
     let added = 0;
     (incomingList || []).forEach(item => {
@@ -3516,8 +3477,7 @@ function mergeUniqueList(existingList, incomingList) {
     return added;
 }
 
-// كتحدث شريط التقدم ديال الاستيراد (نسبة + نص)، وكتخبيه تلقائيًا
-// كي توصل لـ 100% بعد فترة قصيرة
+
 function updateImportProgress(percent, text, autoHide) {
     const wrap = document.getElementById("importProgressWrap");
     const fill = document.getElementById("importProgressFill");
@@ -3557,7 +3517,7 @@ function importTrades(event) {
                     e.target.result
                 );
 
-            // دعم صيغتين: القديمة (array من الصفقات بس) والجديدة
+            
             // (object فيه trades/models/tags/mistakes/emotions)
             let importedTrades, importedModels, importedTags, importedMistakes, importedEmotions;
 
@@ -3581,7 +3541,7 @@ function importTrades(event) {
                 throw new Error("Invalid format");
             }
 
-            // ===== Merge Trades: فحص التكرار بالـ ID، إضافة الجديد فقط =====
+            // Merge Trades
             const existingIds = new Set(trades.map(t => t.id).filter(Boolean));
             let tradesAdded = 0;
             let tradesSkipped = 0;
@@ -3613,20 +3573,20 @@ function importTrades(event) {
 
             });
 
-            // ===== Merge Models/Tags/Mistakes/Emotions: فحص بالاسم =====
+            //  Merge Models/Tags/Mistakes/Emotions
             const modelsAdded = mergeUniqueList(modelsList, importedModels);
             const tagsAdded = mergeUniqueList(tagsList, importedTags);
             const mistakesAdded = mergeUniqueList(mistakesList, importedMistakes);
             const emotionsAdded = mergeUniqueList(emotionsList, importedEmotions);
 
-            // ===== حفظ محلي =====
+            // حفظ محلي 
             localStorage.setItem("trades", JSON.stringify(trades));
             localStorage.setItem("modelsList", JSON.stringify(modelsList));
             localStorage.setItem("tagsList", JSON.stringify(tagsList));
             localStorage.setItem("mistakesList", JSON.stringify(mistakesList));
             localStorage.setItem("emotionsList", JSON.stringify(emotionsList));
 
-            // ===== حفظ سحابي (غير العناصر الجداد، ماشي كل شي من جديد) =====
+            
             if (newlyAddedTrades.length > 0 && window.cloudBulkSaveTrades) {
                 window.cloudBulkSaveTrades(newlyAddedTrades);
             }
@@ -3635,7 +3595,7 @@ function importTrades(event) {
             if (mistakesAdded > 0 && window.cloudSaveField) window.cloudSaveField("mistakesList", mistakesList);
             if (emotionsAdded > 0 && window.cloudSaveField) window.cloudSaveField("emotionsList", emotionsList);
 
-            // ===== تحديث الواجهة كاملة =====
+            // تحديث الواجهة كاملة
             renderModels();
             renderModelsCards();
             renderMistakes();
@@ -3650,7 +3610,7 @@ function importTrades(event) {
 
             updateImportProgress(100, "Done ✓", true);
 
-            // ===== تقرير النتائج =====
+            // تقرير النتائج
             if (window.showImportSummary) {
                 window.showImportSummary({
                     tradesAdded: tradesAdded,
@@ -3677,12 +3637,12 @@ function importTrades(event) {
     
     reader.readAsText(file);
 
-    // نصفر قيمة input الملف باش يقدر يختار نفس الملف مرة أخرى إذا احتاج
+
     event.target.value = "";
     
 }
 
-// كتحمي القيمة من كسر بنية CSV إذا فيها فاصلة (,) أو اقتباس (") أو سطر جديد
+
 function csvEscape(value) {
     if (value === undefined || value === null) return "";
     const str = Array.isArray(value) ? value.join("; ") : String(value);
@@ -3729,7 +3689,7 @@ function exportCSV() {
         
     });
     
-    // BOM فأول الملف باش إكسل يقرا الحروف العربية صحيحة (UTF-8)
+    
     const blob =
         new Blob(
             ["\uFEFF" + csv],
@@ -3754,8 +3714,7 @@ function exportCSV() {
     document.body.removeChild(link);
     
 }
-// نحمّلو مكتبات PDF (jsPDF + autotable + html2canvas) غير أول مرة كيضغط
-// المستخدم على "تصدير PDF"، باش ما تبطأش الصفحة عند أول فتح
+
 let _pdfLibsLoaded = false;
 function loadPDFLibraries() {
     if (_pdfLibsLoaded) return Promise.resolve();
@@ -3774,7 +3733,7 @@ function loadPDFLibraries() {
         document.head.appendChild(s);
     });
 
-    // خاصهم يتحملو بالترتيب (autotable محتاج jsPDF قبلو)
+    
     return scripts.reduce(
         (p, src) => p.then(() => loadOne(src)),
         Promise.resolve()
@@ -3807,8 +3766,8 @@ doc.internal.pageSize.getWidth();
 const pageHeight =
 doc.internal.pageSize.getHeight();
 
-// نستعملو النطاق المفلتر حسب الموديلات المختارة فـ Export Modal
-// (إذا ما تختارش موديل، pdfTrades = كل الصفقات، بحال قبل)
+// Export Modal
+
 const exportScope = getExportScope();
 const pdfTrades = exportScope.trades;
 
@@ -3964,13 +3923,13 @@ y+8
 
 doc.setFontSize(15);
 
-// نلونو القيمة: أخضر للأرباح، أحمر للخسائر، بنفسجي (هوية الموقع) للباقي
+
 if (card[0] === "Wins" || card[0] === "Best Trade" || (card[0] === "Total R" && totalR > 0) || (card[0] === "Average R" && avgR > 0)) {
     doc.setTextColor(34, 197, 94); /* أخضر */
 } else if (card[0] === "Losses" || card[0] === "Worst Trade" || (card[0] === "Total R" && totalR < 0) || (card[0] === "Average R" && avgR < 0)) {
     doc.setTextColor(239, 68, 68); /* أحمر */
 } else {
-    doc.setTextColor(109, 93, 252); /* بنفسجي هوية الموقع */
+    doc.setTextColor(109, 93, 252); 
 }
 
 doc.text(
@@ -3995,9 +3954,7 @@ y += 32;
 
 /* EQUITY */
 
-// كنبنيو Equity Curve مخصوصة لـ pdfTrades (النطاق المختار للتصدير)
-// بدل ما نقراو الرسم الحي فالصفحة، لأن هادشاك كيعكس فلاتر الداشبورد
-// الحالية وماشي بالضرورة نفس الموديلات المختارة هنا فالتصدير
+
 const sortedPdfTrades =
 [...pdfTrades].sort((a, b) => new Date(a.date) - new Date(b.date));
 
@@ -4077,8 +4034,7 @@ doc.text(
 
 doc.setTextColor(0,0,0);
 
-// Session Breakdown: كنبنيوها من pdfTrades (النطاق المختار للتصدير)
-// بدل قراءة الرسم الحي (لي كيعكس فلاتر الداشبورد الحالية)
+// Session Breakdown
 const pdfSessions = { "Asia": 0, "London": 0, "New York AM": 0, "New York PM": 0 };
 pdfTrades.forEach(t => {
     if (t.session && pdfSessions.hasOwnProperty(t.session)) pdfSessions[t.session]++;
@@ -4118,8 +4074,6 @@ sessionImage,
 80
 );
 
-// Win/Loss Distribution: كنبنيوها بـ Chart.js فـ canvas مؤقت (خارج
-// الشاشة) خاص بالتصدير فقط، ماشي جزء من الواجهة العادية
 const winLossCanvas = document.createElement("canvas");
 winLossCanvas.width = 400;
 winLossCanvas.height = 400;
@@ -4197,7 +4151,7 @@ styles:{
 fontSize:8
 },
 
-// نلونو خانة Result حسب النتيجة (أخضر=Win، أحمر=Loss، برتقالي=Breakeven)
+// Result 
 didParseCell: function (data) {
     if (data.section === "body" && data.column.index === 3) {
         const value = data.cell.raw;
@@ -4246,11 +4200,7 @@ doc.save(
 
 }
 
-// ملاحظة: كانت هنا دالة handleExport() قديمة كتعتمد على عنصر
-// "exportType" ما كانش موجود حتى فالنسخة الأصلية للموقع (dead code،
-// كانت غادي ترمي error لو تستدعات). وظيفتها مغطاة كاملة بأزرار
-// Modal ديال Export/Import (كل زر عندو onclick مباشر لـ exportPDF/exportCSV/...).
-// تحذفات هنا.
+
 
 function openExportImportModal(){
 
@@ -4264,7 +4214,7 @@ refreshIcons();
 
 }
 
-// كتبني checkboxes قائمة "Models to Export" من modelsList
+// Models to Export
 function renderExportModelsOptions() {
     const container = document.getElementById("exportModelsOptions");
     if (!container) return;
@@ -4291,9 +4241,7 @@ function updateExportModelsLabel() {
         selected.length + " Models Selected";
 }
 
-// كتحسب البيانات لي غادي تتصدر: إذا ما تختارش موديل، كلشي (بحال قبل).
-// إذا تختارو موديل ولا أكثر، غير صفقات هاد الموديلات + التاكات/الحالات/
-// الأخطاء لي فعليًا مستعملة فهاد الصفقات (ماشي القوائم الكاملة)
+
 function getExportScope() {
     const selectedModels = getCheckedValues("exportModelsOptions");
 
@@ -4341,7 +4289,7 @@ document.addEventListener(
 "click",
 function(e){
 
-// نسدو قوائم الفلاتر المتعددة (Asset/Session) كي المستخدم يضغط برا منهم
+// (Asset/Session)
 document.querySelectorAll(".filter-dropdown").forEach(function (dropdown) {
     if (!dropdown.contains(e.target)) {
         const filterMenu = dropdown.querySelector(".filter-menu");
@@ -4353,7 +4301,7 @@ document.querySelectorAll(".filter-dropdown").forEach(function (dropdown) {
 );
 
 
-// Date Picker احترافي (نقطة 2) — بيدير حقل #date بلا التقويم الافتراضي للمتصفح
+// Date Picker
 let dateFieldInstance = null;
 if (window.flatpickr) {
     dateFieldInstance = flatpickr("#date", {
@@ -4402,16 +4350,13 @@ window.addEventListener("cloudDataReady", function () {
 
 });
 
-// عند تبديل الثيم (Dark/Light)، الرسوم البيانية (Chart.js) ما كتبدلش
-// ألوانها تلقائيًا لأن الألوان كتتقرأ مرة وحدة وقت الرسم، فخاصنا نعاودو
-// نرسموها من جديد باش تاخد ألوان الثيم الجديد
+
 window.addEventListener("themeChanged", function () {
     drawChart();
     drawSessionChart();
 });
 
-// ===================== Drag & Drop للاستيراد =====================
-// كتسمح للمستخدم يسحب ملف JSON مباشرة لمنطقة الاستيراد بدل ما يدور عليه
+
 (function setupImportDropzone() {
     const dropzone = document.getElementById("importDropzone");
     if (!dropzone) return;
@@ -4439,7 +4384,7 @@ window.addEventListener("themeChanged", function () {
             customAlert("Please choose a file in JSON format only.");
             return;
         }
-        // كنبنيو "event" مزيف بنفس الشكل لي كتوقعو importTrades()
+        
         importTrades({ target: { files: [file], value: "" } });
     });
 })();
