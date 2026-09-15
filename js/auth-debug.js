@@ -1,20 +1,7 @@
-// ===================================================================
-// js/auth-debug.js  —  ملف مؤقت للتشخيص فقط
-// ===================================================================
-// لوحة Debug مؤقتة لتشخيص مشكلة تسجيل الدخول التي كتبان بشكل مختلف
-// بين المتصفحات. الملف مستقل بالكامل (كيبني الـ UI ديالو بـ JS، بلا
-// حاجة لتعديل CSS/HTML) باش يكون سهل الحذف من بعد: كافي تمسح هاد
-// الملف + سطر <script> ديالو، بلا ما تلمس أي حاجة أخرى.
-//
-// كيفاش تفعّل: زيد ?debug=1 فآخر الرابط (مثلاً https://.../Journal.html?debug=1)
-// وغادي يبقى مفعّل (محفوظ فـ localStorage) حتى فالمرات الجاية، حتى بعد
-// redirect ديال Google Login. باش تطفيه: ?debug=0.
-//
-// ممنوع تماماً: أي password / access token / id token / refresh token /
-// api key / credential تدخل لهاد الملف. authDebugLog() فيها فلترة
-// حماية إضافية (sanitizeDetails) كتشيل أي مفتاح كيشبه هاد الأسماء حتى
-// لو تنسا حد يزيدها فمكان آخر بالغلط.
-// ===================================================================
+
+//  ملف مؤقت للتشخيص فقط
+
+
 
 (function () {
 
@@ -35,9 +22,7 @@
     let headerEl = null;
     let lastActionEl = null;
 
-    // ---------------------------------------------------------------
-    // تفعيل/تعطيل وضع Debug عبر ?debug=1 / ?debug=0 فالرابط
-    // ---------------------------------------------------------------
+ 
     function syncModeFromUrl() {
         try {
             const params = new URLSearchParams(window.location.search);
@@ -59,9 +44,7 @@
         }
     }
 
-    // ---------------------------------------------------------------
-    // فلترة أي بيانات حساسة قبل ما تتسجل أو تتبين
-    // ---------------------------------------------------------------
+
     function sanitizeDetails(details) {
         if (!details || typeof details !== "object") return details;
         const clean = {};
@@ -80,13 +63,7 @@
         return d.toTimeString().slice(0, 8);
     }
 
-    // ---------------------------------------------------------------
-    // الـ Logger المركزي — window.authDebugLog(action, status, details)
-    // status: "start" | "success" | "error" | "info"
-    // كيخدم حتى إذا وضع Debug ماشي مفعّل (كيسجل فالذاكرة بلا ما يبني
-    // الواجهة) باش إذا المستخدم فعّل Debug من بعد حادثة، يلقى آخر
-    // العمليات مسجلة.
-    // ---------------------------------------------------------------
+
     window.authDebugLog = function (action, status, details) {
         const entry = {
             time: nowStr(),
@@ -139,15 +116,13 @@
             await navigator.clipboard.writeText(report);
             if (btn) { const old = btn.textContent; btn.textContent = "✓ Copied"; setTimeout(() => btn.textContent = old, 1500); }
         } catch (e) {
-            // فولباك: نافذة نص يقدر يسلكت ويكوبي يدوي
+            
             if (window.customPrompt) window.customPrompt("Copy the report manually:", report);
             else prompt("Copy the report manually:", report);
         }
     };
 
-    // ---------------------------------------------------------------
-    // بناء الواجهة (مرة وحدة، غير كي يتفعل Debug)
-    // ---------------------------------------------------------------
+    
     function ensurePanelBuilt() {
         if (panelEl) return;
 
@@ -232,8 +207,6 @@
         renderLastAction();
         renderLogs();
 
-        // تحديث دوري لحالة الاتصال / auth init / current user، لأن هادوك
-        // كيتبدلو من برا (firebase.js) بلا ما يمرو من authDebugLog دايمًا
         setInterval(renderHeader, 1500);
         window.addEventListener("online", renderHeader);
         window.addEventListener("offline", renderHeader);
@@ -333,14 +306,7 @@
         }).join("");
     }
 
-    // ---------------------------------------------------------------
-    // فحص IndexedDB خام، بلا أي علاقة بـ Firebase خالص — الهدف: نعرفو
-    // واش المشكل هو IndexedDB فهاد المتصفح/البروفايل بشكل عام (كيأثر
-    // على كل شي: Firebase Auth persistence، Firestore offline cache،
-    // localStorage ديال التطبيق نفسه...)، ولا المشكل مرتبط تحديداً
-    // بقناة Google OAuth العابرة للـ origins (authDomain مختلف).
-    // إذا هاد الفحص البسيط فشل بنفس النوع ديال الخطأ، معناه المشكل
-    // عام فـ هاد المتصفح/الجهاز، ماشي خاص بـ Google Login فحال.
+
     function probeIndexedDB() {
         try {
             const req = indexedDB.open("authDebugProbe", 1);
@@ -368,15 +334,12 @@
         }
     }
 
-    // ---------------------------------------------------------------
-    // نقطة الدخول
-    // ---------------------------------------------------------------
+    
     syncModeFromUrl();
     if (isDebugMode()) {
         if (document.body) ensurePanelBuilt();
         else document.addEventListener("DOMContentLoaded", ensurePanelBuilt);
-        // كنشغلو الفحص بعد ما اللوحة تتبنى (باش authDebugLog يكون جاهز
-        // يبين النتيجة)، بلا ما نستناو أي تفاعل من المستخدم
+
         setTimeout(probeIndexedDB, 300);
     }
 
