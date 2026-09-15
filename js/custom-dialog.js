@@ -1,10 +1,4 @@
-// ===================================================================
-// js/custom-dialog.js
-// كيبدل alert() / confirm() / prompt() الأصليين ديال المتصفح (لي
-// كيبانو بشكل رمادي بدائي بلا Dark Mode) بنافذة احترافية متناسقة مع
-// تصميم الموقع. كل الدوال async وكترجع Promise، وكيتبنى الـ DOM
-// ديالها مرة وحدة فأول استعمال.
-// ===================================================================
+
 
 (function () {
 
@@ -102,23 +96,23 @@
         });
     }
 
-    // بديل alert() — كتبين رسالة وزر "OK" وحيد
+    
     window.customAlert = function (message) {
         return open({ message: message, showInput: false, showCancel: false });
     };
 
-    // بديل confirm() — كترجع true/false
+
     window.customConfirm = function (message) {
         return open({ message: message, showInput: false, showCancel: true });
     };
 
-    // بديل prompt() — كترجع النص المدخل أو null إذا الغى المستخدم
+    
     window.customPrompt = function (message, defaultValue) {
         return open({ message: message, showInput: true, showCancel: true, defaultValue: defaultValue });
     };
 
-    // تقرير احترافي بعد الاستيراد (نقاط: كم تزاد، كم تجوهل...)
-    // summary = { tradesAdded, tradesSkipped, modelsAdded, tagsAdded, mistakesAdded, emotionsAdded, errors }
+    
+    
     window.showImportSummary = function (summary) {
         ensureBuilt();
 
