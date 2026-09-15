@@ -1,8 +1,4 @@
-// ===================================================================
-// js/firebase.js
-// كل منطق Firebase (Auth + Firestore) مركّز هنا، مشترك بين
-// Journal.html و model.html، باش ما يتكررش الكود.
-// ===================================================================
+
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-analytics.js";
@@ -49,9 +45,7 @@ window.firebaseAuth = auth;
 window.firestoreDb = db;
 window.currentUser = null;
 
-// true غير إذا المستخدم داخل بـ Email/Password وما فعلش بريده بعد.
-// حسابات Google دايماً emailVerified = true من عند Firebase، فما
-// كتأثرش بهاد الفحص.
+
 function isEmailUnverified() {
     if (!window.currentUser) return false;
     const isPasswordAccount = window.currentUser.providerData.some(
@@ -70,9 +64,7 @@ function blockIfUnverified() {
     return false;
 }
 
-// حماية: أي صفقة قديمة عندها resultR فاسد (NaN/undefined) كتبدل بـ 0
-// (نفس الدالة موجودة فـ journal.js/model.js لتصحيح البيانات المحلية،
-// وهنا كنستعملوها قبل الرفع لـ Firestore باش ما نرفعوش أرقام فاسدة)
+
 function sanitizeTrades(arr) {
     if (!Array.isArray(arr)) return [];
     arr.forEach(t => {
@@ -83,8 +75,7 @@ function sanitizeTrades(arr) {
     return arr;
 }
 
-// يحفظ حقل واحد (modelsList / mistakesList) فـ وثيقة المستخدم الرئيسية.
-// ما يخدمش إلا إذا كان المستخدم داخل.
+
 window.cloudSaveField = async function (fieldName, value) {
     if (!window.currentUser) return;
     if (blockIfUnverified()) return;
@@ -99,7 +90,6 @@ window.cloudSaveField = async function (fieldName, value) {
     }
 };
 
-// معرّف فريد لكل صفقة، كيتسمى بيه الـ document ديالها فـ Firestore
 window.generateTradeId = function () {
     if (window.crypto && window.crypto.randomUUID) {
         return window.crypto.randomUUID();
@@ -107,7 +97,7 @@ window.generateTradeId = function () {
     return "trade_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9);
 };
 
-// كل صفقة = وثيقة مستقلة فـ users/{uid}/trades/{tradeId}
+
 window.cloudSaveTrade = async function (trade) {
     if (!window.currentUser) return;
     if (blockIfUnverified()) return;
@@ -137,12 +127,12 @@ window.cloudDeleteTrade = async function (tradeId) {
     }
 };
 
-// رفع مجموعة صفقات دفعة وحدة (مستعملة فـ الاستيراد الجماعي والـ migration)
+
 window.cloudBulkSaveTrades = async function (tradesArray) {
     if (!window.currentUser || !tradesArray || tradesArray.length === 0) return;
     sanitizeTrades(tradesArray);
     const uid = window.currentUser.uid;
-    const chunkSize = 400; // حد Firestore للـ batch هو 500 عملية
+    const chunkSize = 400; 
 
     for (let i = 0; i < tradesArray.length; i += chunkSize) {
         const chunk = tradesArray.slice(i, i + chunkSize);
@@ -155,17 +145,13 @@ window.cloudBulkSaveTrades = async function (tradesArray) {
     }
 };
 
-// كتمسح الكاش المحلي لكل بيانات المستخدم (trades/models/mistakes/tags/emotions)
-// وكتبعث حدث باش journal.js/model.js يصفرو المتغيرات فالذاكرة.
-// خاصها تتخدم عند logout وعند اكتشاف تبديل حساب (uid مختلف)، باش ما
-// تبقاش بيانات حساب سابق بادية أو كتنخلط مع حساب جديد.
+
 function clearLocalUserCache() {
     ["trades", "modelsList", "mistakesList", "tagsList", "emotionsList", "lastSyncedUid"]
         .forEach(k => localStorage.removeItem(k));
     window.dispatchEvent(new CustomEvent("cloudUserCleared"));
 }
 
-// كترجم أكواد أخطاء Firebase Auth لرسائل واضحة بالإنجليزية للمستخدم
 const AUTH_ERROR_MESSAGES = {
     "auth/email-already-in-use": "This email is already registered. Try signing in instead.",
     "auth/invalid-email": "Invalid email format.",
@@ -255,8 +241,6 @@ async function loadTradesFromCloud(uid) {
     return sanitizeTrades(result);
 }
 
-// هجرة لمرة وحدة: كنرفعو الصفقات المحلية (لي مازالت array قديم)
-// لـ subcollection، ونعلمو migrationVersion باش ما تتكررش العملية.
 async function migrateTradesIfNeeded(uid, userData) {
     if (userData.migrationVersion === 2) return;
 
@@ -278,8 +262,7 @@ async function migrateTradesIfNeeded(uid, userData) {
     );
 }
 
-// أول مرة يسجل فيها المستخدم دخول: كنديرو migration إذا لزم،
-// وبعدها Firestore يصير هو المصدر الأساسي للصفقات.
+
 async function syncUserData(user) {
     const uid = user.uid;
     const userRef = doc(db, "users", uid);
@@ -338,51 +321,13 @@ async function syncUserData(user) {
         return;
     }
 
-    // نخبرو باقي السكريبتات فالصفحة باش تعاود تقرا البيانات وتحدث الواجهة
+
     window.dispatchEvent(new CustomEvent("cloudDataReady"));
     if (statusEl) statusEl.textContent = "";
 }
 
-// ===================================================================
-// السبب الجذري الحقيقي (موثق رسميًا من Firebase، ماشي تخمين):
-// https://firebase.google.com/docs/auth/web/redirect-best-practices
-//
-// authDomain ديال المشروع هو "ixview.firebaseapp.com"، بينما الموقع
-// مستضاف على "zharaa07.github.io" — origin مختلف تماماً. Firebase
-// Auth (popup ولا redirect) كيعتمد على iframe/storage عابر للـ origins
-// بين الموقع ديالك وبين authDomain باش يبعث نتيجة تسجيل الدخول.
-//
-// من الوثيقة الرسمية حرفياً: "Starting June 24 2024, implementing one
-// of the options will be required for redirect sign-in to work on
-// Google Chrome M115+." — يعني Chrome (من يونيو 2024) كيبلوكي هاد
-// القناة العابرة للـ origins بشكل افتراضي، إلا إذا التطبيق مستضاف على
-// Firebase Hosting بنفس authDomain، أو طبقنا واحد من الحلول الموثقة.
-// GitHub Pages ماشي Firebase Hosting، فالموقع بالضبط فـ الحالة
-// "المتأثرة" لي وثقتها Firebase نفسها. "Database is closing/hidden"
-// هو العرض على مستوى IndexedDB لهاد القناة المبلوكة.
-//
-// الحل الرسمي لتطبيق ماشي مستضاف على Firebase Hosting (Option 2 فـ
-// الوثيقة): signInWithPopup() هو الطريقة المعتمدة، ماشي redirect —
-// لأن redirect كيحتاج نفس القناة المبلوكة باش يسجل حالته عبر التنقل
-// الكامل للصفحة، ومحتاج نفس تخفيف Chrome M115+ باش يخدم أصلاً.
-//
-// هادشي كيفسر بالضبط ليش كل محاولات fallback لـ redirect لي درنا
-// قبل (mobile-first، أو retry بعد فشل popup) ما حلاتش المشكل: كانت
-// كتحول كل فشل لنفس الطريقة (redirect) لي هي الأقل موثوقية بالضبط فـ
-// هاد الإعداد (GitHub Pages + authDomain مختلف) — وهادو سبب "Google
-// مرتين" ورجوع بلا تسجيل دخول.
-//
-// الحل المطبق هنا: signInWithPopup() فقط، بلا أي fallback لـ redirect.
-// إذا فشلت popup، كنبينو رسالة واضحة ونسجلو الخطأ الحقيقي — بلا ما
-// نديرو أي محاولة تانية بطريقة موثقة أنها ماشي موثوقة لهاد الإعداد.
-//
-// ملاحظة مهمة: هاد الإصلاح كودي بحت، وكيفادي المشكل فالغالبية العظمى
-// د الحالات. الحل الكامل النهائي (يلغي القناة العابرة للـ origins
-// نهائياً، لـ popup ولـ redirect بجوج) هو "Option 4" فنفس الوثيقة:
-// استضافة ملفات auth handler ديال Firebase تحت نفس domain ديالك
-// (zharaa07.github.io) — هادشي كيحتاج تغيير authDomain فـ Firebase
-// Console وإضافة بعض الملفات الثابتة لـ GitHub Pages، خارج نطاق كود
-// JS بحتة. مشروح بالتفصيل فـ الرد.
+
+
 window.loginWithGoogle = async function () {
     if (window.authDebugLog) window.authDebugLog("Google Login START", "info", { userAgent: navigator.userAgent });
     if (window.authDebugLog) window.authDebugLog("Google Login METHOD: popup", "info", {});
@@ -401,19 +346,15 @@ window.loginWithGoogle = async function () {
     }
 };
 
-// كيتفحص هذا **فأول ما تتحمل الصفحة** (استدعاء على مستوى module،
-// ماشي جوا دالة كتتفعل بالضغطة). بقات هنا لأنها غير خطر إذا ماكاينش
-// redirect معلق (كترجع null)، وخط دفاع احتياطي إذا فـ المستقبل
-// طُبق حل كامل (Option 4 فـ الوثيقة) واستُعمل redirect لبعض الحالات.
+
 if (window.authDebugLog) window.authDebugLog("Google Login REDIRECT RESULT", "info", { step: "checking on page load" });
-// هنا — غير قراءة النتيجة وتسجيلها، باش ما ندخلوش فـ loop.
+
 if (window.authDebugLog) window.authDebugLog("Google Login REDIRECT RESULT", "info", { step: "checking on page load" });
 getRedirectResult(auth).then((result) => {
     if (result && result.user) {
         if (window.authDebugLog) window.authDebugLog("Google Login SUCCESS", "success", { step: "redirect result", uid: result.user.uid });
     } else {
-        // ماكاينش نتيجة redirect فـ انتظار (تحميل عادي للصفحة، ماشي رجوع
-        // من Google) — هادشي طبيعي وماشي خطأ
+        
         if (window.authDebugLog) window.authDebugLog("Google Login REDIRECT RESULT", "info", { result: "none pending" });
     }
 }).catch((err) => {
@@ -460,9 +401,7 @@ onAuthStateChanged(auth, (user) => {
             verifyBanner.style.display = isEmailUnverified() ? "flex" : "none";
         }
 
-        // حماية إضافية: إذا آخر uid مزامَن مختلف عن المستخدم الحالي (تبديل
-        // حساب بدون logout صريح)، نمسحو الكاش المحلي قبل ما نبداو المزامنة
-        // باش ما تتخلطش بيانات الحساب القديم مع الجديد
+        
         const lastUid = localStorage.getItem("lastSyncedUid");
         if (lastUid && lastUid !== user.uid) {
             clearLocalUserCache();
@@ -478,8 +417,7 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// انقطاع الإنترنت: كنبينو حالة واضحة فـ syncStatus، وكنرجعوها كتفرغ
-// أوتوماتيكياً كي يرجع الاتصال (المزامنة التالية غادي تتصايب من عندها)
+
 window.addEventListener("offline", function () {
     const statusEl = document.getElementById("syncStatus");
     if (statusEl) statusEl.textContent = "Offline";
@@ -492,9 +430,9 @@ window.addEventListener("online", function () {
     }
 });
 
-// ===================================================================
-// واجهة نافذة Email/Password (تسجيل دخول / إنشاء حساب / نسيان كلمة المرور)
-// ===================================================================
+
+// واجهة نافذة Email/Password 
+
 let authModalMode = "login"; // "login" | "signup"
 
 window.openEmailAuthModal = function () {
