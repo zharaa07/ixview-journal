@@ -1,15 +1,4 @@
-// ===================================================================
-// js/emotions-mistakes-data.js
-// القوائم الثابتة (System / Default) لـ Emotions و Mistakes.
-// مصدر الحقيقة الوحيد لهاد القوائم — معرّف على مستوى التطبيق (كود)،
-// ماشي فـ Firestore ولا localStorage، باش:
-//   - يبقى موجود ديمًا بلا ما يعتمد على صفقة سابقة أو اختيار المستخدم
-//   - ما يتكررش/يتخزنش فـ حساب أي مستخدم
-//   - يبقى نفسه لكل المستخدمين، وقابل للتوسع من مكان وحيد
-//
-// القوائم "المخصصة" (Custom) لي كيضيفها المستخدم كتبقى فـ
-// mistakesList / emotionsList (localStorage + Firestore) بحالها، بلا تغيير.
-// ===================================================================
+
 
 const SYSTEM_EMOTIONS = [
     "استعجال", "طمع", "خوف", "تردد", "ثقة", "ثقة زائدة",
@@ -43,12 +32,12 @@ const SYSTEM_MISTAKES_CATEGORIES = [
     ]}
 ];
 
-// نسخة مسطحة (flat) لأي مكان محتاج غير أسماء بلا تصنيف
+
 const SYSTEM_MISTAKES = SYSTEM_MISTAKES_CATEGORIES.reduce(
     (all, cat) => all.concat(cat.items), []
 );
 
-// ------------------------- Helpers (قراءة فقط) -------------------------
+
 
 function isSystemEmotion(name) {
     return SYSTEM_EMOTIONS.includes(name);
@@ -58,8 +47,7 @@ function isSystemMistake(name) {
     return SYSTEM_MISTAKES.includes(name);
 }
 
-// كيرجع غير الجزء "المخصص" الحقيقي (كيستثني أي تطابق مع System باش
-// ما يبانش نفس الاسم مرتين فـ الواجهة)
+
 function getMergedEmotionsCustom(customList) {
     return (customList || []).filter(e => !SYSTEM_EMOTIONS.includes(e));
 }
@@ -75,10 +63,7 @@ function escapeAttr(str) {
         .replace(/>/g, "&gt;");
 }
 
-// كتزيد checkbox لأي قيمة موجودة فـ صفقة (trade) بصح تمسحات من القائمة
-// (System أو Custom) — باش الصفقات القديمة ما تضيعش بياناتها عند
-// التعديل والحفظ (نقطة 5 فالطلب). إذا القيمة كاينة فـ الـ DOM من قبل،
-// غير كنعلموها checked.
+
 function ensureOrphanOptions(containerId, values) {
     const container = document.getElementById(containerId);
     if (!container || !values || !values.length) return;
@@ -101,7 +86,6 @@ function ensureOrphanOptions(containerId, values) {
     });
 }
 
-// كتفرغ كل الاختيارات فـ dropdown معين (زر Clear، نقطة 7)
 function clearMultiSelect(containerId, labelId, chipsId, placeholder) {
     const container = document.getElementById(containerId);
     if (!container) return;
