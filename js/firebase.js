@@ -147,7 +147,7 @@ window.cloudBulkSaveTrades = async function (tradesArray) {
 
 
 function clearLocalUserCache() {
-    ["trades", "modelsList", "mistakesList", "tagsList", "emotionsList", "lastSyncedUid"]
+    ["trades", "modelsList", "mistakesList", "tagsList", "emotionsList", "lastSyncedUid", "ixview-theme", "pdDashboardSettings"]
         .forEach(k => localStorage.removeItem(k));
     window.dispatchEvent(new CustomEvent("cloudUserCleared"));
 }
@@ -285,6 +285,12 @@ async function syncUserData(user) {
         if (data.emotionsList) {
             localStorage.setItem("emotionsList", JSON.stringify(data.emotionsList));
         }
+        if (data.theme) {
+            localStorage.setItem("ixview-theme", data.theme);
+        }
+        if (data.pdDashboardSettings) {
+            localStorage.setItem("pdDashboardSettings", JSON.stringify(data.pdDashboardSettings));
+        }
 
         if (data.migrationVersion === 2) {
             const cloudTrades = await loadTradesFromCloud(uid);
@@ -308,6 +314,14 @@ async function syncUserData(user) {
             if (!data.emotionsList) {
                 const em = localStorage.getItem("emotionsList");
                 if (em) topLevelUpdate.emotionsList = JSON.parse(em);
+            }
+            if (!data.theme) {
+                const th = localStorage.getItem("ixview-theme");
+                if (th) topLevelUpdate.theme = th;
+            }
+            if (!data.pdDashboardSettings) {
+                const pd = localStorage.getItem("pdDashboardSettings");
+                if (pd) topLevelUpdate.pdDashboardSettings = JSON.parse(pd);
             }
             if (Object.keys(topLevelUpdate).length > 0) {
                 await setDoc(userRef, topLevelUpdate, { merge: true });
